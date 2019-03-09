@@ -21,6 +21,12 @@ class Game {
     // Get a pointer to the game's window
     static sf::RenderWindow* getWindow();
 
+    // Get the FPS of the application
+    static unsigned getFPS();
+
+    // Quit the game
+    static void quit();
+
   private:
 
     // SFML Window
@@ -29,8 +35,11 @@ class Game {
     // Screen management
     static Screen* currentScreen_;
 
+    // FPS
+    static unsigned fps_;
+
     // Main game loop 
-    static void update(const unsigned int fps, const sf::Time& dt);
+    static void update(const sf::Time& dt);
 
     // Render the game
     static void render();
@@ -38,8 +47,8 @@ class Game {
     // Handle keypresses etc
     static void handleEvent(const sf::Event& event);
 
-    // Release resources on quit
-    static void quit();
+    // Release resources before closing
+    static void shutdown();
 };
 
 #endif

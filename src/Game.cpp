@@ -7,6 +7,7 @@
 // Initialise static members
 sf::RenderWindow Game::window_ = sf::RenderWindow();
 Screen* Game::currentScreen_ = nullptr;
+unsigned Game::fps_ = 0;
 
 // Initiate the game loop
 void
@@ -26,8 +27,7 @@ Game::start(const sf::VideoMode mode, const std::string& title) {
 
   // FPS variables
   sf::Clock fpsClock_;
-  unsigned int fpsFrame_ = 0;
-  unsigned int fps_ = 0;
+  unsigned fpsFrame_ = 0;
 
   // Main game loop while window is open
   while (window_.isOpen()) {
@@ -64,7 +64,7 @@ Game::start(const sf::VideoMode mode, const std::string& title) {
 
         // Exit the game if you close the window
         case sf::Event::Closed:
-          window_.close();
+          quit();
           break;
 
         // Otherwise
@@ -73,20 +73,20 @@ Game::start(const sf::VideoMode mode, const std::string& title) {
     }
 
     // Update the game
-    update(fps_, elapsed_);
+    update(elapsed_);
 
     // Render every frame after updating
     render();
   }
 
   // Quit the game and exit program
-  quit();
+  shutdown();
   printf("Exiting..\n");
 }
 
 // Called every frame, returns true when game should end
 void
-Game::update(const unsigned int fps, const sf::Time& dt) {
+Game::update(const sf::Time& dt) {
 
   // Update the screen if the pointer is set
   if (currentScreen_ != nullptr)
@@ -101,8 +101,9 @@ Game::render() {
   window_.clear();
 
   // Render the game if pointer is set
-  if (currentScreen_ != nullptr)
+  if (currentScreen_ != nullptr) {
     currentScreen_->render(window_);
+  }
 
   // Render everything in the screen
   window_.display();
@@ -114,20 +115,30 @@ Game::handleEvent(const sf::Event& event) {
   printf("Received some kind of event.\n");
 
   // Feed the screen the input
-  if (currentScreen_ != nullptr)
+  if (currentScreen_ != nullptr) {
     currentScreen_->handleEvent(event);
+  }
 }
 
 // Release resources before the game closes
 void
 Game::quit() {
-  printf("Releasing resources..\n");
+  printf("Quitting game..\n");
 
   // Hide current screen and quit
   if (currentScreen_) {
     currentScreen_->hideScreen();
     currentScreen_->quit();
   }
+
+  // Close the window, exiting the game loop
+  window_.close();
+}
+
+// Free resources before program closes
+void
+Game::shutdown() {
+  printf("Releasing resources..\n");
 }
 
 // Change to the new screen
@@ -135,8 +146,9 @@ void
 Game::switchScreen(Screen& screen) {
 
   // Switch away from old screen
-  if (currentScreen_ != nullptr)
+  if (currentScreen_ != nullptr) {
     currentScreen_->hideScreen();
+  }
 
   // Change the screen to be rendered
   currentScreen_ = &screen;
@@ -149,4 +161,10 @@ Game::switchScreen(Screen& screen) {
 sf::RenderWindow*
 Game::getWindow() {
   return &window_;
+}
+
+// Get FPS of application
+unsigned
+Game::getFPS() {
+  return fps_;
 }
