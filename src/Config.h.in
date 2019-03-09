@@ -1,0 +1,13 @@
+// EngineConfig.h
+// High-level manager of the game
+// DO NOT edit Config.h, it is generated from CMAKE using Config.h.in
+
+// Defining version numbers
+#ifndef BUILD_CONFIG_H
+#define BUILD_CONFIG_H
+
+#define Build_VERSION_MAJOR @Build_VERSION_MAJOR@
+#define Build_VERSION_MINOR @Build_VERSION_MINOR@
+#define Build_VERSION_TWEAK @Build_VERSION_TWEAK@
+
+#endif
