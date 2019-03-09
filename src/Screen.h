@@ -8,6 +8,7 @@
 
 class Screen {
   public:
+    virtual ~Screen() {}
     virtual void showScreen() = 0;
     virtual void hideScreen() = 0;
     virtual void update(const sf::Time& dt) = 0;

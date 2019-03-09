@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 2)
+set (Build_VERSION_TWEAK 3)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
@@ -32,6 +32,9 @@ target_sources(${EXECUTABLE_NAME} PRIVATE
   src/Game.h
   src/Game.cpp
   src/Screen.h
+  src/ECS.h
+  src/GameScreen.h
+  src/GameScreen.cpp
 )
 
 # Link libraries so that they can be used in the project

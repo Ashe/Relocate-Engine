@@ -5,15 +5,15 @@
 #define GAME_H
 
 #include <SFML/Graphics.hpp>
-#include <Box2D/Box2D.h>
 
+#include "ECS.h"
 #include "Screen.h"
 
 class Game {
   public:
 
     // Start the game, calling update and render loops
-    static void start(const sf::VideoMode m, const std::string& title);
+    static void start(const sf::VideoMode m, const std::string& title, Screen* const firstScreen);
 
     // Change the screen that is used and rendered
     static void switchScreen(Screen& screen);

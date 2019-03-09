@@ -11,7 +11,7 @@ unsigned Game::fps_ = 0;
 
 // Initiate the game loop
 void
-Game::start(const sf::VideoMode mode, const std::string& title) {
+Game::start(const sf::VideoMode mode, const std::string& title, Screen* const firstScreen) {
 
   // Print opening message
   printf("Launching Application %d.%d.%d..\n", 
@@ -21,6 +21,9 @@ Game::start(const sf::VideoMode mode, const std::string& title) {
 
   // Create window
   window_.create(mode, title);
+
+  // Set up first screen
+  currentScreen_ = firstScreen;
 
   // Create a clock for measuring deltaTime
   sf::Clock clock_;
@@ -89,8 +92,9 @@ void
 Game::update(const sf::Time& dt) {
 
   // Update the screen if the pointer is set
-  if (currentScreen_ != nullptr)
+  if (currentScreen_ != nullptr) {
     currentScreen_->update(dt);
+  }
 }
 
 // Render the game every frame, after update
@@ -139,6 +143,7 @@ Game::quit() {
 void
 Game::shutdown() {
   printf("Releasing resources..\n");
+  delete currentScreen_;
 }
 
 // Change to the new screen
