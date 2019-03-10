@@ -9,6 +9,9 @@
 
 #include "Game.h"
 
+// Debug Event
+struct DebugRenderPhysicsEvent {};
+
 namespace sfdd {
 	const float SCALE = 1.f;
 }

@@ -6,6 +6,7 @@
 
 // Initialise static members
 sf::RenderWindow Game::window_ = sf::RenderWindow();
+bool Game::debug_ = false;
 Game::Status Game::status_ = Game::Status::Uninitialised;
 Screen* Game::currentScreen_ = nullptr;
 unsigned Game::fps_ = 0;
@@ -93,10 +94,6 @@ Game::start() {
       }
     }
 
-
-    //@TODO: Remove this
-    window_.clear();
-
     // Update the game
     update(elapsed_);
 
@@ -124,7 +121,7 @@ void
 Game::render() {
 
   // Clear the window for rendering
-  //window_.clear();
+  window_.clear();
 
   // Render the game if pointer is set
   if (currentScreen_ != nullptr) {
@@ -216,4 +213,17 @@ Game::getFPS() {
 Game::Status
 Game::getStatus() {
   return status_;
+}
+
+// Set debug mode
+void
+Game::setDebugMode(bool enable) {
+  debug_ = enable;
+  printf("Debug mode %s.\n", enable ? "enabled" : "disabled");
+}
+
+// Get debug mode
+bool
+Game::getDebugMode() {
+  return debug_;
 }

@@ -11,10 +11,6 @@ GameScreen::GameScreen() {
   world->registerSystem(new PhysicsSystem());
   world->registerSystem(new DebugSystem());
 
-  printf("\n----------------------------------\n");
-  printf("BEGINNING PHYSICS COMPONENT ECS TEST\n");
-  printf("\n----------------------------------\n");
-
   // Do some physics
   const sf::Vector2u size = Game::getWindow()->getSize();
 
@@ -28,11 +24,9 @@ GameScreen::GameScreen() {
   
   groundPos->position = sf::Vector2i(size.x * 0.5f, size.y * 0.75f);
   groundBody->setBodyDef(groundBodyDef);
-  //groundBody_ = world_.CreateBody(&groundBodyDef_);
   groundBox.SetAsBox(size.x, 10.0f);
   groundFixture.shape = new b2PolygonShape(groundBox);
   groundBody->addFixtureDef(groundFixture);
-  //groundBody_->CreateFixture(&groundBox_, 0.0f);
   
   // Create the box
   ECS::Entity* box = world->create();
@@ -42,7 +36,6 @@ GameScreen::GameScreen() {
   bodyDef.type = b2_dynamicBody;
 
   boxPos->position = sf::Vector2i(size.x * 0.5f, 0.0f);
-  //body_ = world_.CreateBody(&bodyDef_);
   boxBody->setBodyDef(bodyDef);
   b2PolygonShape dynamicBox;
   b2FixtureDef fixtureDef;
@@ -51,7 +44,6 @@ GameScreen::GameScreen() {
   fixtureDef.density = 20.0f;
   fixtureDef.friction = 0.3f;
   boxBody->addFixtureDef(fixtureDef);
-  //body_->CreateFixture(&fixtureDef_);
 }
 
 // Destructor
@@ -62,19 +54,22 @@ GameScreen::~GameScreen() {
 // When the screen is shown
 void
 GameScreen::showScreen() {
-  printf("Screen changed to: Game\n");
 }
 
 // When the screen is hidden
 void
 GameScreen::hideScreen() {
-  printf("Screen changed from: Game\n");
 }
 
 // Update the game every frame
 void
 GameScreen::update(const sf::Time& dt) {
   world->update(dt);
+
+  // Do any debug-only logic
+  if (Game::getDebugMode()) {
+    //@TODO: Debug update functions here
+  }
 }
 
 // Render the game every frame
@@ -90,16 +85,27 @@ GameScreen::render(sf::RenderWindow& window) {
 
   shape.setFillColor(sf::Color::Green);
   window.draw(shape);
+
+  // Do any debug-only rendering
+  if (Game::getDebugMode()) {
+    world->emit<DebugRenderPhysicsEvent>({});
+  }
 }
 
 // Handle keypresses
 void
 GameScreen::handleEvent(const sf::Event& event) {
+  if (event.type == sf::Event::KeyPressed) {
+
+    // Toggle debug mode on F1
+    if (event.key.code == sf::Keyboard::F1) {
+      Game::setDebugMode(!Game::getDebugMode());
+    }
+  }
 }
 
 // When the game is quit
 void
 GameScreen::quit() {
-  printf("Quitting screen: Game\n");
   Game::terminate();
 }

@@ -52,10 +52,6 @@ PhysicsSystem::update(ECS::World* world, const sf::Time& dt) {
     // Interpolate between states
     smoothState(r);
   });
-
-  // Render the physics system
-  // @TODO: Move this to a render system
-  world_.DrawDebugData();
 }
 
 // Single-step the physics
@@ -81,8 +77,6 @@ PhysicsSystem::smoothState(ECS::ComponentHandle<RigidBody> rb) {
       rb->smoothedPosition_ =
         fixedTimeStepRatio_ * body->GetPosition() +
         oneMinusRatio * rb->previousPosition_;
-
-      printf("Smoothed position: %f, %f\n", body->GetPosition().x, body->GetPosition().y);
 
       rb->smoothedAngle_ = 
         body->GetAngle() +
@@ -112,7 +106,9 @@ PhysicsSystem::ensureRigidBody(ECS::ComponentHandle<RigidBody> r, ECS::Component
   // Create rigidbodies if they don't exist
   if (r->getBody() == nullptr) {
 
-    printf("Creating rigidbody..\n");
+    // Helpful debug messages
+    const bool debug = Game::getDebugMode();
+    if (debug) { printf("Creating rigidbody..\n"); }
 
     // Make the rigidbody
     b2Body* body = world_.CreateBody(&r->getBodyDef());
@@ -128,12 +124,13 @@ PhysicsSystem::ensureRigidBody(ECS::ComponentHandle<RigidBody> r, ECS::Component
       body->CreateFixture(&fixture);
       count++;
     }
-    printf("Added %d fixture(s) to Rigidbody\n", count);
 
-    if (body != nullptr)
-      printf("Rigidbody created!\n");
-    else
-      printf("Rigidbody failed!\n");
+    // Helpful debug messages
+    if (debug) {
+      printf("Added %d fixture(s) to Rigidbody\n", count);
+      if (body != nullptr) printf("Rigidbody created!\n");
+      else printf("Rigidbody failed!\n");
+    }
   }
 }
 
@@ -147,4 +144,12 @@ PhysicsSystem::convertToSF(const b2Vec2& vec) {
 b2Vec2 
 PhysicsSystem::convertToB2(const sf::Vector2i& vec) {
   return b2Vec2(vec.x / scale_, vec.y / scale_);
+}
+
+// Render the physics in debug mode
+void
+PhysicsSystem::receive(ECS::World* w, const DebugRenderPhysicsEvent& e) {
+
+  // Render the physics system
+  world_.DrawDebugData();
 }

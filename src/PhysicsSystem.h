@@ -12,13 +12,18 @@
 
 #include "PhysicsDebugDraw.h"
 
-class PhysicsSystem : public ECS::EntitySystem {
+class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<DebugRenderPhysicsEvent> {
   public:
     // Constructor
     PhysicsSystem();
 
     // Simulate Physics every update
     virtual void update(ECS::World* world, const sf::Time& dt) override;
+
+    // Subscribe to the DebugDraw method
+    virtual void configure(ECS::World* world) override { world->subscribe<DebugRenderPhysicsEvent>(this); }
+    virtual void unconfigure(ECS::World* world) override { world->unsubscribeAll(this); }
+
   private:
 
     // The box2D world for physics simulation
@@ -55,6 +60,9 @@ class PhysicsSystem : public ECS::EntitySystem {
     // Conversion functions
     sf::Vector2i convertToSF(const b2Vec2& vec);
     b2Vec2 convertToB2(const sf::Vector2i& vec); 
+
+    // Render the physics when debug mode is enabled
+    virtual void receive(ECS::World* ecsWorld, const DebugRenderPhysicsEvent& ev) override;
 };
 
 #endif

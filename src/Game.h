@@ -39,10 +39,17 @@ class Game {
     // Signal that the application can now close safely
     static void terminate();
 
+    // Debug mode
+    static bool getDebugMode();
+    static void setDebugMode(bool enable);
+
   private:
 
     // Tracking what the game is currently doing
     static Status status_;
+
+    // Enable debugging functionality
+    static bool debug_;
 
     // SFML Window
     static sf::RenderWindow window_;
