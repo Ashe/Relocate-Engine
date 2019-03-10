@@ -6,12 +6,19 @@
 
 // Initialise static members
 sf::RenderWindow Game::window_ = sf::RenderWindow();
+Game::Status Game::status_ = Game::Status::Uninitialised;
 Screen* Game::currentScreen_ = nullptr;
 unsigned Game::fps_ = 0;
 
-// Initiate the game loop
+// Initialise the game without starting the loop
 void
-Game::start(const sf::VideoMode mode, const std::string& title, Screen* const firstScreen) {
+Game::initialise(const sf::VideoMode& mode, const std::string& title) {
+
+  // Check that we haven't already initialised
+  if (status_ != Game::Status::Uninitialised) {
+    printf("Error: Cannot initialise application - already running.\n"); 
+    return;
+  }
 
   // Print opening message
   printf("Launching Application %d.%d.%d..\n", 
@@ -22,8 +29,19 @@ Game::start(const sf::VideoMode mode, const std::string& title, Screen* const fi
   // Create window
   window_.create(mode, title);
 
-  // Set up first screen
-  currentScreen_ = firstScreen;
+  // Flag that the game is ready to start
+  status_ = Game::Status::Ready;
+}
+
+// Initiate the game loop
+void
+Game::start() {
+
+  // Check that the game is ready to start
+  if (status_ != Game::Status::Ready) {
+    printf("Error: Cannot start application - already running.\n"); 
+    return;
+  }
 
   // Create a clock for measuring deltaTime
   sf::Clock clock_;
@@ -33,7 +51,7 @@ Game::start(const sf::VideoMode mode, const std::string& title, Screen* const fi
   unsigned fpsFrame_ = 0;
 
   // Main game loop while window is open
-  while (window_.isOpen()) {
+  while (status_ < Game::Status::ShuttingDown) {
     
     // Get the time since last tick
     sf::Time elapsed_ = clock_.restart();
@@ -75,6 +93,10 @@ Game::start(const sf::VideoMode mode, const std::string& title, Screen* const fi
       }
     }
 
+
+    //@TODO: Remove this
+    window_.clear();
+
     // Update the game
     update(elapsed_);
 
@@ -102,7 +124,7 @@ void
 Game::render() {
 
   // Clear the window for rendering
-  window_.clear();
+  //window_.clear();
 
   // Render the game if pointer is set
   if (currentScreen_ != nullptr) {
@@ -129,11 +151,24 @@ void
 Game::quit() {
   printf("Quitting game..\n");
 
-  // Hide current screen and quit
+  // Signal that we're quitting the game
+  status_ = Game::Status::Quitting;
+
+  // Allow the current screen to halt termination
   if (currentScreen_) {
-    currentScreen_->hideScreen();
     currentScreen_->quit();
   }
+  else {
+    terminate();
+  }
+}
+
+// Called from within application to close it down
+void
+Game::terminate() {
+
+  // Set the game's status to break game loop
+  status_ = Game::Status::ShuttingDown;
 
   // Close the window, exiting the game loop
   window_.close();
@@ -142,13 +177,14 @@ Game::quit() {
 // Free resources before program closes
 void
 Game::shutdown() {
+  status_ = Game::Status::Uninitialised;
   printf("Releasing resources..\n");
   delete currentScreen_;
 }
 
 // Change to the new screen
 void 
-Game::switchScreen(Screen& screen) {
+Game::switchScreen(Screen* screen) {
 
   // Switch away from old screen
   if (currentScreen_ != nullptr) {
@@ -156,10 +192,12 @@ Game::switchScreen(Screen& screen) {
   }
 
   // Change the screen to be rendered
-  currentScreen_ = &screen;
+  currentScreen_ = screen;
 
   // Run any logic for showing screen
-  currentScreen_->showScreen();
+  if (currentScreen_ != nullptr) {
+    currentScreen_->showScreen();
+  }
 }
 
 // Get a pointer to the game's window
@@ -172,4 +210,10 @@ Game::getWindow() {
 unsigned
 Game::getFPS() {
   return fps_;
+}
+
+// Get status of application
+Game::Status
+Game::getStatus() {
+  return status_;
 }

@@ -37,14 +37,14 @@ SOFTWARE.
 //////////////////////////////////////////////////////////////////////////
 
 
-// Define what you want to pass to the tick() function by defining ECS_TICK_TYPE before including this header,
+// Define what you want to pass to the update() function by defining ECS_UPDATE_TYPE before including this header,
 // or leave it as default (float).
 // This is really messy to do but the alternative is some sort of slow custom event setup for ticks, which is silly.
 
-// Add this before including this header if you don't want to pass anything to tick()
-//#define ECS_TICK_TYPE_VOID
-#ifndef ECS_TICK_TYPE
-#define ECS_TICK_TYPE sf::Time
+// Add this before including this header if you don't want to pass anything to update()
+//#define ECS_UPDATE_TYPE_VOID
+#ifndef ECS_UPDATE_TYPE
+#define ECS_UPDATE_TYPE const sf::Time&
 #endif
 
 // Define what kind of allocator you want the world to use. It should have a default constructor.
@@ -52,10 +52,10 @@ SOFTWARE.
 #define ECS_ALLOCATOR_TYPE std::allocator<ECS::Entity>
 #endif
 
-// Define ECS_TICK_NO_CLEANUP if you don't want the world to automatically cleanup dead entities
+// Define ECS_UPDATE_NO_CLEANUP if you don't want the world to automatically cleanup dead entities
 // at the beginning of each tick. This will require you to call cleanup() manually to prevent memory
 // leaks.
-//#define ECS_TICK_NO_CLEANUP
+//#define ECS_UPDATE_NO_CLEANUP
 
 // Define ECS_NO_RTTI to turn off RTTI. This requires using the ECS_DEFINE_TYPE and ECS_DECLARE_TYPE macros on all types
 // that you wish to use as components or events. If you use ECS_NO_RTTI, also place ECS_TYPE_IMPLEMENTATION in a single cpp file.
@@ -281,13 +281,13 @@ namespace ECS {
       }
 
       /**
-      * Called when World::tick() is called. See ECS_TICK_TYPE at the top of this file for more
+      * Called when World::update() is called. See ECS_UPDATE_TYPE at the top of this file for more
       * information about passing data to tick.
       */
-#ifdef ECS_TICK_TYPE_VOID
-      virtual void tick(World* world)
+#ifdef ECS_UPDATE_TYPE_VOID
+      virtual void update(World* world)
 #else
-      virtual void tick(World* world, ECS_TICK_TYPE data)
+      virtual void update(World* world, ECS_UPDATE_TYPE data)
 #endif
       { }
 	};
@@ -425,7 +425,7 @@ namespace ECS {
       * Destroy an entity. This will emit the OnEntityDestroy event.
       *
       * If immediate is false (recommended), then the entity won't be immediately
-      * deleted but instead will be removed at the beginning of the next tick() or
+      * deleted but instead will be removed at the beginning of the next update() or
       * when cleanup() is called. OnEntityDestroyed will still be called immediately.
       *
       * This function is safe to call multiple times on a single entity. Note that calling
@@ -583,24 +583,24 @@ namespace ECS {
       Entity* getById(size_t id) const;
 
       /**
-      * Tick the world. See the definition for ECS_TICK_TYPE at the top of this file for more information on
-      * passing data through tick().
+      * Tick the world. See the definition for ECS_UPDATE_TYPE at the top of this file for more information on
+      * passing data through update().
       */
-#ifdef ECS_TICK_TYPE_VOID
-      void tick()
+#ifdef ECS_UPDATE_TYPE_VOID
+      void update()
 #else
-      void tick(ECS_TICK_TYPE data)
+      void update(ECS_UPDATE_TYPE data)
 #endif
       {
-#ifndef ECS_TICK_NO_CLEANUP
+#ifndef ECS_UPDATE_NO_CLEANUP
         cleanup();
 #endif
         for (auto* system : systems)
         {
-#ifdef ECS_TICK_TYPE_VOID
-          system->tick(this);
+#ifdef ECS_UPDATE_TYPE_VOID
+          system->update(this);
 #else
-          system->tick(this, data);
+          system->update(this, data);
 #endif
         }
       }

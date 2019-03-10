@@ -6,6 +6,7 @@
 
 #include "Game.h"
 #include "Screen.h"
+#include "PhysicsSystem.h"
 
 class GameScreen : public Screen {
   public:
@@ -26,50 +27,13 @@ class GameScreen : public Screen {
     ECS::World* world;
 };
 
-struct Position {
-  Position(float x, float y) : x(x), y(y) {}
-  Position() : x(0.f), y(0.f) {}
-
-  float x;
-  float y;
-};
-
-struct Rotation {
-  Rotation(float angle) : angle(angle) {}
-  Rotation() : angle(0) {}
-  float angle;
-};
-
-class GravitySystem : public ECS::EntitySystem {
-  public:
-    GravitySystem(float amount) {
-      gravityAmount = amount;
-    }
-
-    virtual ~GravitySystem() {} 
-    virtual void tick(ECS::World* world, sf::Time dt) override {
-      world->each<Position>([&](ECS::Entity* ent, ECS::ComponentHandle<Position> position) {
-        position->y += gravityAmount * dt.asSeconds();
-      });
-    }
-
-  private:
-    float gravityAmount;
-};
-
 class DebugSystem : public ECS::EntitySystem {
   public:
-    DebugSystem() {}
-
-    virtual ~DebugSystem() {} 
-    virtual void tick(ECS::World* world, sf::Time dt) override {
-      world->each<Position>([&](ECS::Entity* ent, ECS::ComponentHandle<Position> position) {
-        printf("%f\n", position ->y);
+    virtual void update(ECS::World* world, const sf::Time& dt) override {
+      world->each<Transform>([&](ECS::Entity* ent, ECS::ComponentHandle<Transform> t) {
+        //printf("%f\n", t->position.y);
       });
     }
-
-  private:
-    float gravityAmount;
 };
 
 #endif
