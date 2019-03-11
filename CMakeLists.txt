@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 5)
+set (Build_VERSION_TWEAK 6)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
@@ -18,6 +18,12 @@ configure_file (
 
 # Compiler version
 set (CMAKE_CXX_STANDARD 17)
+
+# Find X11
+find_package(X11)
+
+# Find multithreading package
+find_package(Threads REQUIRED)
 
 # Find SFML
 find_package(SFML 2.5.1 REQUIRED COMPONENTS window system graphics audio network)
@@ -32,12 +38,11 @@ add_executable (${EXECUTABLE_NAME} src/main.cpp)
 # Add sources
 target_sources(${EXECUTABLE_NAME} PRIVATE
   src/Config.h
+  src/ECS.h
   src/Game.h
   src/Game.cpp
-  src/Screen.h
-  src/ECS.h
-  src/GameScreen.h
-  src/GameScreen.cpp
+  src/Scene.h
+  src/Scene.cpp
 
   src/Transform.h
   src/RigidBody.h
@@ -56,6 +61,8 @@ target_link_libraries(${EXECUTABLE_NAME}
   sfml-audio
   sfml-network
   Box2D
+  ${X11_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
 )
 
 # Copy assets

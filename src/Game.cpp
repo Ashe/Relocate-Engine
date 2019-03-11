@@ -2,18 +2,21 @@
 // This is a static, high level manager for the game's cycle
 
 #include "Game.h"
+#include "Scene.h"
 #include "Config.h"
 
 // Initialise static members
 sf::RenderWindow Game::window_ = sf::RenderWindow();
+bool Game::multiThread_ = false;
+std::mutex Game::windowMutex_;
 bool Game::debug_ = false;
 Game::Status Game::status_ = Game::Status::Uninitialised;
-Screen* Game::currentScreen_ = nullptr;
+Scene* Game::currentScene_ = nullptr;
 unsigned Game::fps_ = 0;
 
 // Initialise the game without starting the loop
 void
-Game::initialise(const sf::VideoMode& mode, const std::string& title) {
+Game::initialise(const sf::VideoMode& mode, const std::string& title, bool multiThread) {
 
   // Check that we haven't already initialised
   if (status_ != Game::Status::Uninitialised) {
@@ -26,6 +29,10 @@ Game::initialise(const sf::VideoMode& mode, const std::string& title) {
     Build_VERSION_MAJOR, 
     Build_VERSION_MINOR, 
     Build_VERSION_TWEAK);
+
+  // Flag whether we are in multithreaded mode
+  multiThread_ = multiThread;
+  printf("Running in %s mode.\n", multiThread_ ? "multithreaded" : "standard");
 
   // Create window
   window_.create(mode, title);
@@ -44,6 +51,9 @@ Game::start() {
     return;
   }
 
+  // We are now running the game
+  status_ = Game::Status::Running;
+
   // Create a clock for measuring deltaTime
   sf::Clock clock_;
 
@@ -51,9 +61,21 @@ Game::start() {
   sf::Clock fpsClock_;
   unsigned fpsFrame_ = 0;
 
+  // Call the begin function before the loop starts
+  begin();
+
+  // Pointer to the render thread if necessary
+  std::thread renderThread(Game::handleRenderThread);
+
+  // Start a thread to render the game
+  if (multiThread_) {
+    window_.setActive(false);
+    renderThread.detach();
+  }
+
   // Main game loop while window is open
   while (status_ < Game::Status::ShuttingDown) {
-    
+
     // Get the time since last tick
     sf::Time elapsed_ = clock_.restart();
 
@@ -65,32 +87,53 @@ Game::start() {
     }
     ++fpsFrame_;
 
-    // Poll all events
-    sf::Event event_;
-    while (window_.pollEvent(event_)) {
-      
-      // React to each event
-      switch (event_.type) {
-        
-        // Forward keypresses to the game
-        case sf::Event::KeyPressed:
-        case sf::Event::KeyReleased:
-        case sf::Event::MouseButtonPressed:
-        case sf::Event::MouseButtonReleased:
-          handleEvent(event_);
-          break;
-        
-        // Forward resize events to the setup singleton
-        case sf::Event::Resized:
-          break;
+    // Prepare to collect input events
+    bool process = true;
+    std::vector<sf::Event> events;
 
-        // Exit the game if you close the window
-        case sf::Event::Closed:
-          quit();
-          break;
+    // If multithreading, gain access to window quickly
+    if (multiThread_) { process = windowMutex_.try_lock(); }
+    sf::Event e;
 
-        // Otherwise
-        default: break;
+    // If we're allowed to process data
+    if (process) {
+
+      // Collect events
+      while (window_.pollEvent(e)) {
+        events.push_back(e);
+      }
+
+      // Disable the lock, we don't need the window
+      if (multiThread_) { 
+        windowMutex_.unlock(); 
+      }
+
+      // Resume processing events
+      for (auto ev : events) {
+        
+        // React to each event
+        switch (ev.type) {
+          
+          // Forward keypresses to the game
+          case sf::Event::KeyPressed:
+          case sf::Event::KeyReleased:
+          case sf::Event::MouseButtonPressed:
+          case sf::Event::MouseButtonReleased:
+            handleEvent(ev);
+            break;
+          
+          // Forward resize events to the setup singleton
+          case sf::Event::Resized:
+            break;
+
+          // Exit the game if you close the window
+          case sf::Event::Closed:
+            quit();
+            break;
+
+          // Otherwise
+          default: break;
+        }
       }
     }
 
@@ -98,12 +141,32 @@ Game::start() {
     update(elapsed_);
 
     // Render every frame after updating
-    render();
+    if (!multiThread_) {
+      render();
+    }
+    else {
+      std::this_thread::yield();
+    }
   }
+
+  // Wait for render thread to close
+ if (multiThread_) {
+   renderThread.join();
+ }
 
   // Quit the game and exit program
   shutdown();
   printf("Exiting..\n");
+}
+
+// Called just before the main loop starts
+void
+Game::begin() {
+
+  // Begin the current scene when the game starts
+  if (currentScene_ != nullptr) {
+    currentScene_->begin();
+  }
 }
 
 // Called every frame, returns true when game should end
@@ -111,8 +174,24 @@ void
 Game::update(const sf::Time& dt) {
 
   // Update the screen if the pointer is set
-  if (currentScreen_ != nullptr) {
-    currentScreen_->update(dt);
+  if (currentScene_ != nullptr) {
+    currentScene_->update(dt);
+  }
+}
+
+// Call the render() function from a seperate thread
+void
+Game::handleRenderThread() {
+
+  // Easy out
+  if (Game::getStatus() < Game::Status::Running) return;
+
+  // Continually render the game while
+  while (Game::getStatus() < Game::Status::ShuttingDown) {
+    windowMutex_.lock();
+    Game::render();
+    windowMutex_.unlock();
+    std::this_thread::yield();
   }
 }
 
@@ -124,8 +203,8 @@ Game::render() {
   window_.clear();
 
   // Render the game if pointer is set
-  if (currentScreen_ != nullptr) {
-    currentScreen_->render(window_);
+  if (currentScene_ != nullptr) {
+    currentScene_->render(window_);
   }
 
   // Render everything in the screen
@@ -135,11 +214,12 @@ Game::render() {
 // Respond to any key or mouse related events
 void
 Game::handleEvent(const sf::Event& event) {
-  printf("Received some kind of event.\n");
+
+  printf("Handle event called\n");
 
   // Feed the screen the input
-  if (currentScreen_ != nullptr) {
-    currentScreen_->handleEvent(event);
+  if (currentScene_ != nullptr) {
+    currentScene_->handleEvent(event);
   }
 }
 
@@ -152,8 +232,8 @@ Game::quit() {
   status_ = Game::Status::Quitting;
 
   // Allow the current screen to halt termination
-  if (currentScreen_) {
-    currentScreen_->quit();
+  if (currentScene_) {
+    currentScene_->quit();
   }
   else {
     terminate();
@@ -176,24 +256,24 @@ void
 Game::shutdown() {
   status_ = Game::Status::Uninitialised;
   printf("Releasing resources..\n");
-  delete currentScreen_;
+  delete currentScene_;
 }
 
 // Change to the new screen
 void 
-Game::switchScreen(Screen* screen) {
+Game::switchScene(Scene* scene) {
 
   // Switch away from old screen
-  if (currentScreen_ != nullptr) {
-    currentScreen_->hideScreen();
+  if (currentScene_ != nullptr) {
+    currentScene_->hideScene();
   }
 
   // Change the screen to be rendered
-  currentScreen_ = screen;
+  currentScene_ = scene;
 
   // Run any logic for showing screen
-  if (currentScreen_ != nullptr) {
-    currentScreen_->showScreen();
+  if (currentScene_ != nullptr) {
+    currentScene_->hideScene();
   }
 }
 

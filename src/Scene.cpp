@@ -1,21 +1,20 @@
-// GameScreen.cpp
-// The screen where the game takes place
+// Scene.cpp
+// Logic more oriented to the game goes here
 
-#include "GameScreen.h"
+#include "Scene.h"
 
 // Constructor
-GameScreen::GameScreen() {
+Scene::Scene() {
 
   // Create the ECS world
-  world = ECS::World::createWorld();
-  world->registerSystem(new PhysicsSystem());
-  world->registerSystem(new DebugSystem());
+  world_ = ECS::World::createWorld();
+  world_->registerSystem(new PhysicsSystem());
 
   // Do some physics
   const sf::Vector2u size = Game::getWindow()->getSize();
 
   // Create the ground
-  ECS::Entity* ground = world->create();
+  ECS::Entity* ground = world_->create();
   auto groundPos = ground->assign<Transform>();
   auto groundBody = ground->assign<RigidBody>();
   b2BodyDef groundBodyDef;
@@ -29,7 +28,7 @@ GameScreen::GameScreen() {
   groundBody->addFixtureDef(groundFixture);
   
   // Create the box
-  ECS::Entity* box = world->create();
+  ECS::Entity* box = world_->create();
   auto boxPos = box->assign<Transform>();
   auto boxBody = box->assign<RigidBody>();
   b2BodyDef bodyDef;
@@ -47,24 +46,32 @@ GameScreen::GameScreen() {
 }
 
 // Destructor
-GameScreen::~GameScreen() {
-  world->destroyWorld();
+Scene::~Scene() {
+  world_->destroyWorld();
+}
+
+// Called when the scene is started
+void
+Scene::begin() {
+
 }
 
 // When the screen is shown
 void
-GameScreen::showScreen() {
+Scene::showScene() {
 }
 
 // When the screen is hidden
 void
-GameScreen::hideScreen() {
+Scene::hideScene() {
 }
 
 // Update the game every frame
 void
-GameScreen::update(const sf::Time& dt) {
-  world->update(dt);
+Scene::update(const sf::Time& dt) {
+
+  // Update the ECS
+  world_->update(dt);
 
   // Do any debug-only logic
   if (Game::getDebugMode()) {
@@ -74,7 +81,7 @@ GameScreen::update(const sf::Time& dt) {
 
 // Render the game every frame
 void
-GameScreen::render(sf::RenderWindow& window) {
+Scene::render(sf::RenderWindow& window) {
 
   // Render a simple circle for testing
   float rad = 100.0f;
@@ -88,13 +95,13 @@ GameScreen::render(sf::RenderWindow& window) {
 
   // Do any debug-only rendering
   if (Game::getDebugMode()) {
-    world->emit<DebugRenderPhysicsEvent>({});
+    world_->emit<DebugRenderPhysicsEvent>({});
   }
 }
 
 // Handle keypresses
 void
-GameScreen::handleEvent(const sf::Event& event) {
+Scene::handleEvent(const sf::Event& event) {
   if (event.type == sf::Event::KeyPressed) {
 
     // Toggle debug mode on F1
@@ -106,6 +113,6 @@ GameScreen::handleEvent(const sf::Event& event) {
 
 // When the game is quit
 void
-GameScreen::quit() {
+Scene::quit() {
   Game::terminate();
 }
