@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 7)
+set (Build_VERSION_TWEAK 8)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
@@ -47,6 +47,8 @@ add_executable (${EXECUTABLE_NAME} src/main.cpp)
 target_sources(${EXECUTABLE_NAME} PRIVATE
   src/Config.h
   src/ECS.h
+  src/Scripting.h
+  src/Scripting.cpp
   src/Game.h
   src/Game.cpp
   src/Scene.h

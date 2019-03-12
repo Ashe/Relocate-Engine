@@ -34,11 +34,13 @@ Game::initialise(const sf::VideoMode& mode, const std::string& title, bool multi
   multiThread_ = multiThread;
   printf("Running in %s mode.\n", multiThread_ ? "multithreaded" : "standard");
 
-  printf("Initialising Guile..\n");
-  scm_init_guile();
-  registerFunctions();
+  // Initialise Guile and ensure it works
+  Script::startGuile();
   SCM success = scm_c_eval_string("(testGuile)");
-  if (!scm_boolean_p(success) || success == SCM_BOOL_F) return;
+  if (!scm_boolean_p(success) || success == SCM_BOOL_F) {
+    printf("Error: Cannot initialise Guile correctly.\n"); 
+    return;
+  }
 
   // Create window
   window_.create(mode, title);
@@ -221,8 +223,6 @@ Game::render() {
 void
 Game::handleEvent(const sf::Event& event) {
 
-  printf("Handle event called\n");
-
   // Feed the screen the input
   if (currentScene_ != nullptr) {
     currentScene_->handleEvent(event);
@@ -312,17 +312,4 @@ Game::setDebugMode(bool enable) {
 bool
 Game::getDebugMode() {
   return debug_;
-}
-
-// Register functions to guile
-void
-Game::registerFunctions() {
-  scm_c_define_gsubr ("testGuile", 0, 0, 0, reinterpret_cast<void*>(&testGuile));
-}
-
-// Guile test function
-SCM
-Game::testGuile() {
-  printf("Guile successfully initialised.\n");
-  return SCM_BOOL_T;
 }

@@ -11,9 +11,8 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <libguile.h>
-
 #include "ECS.h"
+#include "Scripting.h"
 
 // Forward declaration
 class Scene;
@@ -92,12 +91,6 @@ class Game {
 
     // Release resources before closing
     static void shutdown();
-
-    // Register functions to guile
-    static void registerFunctions();
-
-    // Test function for guile
-    static SCM testGuile();
 };
 
 #endif
