@@ -64,6 +64,7 @@ PhysicsSystem::singleStep(float timeStep) {
 void
 PhysicsSystem::smoothState(ECS::ComponentHandle<RigidBody> rb) {
 
+
   // Ensure there's a body to work with
   b2Body* const body = rb->getBody();
   if (body != nullptr) {
@@ -93,7 +94,7 @@ PhysicsSystem::resetSmoothStates(ECS::Entity* ent, ECS::ComponentHandle<Transfor
   b2Body* body = r->getBody();
 
   // Reset any smoothing
-  if (body->GetType() != b2_staticBody) {
+  if (body != nullptr && body->GetType() != b2_staticBody) {
     r->smoothedPosition_ = r->previousPosition_ = body->GetPosition();
     r->smoothedAngle_ = r->previousAngle_ = body->GetAngle();
   }

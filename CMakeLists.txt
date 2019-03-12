@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 6)
+set (Build_VERSION_TWEAK 7)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
@@ -19,6 +19,10 @@ configure_file (
 # Compiler version
 set (CMAKE_CXX_STANDARD 17)
 
+# Define location for modules
+set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake-modules/)
+message("Module path: ${CMAKE_MODULE_PATH}")
+
 # Find X11
 find_package(X11)
 
@@ -29,7 +33,11 @@ find_package(Threads REQUIRED)
 find_package(SFML 2.5.1 REQUIRED COMPONENTS window system graphics audio network)
 
 # Find Box2D
-find_package(Box2D)
+find_package(Box2D REQUIRED)
+
+# Find Guile
+find_package(Guile REQUIRED)
+include_directories(${GUILE_INCLUDE_DIRS})
 
 # Create the executable
 set(EXECUTABLE_NAME ${PROJECT_NAME})
@@ -63,6 +71,7 @@ target_link_libraries(${EXECUTABLE_NAME}
   Box2D
   ${X11_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
+  ${GUILE_LIBRARIES}
 )
 
 # Copy assets

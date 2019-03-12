@@ -8,7 +8,10 @@
 #include <mutex>
 #include <chrono>
 #include <functional>
+
 #include <SFML/Graphics.hpp>
+
+#include <libguile.h>
 
 #include "ECS.h"
 
@@ -89,6 +92,12 @@ class Game {
 
     // Release resources before closing
     static void shutdown();
+
+    // Register functions to guile
+    static void registerFunctions();
+
+    // Test function for guile
+    static SCM testGuile();
 };
 
 #endif

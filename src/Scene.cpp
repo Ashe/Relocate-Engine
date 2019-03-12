@@ -53,7 +53,6 @@ Scene::~Scene() {
 // Called when the scene is started
 void
 Scene::begin() {
-
 }
 
 // When the screen is shown
@@ -116,3 +115,4 @@ void
 Scene::quit() {
   Game::terminate();
 }
+
