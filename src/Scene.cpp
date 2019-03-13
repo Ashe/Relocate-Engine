@@ -107,6 +107,23 @@ Scene::handleEvent(const sf::Event& event) {
     if (event.key.code == sf::Keyboard::F1) {
       Game::setDebugMode(!Game::getDebugMode());
     }
+
+    // Allow user input on F2
+    if (event.key.code == sf::Keyboard::F2) {
+      printf("Please enter a command: ");
+      std::string str;
+      std::cin >> str;
+      
+      // If we have a command to process
+      if (str != "") {
+        sol::protected_function_result result = Game::lua.script(str, sol::script_pass_on_error);
+        if (!result.valid()) {
+          sol::error err = result;
+          std::cout << "Invalid command '" << str << "', error: " << err.what() << std::endl;
+        }
+      }
+    }
+
   }
 }
 
@@ -115,4 +132,3 @@ void
 Scene::quit() {
   Game::terminate();
 }
-

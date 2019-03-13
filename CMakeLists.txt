@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 8)
+set (Build_VERSION_TWEAK 10)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
@@ -35,9 +35,9 @@ find_package(SFML 2.5.1 REQUIRED COMPONENTS window system graphics audio network
 # Find Box2D
 find_package(Box2D REQUIRED)
 
-# Find Guile
-find_package(Guile REQUIRED)
-include_directories(${GUILE_INCLUDE_DIRS})
+# Find lua
+find_package(Lua REQUIRED)
+include_directories(${LUA_INCLUDE_DIR})
 
 # Create the executable
 set(EXECUTABLE_NAME ${PROJECT_NAME})
@@ -47,6 +47,7 @@ add_executable (${EXECUTABLE_NAME} src/main.cpp)
 target_sources(${EXECUTABLE_NAME} PRIVATE
   src/Config.h
   src/ECS.h
+  src/Sol.h
   src/Scripting.h
   src/Scripting.cpp
   src/Game.h
@@ -73,7 +74,7 @@ target_link_libraries(${EXECUTABLE_NAME}
   Box2D
   ${X11_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
-  ${GUILE_LIBRARIES}
+  ${LUA_LIBRARIES}
 )
 
 # Copy assets

@@ -23,6 +23,9 @@ class Game {
     // What the game is currently doing
     enum Status { Uninitialised, Ready, Running, Quitting, ShuttingDown };
 
+    // The lua state
+    static sol::state lua;
+
     // Initialise the game window
     static void initialise(const sf::VideoMode& m, const std::string& title, bool multiThread = false);
 

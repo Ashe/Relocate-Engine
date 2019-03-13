@@ -12,6 +12,7 @@ std::mutex Game::windowMutex_;
 bool Game::debug_ = false;
 Game::Status Game::status_ = Game::Status::Uninitialised;
 Scene* Game::currentScene_ = nullptr;
+sol::state Game::lua;
 unsigned Game::fps_ = 0;
 
 // Initialise the game without starting the loop
@@ -34,11 +35,13 @@ Game::initialise(const sf::VideoMode& mode, const std::string& title, bool multi
   multiThread_ = multiThread;
   printf("Running in %s mode.\n", multiThread_ ? "multithreaded" : "standard");
 
-  // Initialise Guile and ensure it works
-  Script::startGuile();
-  SCM success = scm_c_eval_string("(testGuile)");
-  if (!scm_boolean_p(success) || success == SCM_BOOL_F) {
-    printf("Error: Cannot initialise Guile correctly.\n"); 
+  // Initialise Lua and ensure it works
+  Script::startLua();
+  if (Game::lua["testLua"]) { 
+    printf("Lua successfully initialised.\n"); 
+  }
+  else {
+    printf("Error: Cannot initialise Lua correctly.\n"); 
     return;
   }
 

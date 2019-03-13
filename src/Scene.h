@@ -4,6 +4,9 @@
 #ifndef GAMESCREEN_H
 #define GAMESCREEN_H
 
+#include <string>
+#include <iostream>
+
 #include "Game.h"
 #include "PhysicsSystem.h"
 

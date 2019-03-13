@@ -4,17 +4,20 @@
 #ifndef SCRIPTING_H
 #define SCRIPTING_H
 
-#include <libguile.h>
 #include <SFML/Graphics.hpp>
+#include "Sol.h"
 #include "ECS.h"
 
 namespace Script {
 
   // Begin using Guile and register functions
-  void startGuile();
+  void startLua();
 
-  // Test function for guile
-  SCM testGuile();
-}
+  ///////////////////////
+  // TRIVIAL FUNCTIONS //
+  ///////////////////////
+
+  bool testLua();
+};
 
 #endif
