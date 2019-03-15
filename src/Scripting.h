@@ -13,11 +13,24 @@ namespace Script {
   // Begin using Guile and register functions
   void startLua();
 
-  ///////////////////////
-  // TRIVIAL FUNCTIONS //
-  ///////////////////////
+  // Unregister functions that belong to a scene
+  void unregisterSceneFunctions();
 
-  bool testLua();
+  namespace Funcs {
+
+    ///////////////////////
+    // TRIVIAL FUNCTIONS //
+    ///////////////////////
+    
+    void emptyFunction();
+    void emptyUpdateFunction(const sf::Time& dt);
+
+    ////////////////////
+    // SFML FUNCTIONS //
+    ////////////////////
+    
+    sf::Vector2i makeVector2i(int i, int j);
+  };
 };
 
 #endif

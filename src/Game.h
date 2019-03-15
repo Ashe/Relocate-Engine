@@ -35,8 +35,8 @@ class Game {
     // Change the screen that is used and rendered
     static void switchScene(Scene* scene);
 
-    // Get a pointer to the game's window
-    static sf::RenderWindow* getWindow();
+    // Get a pointer to const window
+    static const sf::RenderWindow* getWindow();
 
     // Get the FPS of the application
     static unsigned getFPS();
@@ -76,9 +76,6 @@ class Game {
 
     // FPS
     static unsigned fps_;
-
-    // Start of the game loop
-    static void begin();
 
     // Main game loop 
     static void update(const sf::Time& dt);

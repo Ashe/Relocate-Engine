@@ -4,45 +4,13 @@
 #include "Scene.h"
 
 // Constructor
-Scene::Scene() {
+Scene::Scene(const std::string& script) 
+  : hasBegun_(false)
+  , world_(ECS::World::createWorld())
+  , script_(script) {
 
-  // Create the ECS world
-  world_ = ECS::World::createWorld();
+  // Register any systems
   world_->registerSystem(new PhysicsSystem());
-
-  // Do some physics
-  const sf::Vector2u size = Game::getWindow()->getSize();
-
-  // Create the ground
-  ECS::Entity* ground = world_->create();
-  auto groundPos = ground->assign<Transform>();
-  auto groundBody = ground->assign<RigidBody>();
-  b2BodyDef groundBodyDef;
-  b2PolygonShape groundBox;
-  b2FixtureDef groundFixture;
-  
-  groundPos->position = sf::Vector2i(size.x * 0.5f, size.y * 0.75f);
-  groundBody->setBodyDef(groundBodyDef);
-  groundBox.SetAsBox(size.x, 10.0f);
-  groundFixture.shape = new b2PolygonShape(groundBox);
-  groundBody->addFixtureDef(groundFixture);
-  
-  // Create the box
-  ECS::Entity* box = world_->create();
-  auto boxPos = box->assign<Transform>();
-  auto boxBody = box->assign<RigidBody>();
-  b2BodyDef bodyDef;
-  bodyDef.type = b2_dynamicBody;
-
-  boxPos->position = sf::Vector2i(size.x * 0.5f, 0.0f);
-  boxBody->setBodyDef(bodyDef);
-  b2PolygonShape dynamicBox;
-  b2FixtureDef fixtureDef;
-  dynamicBox.SetAsBox(2.0f, 2.0f);
-  fixtureDef.shape = new b2PolygonShape(dynamicBox);
-  fixtureDef.density = 20.0f;
-  fixtureDef.friction = 0.3f;
-  boxBody->addFixtureDef(fixtureDef);
 }
 
 // Destructor
@@ -53,29 +21,77 @@ Scene::~Scene() {
 // Called when the scene is started
 void
 Scene::begin() {
+
+  // Try to call the begin function from this scene's lua
+  sol::protected_function onBegin = Game::lua["onBegin"];
+	auto attempt = onBegin();
+	if (!attempt.valid()) {
+		sol::error err = attempt;
+    if (Game::getDebugMode()) {
+      printf("Error has occured: %s\n", err.what());
+    }
+  }
+
+  // Flag that the scene has started
+  hasBegun_ = true;
+}
+
+// Run this scene's script to register it's functions
+void
+Scene::registerFunctions() {
+  Game::lua["world"] = world_;
+  Game::lua.script_file(script_, sol::script_pass_on_error);
 }
 
 // When the screen is shown
 void
 Scene::showScene() {
+
+  // Begin the scene if it hasn't yet
+  if (!hasBegun_) {
+    begin();
+  }
+
+  // Try to call the begin function from this scene's lua
+  sol::protected_function onShow = Game::lua["onShow"];
+	auto attempt = onShow();
+	if (!attempt.valid()) {
+		sol::error err = attempt;
+    if (Game::getDebugMode()) {
+      printf("Error has occured: %s\n", err.what());
+    }
+  }
 }
 
 // When the screen is hidden
 void
 Scene::hideScene() {
+  sol::protected_function onHide = Game::lua["onHide"];
+	auto attempt = onHide();
+	if (!attempt.valid()) {
+		sol::error err = attempt;
+    if (Game::getDebugMode()) {
+      printf("Error has occured: %s\n", err.what());
+    }
+  }
 }
 
 // Update the game every frame
 void
 Scene::update(const sf::Time& dt) {
 
+  // Call scene's update script
+  sol::protected_function onUpdate = Game::lua["onUpdate"];
+	auto attempt = onUpdate(dt);
+	if (!attempt.valid()) {
+		sol::error err = attempt;
+    if (Game::getDebugMode()) {
+      printf("Error has occured: %s\n", err.what());
+    }
+  }
+
   // Update the ECS
   world_->update(dt);
-
-  // Do any debug-only logic
-  if (Game::getDebugMode()) {
-    //@TODO: Debug update functions here
-  }
 }
 
 // Render the game every frame
@@ -94,7 +110,7 @@ Scene::render(sf::RenderWindow& window) {
 
   // Do any debug-only rendering
   if (Game::getDebugMode()) {
-    world_->emit<DebugRenderPhysicsEvent>({});
+    world_->emit<DebugRenderPhysicsEvent>({window});
   }
 }
 
@@ -130,5 +146,14 @@ Scene::handleEvent(const sf::Event& event) {
 // When the game is quit
 void
 Scene::quit() {
-  Game::terminate();
+  sol::protected_function onQuit = Game::lua["onQuit"];
+	auto attempt = onQuit();
+	if (!attempt.valid()) {
+		sol::error err = attempt;
+    if (Game::getDebugMode()) {
+      printf("Error has occured: %s\n", err.what());
+      printf("Terminating program anyway.\n");
+    }
+    Game::terminate();
+  }
 }

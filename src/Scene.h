@@ -12,10 +12,12 @@
 
 class Scene {
   public:
-    Scene();
+    Scene(const std::string& script);
     ~Scene();
 
     void begin();
+    bool hasBegun();
+    void registerFunctions();
     void update(const sf::Time& dt);
     void render(sf::RenderWindow& window);
     void handleEvent(const sf::Event& event);
@@ -25,8 +27,14 @@ class Scene {
 
   private:
 
+    // If the scene has begun
+    bool hasBegun_;
+
     // The ECS for this scene
     ECS::World* world_;
+
+    // Script file
+    const std::string& script_;
 };
 
 #endif

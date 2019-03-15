@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 #endif
 
   Game::initialise(sf::VideoMode(1920, 1080), "Game", multiThread);
-  Game::switchScene(new Scene());
+  Game::switchScene(new Scene("Assets/Scripts/BasicScene.lua"));
   Game::start();
   return 0;
 }

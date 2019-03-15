@@ -10,7 +10,9 @@
 #include "Game.h"
 
 // Debug Event
-struct DebugRenderPhysicsEvent {};
+struct DebugRenderPhysicsEvent {
+  sf::RenderWindow& window;
+};
 
 namespace sfdd {
 	const float SCALE = 1.f;
@@ -20,6 +22,9 @@ class PhysicsDebugDraw : public b2Draw {
   public:
 		PhysicsDebugDraw()
 			: b2Draw() {}
+
+    // Window to draw from
+    sf::RenderWindow* window;
 
 		// Convert Box2D's OpenGL style color definition[0-1] to SFML's color definition[0-255]
 		// with optional alpha byte[Default - opaque]

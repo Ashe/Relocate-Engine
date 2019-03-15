@@ -16,7 +16,7 @@ void PhysicsDebugDraw::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, co
 	polygon.setFillColor(sf::Color::Transparent);
 	polygon.setOutlineColor(PhysicsDebugDraw::GLColorToSFML(color));
 
-	Game::getWindow()->draw(polygon);
+	window->draw(polygon);
 }
 
 void PhysicsDebugDraw::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {
@@ -31,7 +31,7 @@ void PhysicsDebugDraw::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCoun
 	polygon.setFillColor(PhysicsDebugDraw::GLColorToSFML(color, 60));
 	polygon.setOutlineColor(PhysicsDebugDraw::GLColorToSFML(color));
 
-	Game::getWindow()->draw(polygon);
+	window->draw(polygon);
 }
 
 void PhysicsDebugDraw::DrawCircle(const b2Vec2& center, float32 radius, const b2Color& color) {
@@ -42,7 +42,7 @@ void PhysicsDebugDraw::DrawCircle(const b2Vec2& center, float32 radius, const b2
 	circle.setOutlineThickness(-1.f);
 	circle.setOutlineColor(PhysicsDebugDraw::GLColorToSFML(color));
 
-	Game::getWindow()->draw(circle);
+	window->draw(circle);
 }
 
 void PhysicsDebugDraw::DrawSolidCircle(const b2Vec2& center, float32 radius, const b2Vec2& axis, const b2Color& color) {
@@ -59,8 +59,8 @@ void PhysicsDebugDraw::DrawSolidCircle(const b2Vec2& center, float32 radius, con
 		sf::Vertex(PhysicsDebugDraw::B2VecToSFVec(endPoint), PhysicsDebugDraw::GLColorToSFML(color)),
 	};
 
-	Game::getWindow()->draw(circle);
-	Game::getWindow()->draw(line, 2, sf::Lines);
+	window->draw(circle);
+	window->draw(line, 2, sf::Lines);
 }
 
 void PhysicsDebugDraw::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) {
@@ -69,7 +69,7 @@ void PhysicsDebugDraw::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2C
 		sf::Vertex(PhysicsDebugDraw::B2VecToSFVec(p2), PhysicsDebugDraw::GLColorToSFML(color))
 	};
 
-	Game::getWindow()->draw(line, 2, sf::Lines);
+	window->draw(line, 2, sf::Lines);
 }
 
 void PhysicsDebugDraw::DrawTransform(const b2Transform& xf) {
@@ -91,8 +91,8 @@ void PhysicsDebugDraw::DrawTransform(const b2Transform& xf) {
 		sf::Vertex(PhysicsDebugDraw::B2VecToSFVec(yAxis), sf::Color::Green)
 	};
 
-	Game::getWindow()->draw(redLine, 2, sf::Lines);
-	Game::getWindow()->draw(greenLine, 2, sf::Lines);
+	window->draw(redLine, 2, sf::Lines);
+	window->draw(greenLine, 2, sf::Lines);
 }
 
 void PhysicsDebugDraw::DrawPoint(const b2Vec2 & p, float32 size, const b2Color & color) {

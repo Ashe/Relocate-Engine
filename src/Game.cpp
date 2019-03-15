@@ -37,7 +37,8 @@ Game::initialise(const sf::VideoMode& mode, const std::string& title, bool multi
 
   // Initialise Lua and ensure it works
   Script::startLua();
-  if (Game::lua["testLua"]) { 
+	auto functional = Game::lua.script_file("Assets/Scripts/GameConfig.lua", &sol::script_pass_on_error);
+  if (functional.valid()) { 
     printf("Lua successfully initialised.\n"); 
   }
   else {
@@ -71,9 +72,6 @@ Game::start() {
   // FPS variables
   sf::Clock fpsClock_;
   unsigned fpsFrame_ = 0;
-
-  // Call the begin function before the loop starts
-  begin();
 
   // Pointer to the render thread if necessary
   std::thread renderThread(Game::handleRenderThread);
@@ -168,16 +166,6 @@ Game::start() {
   // Quit the game and exit program
   shutdown();
   printf("Exiting..\n");
-}
-
-// Called just before the main loop starts
-void
-Game::begin() {
-
-  // Begin the current scene when the game starts
-  if (currentScene_ != nullptr) {
-    currentScene_->begin();
-  }
 }
 
 // Called every frame, returns true when game should end
@@ -277,17 +265,21 @@ Game::switchScene(Scene* scene) {
     currentScene_->hideScene();
   }
 
+  // Unregister previous scene's functions
+  Script::unregisterSceneFunctions();
+
   // Change the screen to be rendered
   currentScene_ = scene;
 
   // Run any logic for showing screen
   if (currentScene_ != nullptr) {
-    currentScene_->hideScene();
+    currentScene_->registerFunctions();
+    currentScene_->showScene();
   }
 }
 
 // Get a pointer to the game's window
-sf::RenderWindow*
+const sf::RenderWindow*
 Game::getWindow() {
   return &window_;
 }

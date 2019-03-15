@@ -4,11 +4,65 @@
 #ifndef RIGIDBODY_H
 #define RIGIDBODY_H
 
+#include "Game.h"
 #include <Box2D/Box2D.h>
 #include <vector>
 
 class RigidBody {
   public:
+
+    // Make a RigidBody and assign to an entity
+    static RigidBody& assign(ECS::Entity* e) {
+      return (e->assign<RigidBody>()).get();
+    }
+
+    // Make a box shape
+    static b2Shape* BoxShape(float w, float h) {
+      b2PolygonShape polygon;
+      polygon.SetAsBox(w, h);
+      return new b2PolygonShape(polygon);
+    }
+
+    // Make this component scriptable
+    static void registerFunctions() {
+    
+
+      // Register assign method
+      Game::lua.set_function("assignRigidBody", &assign);
+      Game::lua.set_function("BoxShape", &BoxShape);
+
+      // Create the RigidBody type
+      Game::lua.new_usertype<RigidBody>("RigidBody",
+        sol::constructors<RigidBody()>(),
+        "bodyDef", sol::property(&RigidBody::getBodyDef, &RigidBody::setBodyDef),
+        "addFixtureDef", &RigidBody::addFixtureDef
+      );
+
+      // Different body types
+      Game::lua.set("Physics_DynamicBody", b2_dynamicBody);
+      Game::lua.set("Physics_StaticBody", b2_staticBody);
+
+      // Create the BodyDef type
+      Game::lua.new_usertype<b2BodyDef>("BodyDef",
+        sol::constructors<b2BodyDef()>(),
+        "type", &b2BodyDef::type
+      );
+
+      // Create the FixtureDef type
+      Game::lua.new_usertype<b2FixtureDef>("FixtureDef",
+        sol::constructors<b2FixtureDef()>(),
+        "shape", &b2FixtureDef::shape,
+        "density", &b2FixtureDef::density,
+        "friction", &b2FixtureDef::friction
+      );
+
+      // Create the PolygonShape type
+      Game::lua.new_usertype<b2PolygonShape>("PolygonShape",
+        sol::constructors<b2PolygonShape()>()
+      );
+    }
+
+    // Constructor
     RigidBody()
       : smoothedPosition_(b2Vec2(0.0f, 0.0f))
       , previousPosition_(b2Vec2(0.0f, 0.0f))

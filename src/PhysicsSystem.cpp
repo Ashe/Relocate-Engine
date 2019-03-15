@@ -151,6 +151,9 @@ PhysicsSystem::convertToB2(const sf::Vector2i& vec) {
 void
 PhysicsSystem::receive(ECS::World* w, const DebugRenderPhysicsEvent& e) {
 
+  // Save the pointer to the window
+  physicsDebugDraw_.window = &e.window;
+
   // Render the physics system
   world_.DrawDebugData();
 }
