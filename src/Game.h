@@ -44,6 +44,9 @@ class Game {
     // Get the status of the game
     static Status getStatus();
 
+    // Open the dev console
+    static void openDevConsole();
+
     // Tell the application to quit
     static void quit();
 

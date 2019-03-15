@@ -117,29 +117,15 @@ Scene::render(sf::RenderWindow& window) {
 // Handle keypresses
 void
 Scene::handleEvent(const sf::Event& event) {
-  if (event.type == sf::Event::KeyPressed) {
 
-    // Toggle debug mode on F1
-    if (event.key.code == sf::Keyboard::F1) {
-      Game::setDebugMode(!Game::getDebugMode());
+  // Call scene's update script
+  sol::protected_function onWindowEvent = Game::lua["onWindowEvent"];
+	auto attempt = onWindowEvent(event);
+	if (!attempt.valid()) {
+		sol::error err = attempt;
+    if (Game::getDebugMode()) {
+      printf("Error has occured: %s\n", err.what());
     }
-
-    // Allow user input on F2
-    if (event.key.code == sf::Keyboard::F2) {
-      printf("Please enter a command: ");
-      std::string str;
-      std::cin >> str;
-      
-      // If we have a command to process
-      if (str != "") {
-        sol::protected_function_result result = Game::lua.script(str, sol::script_pass_on_error);
-        if (!result.valid()) {
-          sol::error err = result;
-          std::cout << "Invalid command '" << str << "', error: " << err.what() << std::endl;
-        }
-      }
-    }
-
   }
 }
 

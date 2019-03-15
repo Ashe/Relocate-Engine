@@ -24,12 +24,14 @@ namespace Script {
     
     void emptyFunction();
     void emptyUpdateFunction(const sf::Time& dt);
+    void emptyWindowEventFunction(const sf::Event& ev);
 
     ////////////////////
     // SFML FUNCTIONS //
     ////////////////////
     
-    sf::Vector2i makeVector2i(int i, int j);
+    void registerVectors();
+    void registerEvents();
   };
 };
 

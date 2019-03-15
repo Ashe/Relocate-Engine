@@ -55,11 +55,6 @@ class RigidBody {
         "density", &b2FixtureDef::density,
         "friction", &b2FixtureDef::friction
       );
-
-      // Create the PolygonShape type
-      Game::lua.new_usertype<b2PolygonShape>("PolygonShape",
-        sol::constructors<b2PolygonShape()>()
-      );
     }
 
     // Constructor

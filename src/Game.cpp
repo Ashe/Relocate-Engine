@@ -119,29 +119,14 @@ Game::start() {
 
       // Resume processing events
       for (auto ev : events) {
-        
-        // React to each event
-        switch (ev.type) {
-          
-          // Forward keypresses to the game
-          case sf::Event::KeyPressed:
-          case sf::Event::KeyReleased:
-          case sf::Event::MouseButtonPressed:
-          case sf::Event::MouseButtonReleased:
-            handleEvent(ev);
-            break;
-          
-          // Forward resize events to the setup singleton
-          case sf::Event::Resized:
-            break;
 
-          // Exit the game if you close the window
-          case sf::Event::Closed:
-            quit();
-            break;
-
-          // Otherwise
-          default: break;
+        // Begin closing the game on quit
+        // Otherwise, pass the event to the scene
+        if (ev.type != sf::Event::Closed) {
+          handleEvent(ev);
+        }
+        else {
+          quit();
         }
       }
     }
@@ -276,6 +261,25 @@ Game::switchScene(Scene* scene) {
     currentScene_->registerFunctions();
     currentScene_->showScene();
   }
+}
+
+// Open the dev console in the terminal
+void
+Game::openDevConsole() {
+  printf("---------------~DEV CONSOLE~---------------\n");
+  printf("Please enter a command: ");
+  std::string str;
+  std::cin >> str;
+  
+  // If we have a command to process
+  if (str != "") {
+    sol::protected_function_result result = Game::lua.script(str, sol::script_pass_on_error);
+    if (!result.valid()) {
+      sol::error err = result;
+      std::cout << "Invalid command '" << str << "'.\nError: " << err.what() << std::endl;
+    }
+  }
+  printf("-------------~END OF CONSOLE~-------------\n");
 }
 
 // Get a pointer to the game's window

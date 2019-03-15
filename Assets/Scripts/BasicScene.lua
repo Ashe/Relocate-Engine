@@ -42,3 +42,15 @@ end
 -- Every scene tick
 function onUpdate(dt)
 end
+
+-- On Window events
+function onWindowEvent(ev)
+  if ev.type == EventType_KeyPressed then
+    print("Key has been pressed")
+    if ev.key.code == Key_F1 then
+      setDebugMode(not getDebugMode())
+    elseif ev.key.code == Key_F2 then
+      openDevConsole()
+    end
+  end
+end
