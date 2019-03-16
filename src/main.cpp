@@ -8,19 +8,17 @@
 // Create and start the game
 int main(int argc, char* argv[]) {
 
-  bool multiThread = false;
+  // Set up whether we should multi thread or not
+  bool multiThread = true, multiThreadSuccess = false;
 
 #ifdef linux
-  int i = XInitThreads();
-  if (i != 0) {
-    multiThread = true;
-  }
-  else {
-    printf("Error: Failed to call XInitThreads, code %d\n", i);
-  }
+  const int i = XInitThreads();
+  if (i != 0) { multiThreadSuccess = true; }
+  else { printf("Error: Failed to call XInitThreads, code %d\n", i); }
 #endif
 
-  Game::initialise(sf::VideoMode(1920, 1080), "Game", multiThread);
+  // Initialise and start the game
+  Game::initialise(sf::VideoMode(1920, 1080), "Game", multiThread && multiThreadSuccess);
   Game::switchScene(new Scene("Assets/Scripts/BasicScene.lua"));
   Game::start();
   return 0;

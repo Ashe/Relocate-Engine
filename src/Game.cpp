@@ -73,13 +73,18 @@ Game::start() {
   sf::Clock fpsClock_;
   unsigned fpsFrame_ = 0;
 
+  // Disable the window
+  if (multiThread_) {
+    window_.setActive(false);
+  }
+
   // Pointer to the render thread if necessary
-  std::thread renderThread(Game::handleRenderThread);
+  std::thread* renderThread;
 
   // Start a thread to render the game
   if (multiThread_) {
-    window_.setActive(false);
-    renderThread.detach();
+    renderThread = new std::thread(Game::handleRenderThread);
+    renderThread->detach();
   }
 
   // Main game loop while window is open
@@ -144,8 +149,9 @@ Game::start() {
   }
 
   // Wait for render thread to finish
-  if (multiThread_ && renderThread.joinable()) {
-    renderThread.join();
+  if (multiThread_ && renderThread->joinable()) {
+    renderThread->join();
+    delete renderThread;
   }
 
   // Quit the game and exit program
@@ -175,7 +181,7 @@ Game::handleRenderThread() {
     windowMutex_.lock();
     Game::render();
     windowMutex_.unlock();
-    std::this_thread::yield();
+    std::this_thread::sleep_for(std::chrono::milliseconds(3));
   }
 }
 

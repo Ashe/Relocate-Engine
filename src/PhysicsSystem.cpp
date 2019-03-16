@@ -9,7 +9,7 @@ PhysicsSystem::registerPhysicsSystemFunctions(ECS::World* world) {
 
   // Debug message
   if (Game::getDebugMode()) {
-    printf("Initialising physics system");
+    printf("Initialising Physics\n");
   }
 
   // Create and install physics system
