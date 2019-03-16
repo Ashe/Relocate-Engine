@@ -54,9 +54,7 @@ RigidBody::registerFunctions() {
 
 // Constructor
 RigidBody::RigidBody()
-  : smoothedPosition_(b2Vec2(0.0f, 0.0f))
-  , previousPosition_(b2Vec2(0.0f, 0.0f))
-  , smoothedAngle_(0.0f)
+  : previousPosition_(b2Vec2(0.0f, 0.0f))
   , previousAngle_(0.0f)
   , body_(nullptr) {}
 

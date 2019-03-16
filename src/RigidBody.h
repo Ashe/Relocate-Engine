@@ -25,9 +25,7 @@ class RigidBody {
     ~RigidBody();
 
     // Manipulated by physics system
-    b2Vec2 smoothedPosition_;
     b2Vec2 previousPosition_;
-    float smoothedAngle_;
     float previousAngle_;
 
     // Only change the body if there is none

@@ -10,7 +10,7 @@ function spawnBox(x, y, size)
   boxBody.bodyDef.type = Physics_DynamicBody
   boxFixture = FixtureDef.new()
   boxFixture.shape = BoxShape(size, size)
-  boxFixture.density = 0.001
+  boxFixture.density = 1
   boxFixture.friction = 0.3
   boxBody:addFixtureDef(boxFixture)
 end

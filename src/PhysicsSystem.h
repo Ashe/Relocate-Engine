@@ -65,9 +65,9 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
     int32 positionIterations_ = 3;
 
     void singleStep(float timeStep);
-    void smoothState(ECS::ComponentHandle<RigidBody> rb);
-    void resetSmoothStates(ECS::Entity* ent, ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r);
-    void ensureRigidBody(ECS::ComponentHandle<RigidBody> r, ECS::ComponentHandle<Transform> t);
+    void smoothState(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r);
+    void resetSmoothStates(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r);
+    void ensureRigidBody(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r);
 
     // Conversion functions
     sf::Vector2f convertToSF(const b2Vec2& vec) const;

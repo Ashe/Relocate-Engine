@@ -49,18 +49,19 @@ PhysicsSystem::update(ECS::World* world, const sf::Time& dt) {
   const auto steps = static_cast<int>(
     std::floor(timeStepAccumilator_ / fixedTimeStep_));
 
+  // Calculate if we should simulate
   if (steps > 0) {
     timeStepAccumilator_ -= steps * fixedTimeStep_;
   }
-
-  // Simulate only when we should
   fixedTimeStepRatio_ = timeStepAccumilator_ / fixedTimeStep_;
   const int stepsClamped = std::min(steps, maxSteps_);
+
+  // Simulate only when we should
   for (int i = 0; i < stepsClamped; ++i) {
 
     // Reset smoothing states of all entities
     world->each<Transform, RigidBody>([&](ECS::Entity* e, ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r) {
-      resetSmoothStates(e, t, r);
+      resetSmoothStates(t, r);
     });
 
     // Simulate
@@ -72,8 +73,8 @@ PhysicsSystem::update(ECS::World* world, const sf::Time& dt) {
 
   // Create rigidbodies on entities that need them and tween
   world->each<Transform, RigidBody>([&](ECS::Entity* e, ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r) {
-    ensureRigidBody(r, t);
-    smoothState(r);
+    ensureRigidBody(t, r);
+    smoothState(t, r);
   });
 }
 
@@ -85,8 +86,7 @@ PhysicsSystem::singleStep(float timeStep) {
 
 // Interpolation between frames
 void
-PhysicsSystem::smoothState(ECS::ComponentHandle<RigidBody> rb) {
-
+PhysicsSystem::smoothState(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> rb) {
 
   // Ensure there's a body to work with
   b2Body* const body = rb->getBody();
@@ -98,12 +98,13 @@ PhysicsSystem::smoothState(ECS::ComponentHandle<RigidBody> rb) {
     // Interpolate based on previous position
     if (body->GetType() != b2_staticBody) {
 
-      rb->smoothedPosition_ =
+      // Tween position
+      t->position = convertToSF(
         fixedTimeStepRatio_ * body->GetPosition() +
-        oneMinusRatio * rb->previousPosition_;
+        oneMinusRatio * rb->previousPosition_);
 
-      rb->smoothedAngle_ = 
-        body->GetAngle() +
+      // Tween rotation
+      t->rotation = body->GetAngle() +
         oneMinusRatio * rb->previousAngle_;
     }
   }
@@ -111,21 +112,21 @@ PhysicsSystem::smoothState(ECS::ComponentHandle<RigidBody> rb) {
 
 // When the step occurs, reset any smoothing
 void
-PhysicsSystem::resetSmoothStates(ECS::Entity* ent, ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r) {
+PhysicsSystem::resetSmoothStates(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r) {
 
   // Set up variables
   b2Body* body = r->getBody();
 
   // Reset any smoothing
   if (body != nullptr && body->GetType() != b2_staticBody) {
-    r->smoothedPosition_ = r->previousPosition_ = body->GetPosition();
-    r->smoothedAngle_ = r->previousAngle_ = body->GetAngle();
+    r->previousPosition_ = body->GetPosition();
+    r->previousAngle_ = body->GetAngle();
   }
 }
 
 // Creates rigidbodies as needed
 void
-PhysicsSystem::ensureRigidBody(ECS::ComponentHandle<RigidBody> r, ECS::ComponentHandle<Transform> t) {
+PhysicsSystem::ensureRigidBody(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r) {
 
   // Create rigidbodies if they don't exist
   if (r->getBody() == nullptr) {
