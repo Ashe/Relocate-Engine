@@ -3,12 +3,39 @@
 
 #include "PhysicsSystem.h"
 
+// Register a physics system in this world
+void
+PhysicsSystem::registerPhysicsSystemFunctions(ECS::World* world) {
+
+  // Debug message
+  if (Game::getDebugMode()) {
+    printf("Initialising physics system");
+  }
+
+  // Create and install physics system
+  Game::lua.set_function("usePhysicsSystem", [world]() { 
+    auto* newPS = new PhysicsSystem();
+    world->registerSystem(newPS);
+
+    // Register functions to address this system
+    Game::lua.set_function("getGravity", &PhysicsSystem::getGravity, newPS);
+    Game::lua.set_function("setGravity", &PhysicsSystem::setGravity, newPS);
+    Game::lua.set_function("setGravityMult", &PhysicsSystem::setGravityMult, newPS);
+
+    return newPS;
+  });
+}
+
 // Constructor
 PhysicsSystem::PhysicsSystem() 
-  : world_(b2Vec2(0.0f, 10.0f))
+  : defaultGravity_(sf::Vector2f(0.f, 10.f))
+  , world_(b2Vec2(defaultGravity_.x, defaultGravity_.y))
   , timeStepAccumilator_(0.0f) {
+
+  // Ensure that the debug system's scale matches this system
+  PhysicsDebugDraw::scale = scale_;
   
-  // Draw physics
+  // Set up the drawing of physics
 	physicsDebugDraw_.SetFlags(PhysicsDebugDraw::e_shapeBit);
 	world_.SetDebugDraw(&physicsDebugDraw_);
 }
@@ -45,11 +72,7 @@ PhysicsSystem::update(ECS::World* world, const sf::Time& dt) {
 
   // Create rigidbodies on entities that need them and tween
   world->each<Transform, RigidBody>([&](ECS::Entity* e, ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r) {
-
-    // Create rigidbodies 
     ensureRigidBody(r, t);
-
-    // Interpolate between states
     smoothState(r);
   });
 }
@@ -107,10 +130,6 @@ PhysicsSystem::ensureRigidBody(ECS::ComponentHandle<RigidBody> r, ECS::Component
   // Create rigidbodies if they don't exist
   if (r->getBody() == nullptr) {
 
-    // Helpful debug messages
-    const bool debug = Game::getDebugMode();
-    if (debug) { printf("Creating rigidbody..\n"); }
-
     // Make the rigidbody
     b2Body* body = world_.CreateBody(&r->getBodyDef());
     r->setBody(body);
@@ -125,25 +144,37 @@ PhysicsSystem::ensureRigidBody(ECS::ComponentHandle<RigidBody> r, ECS::Component
       body->CreateFixture(&fixture);
       count++;
     }
-
-    // Helpful debug messages
-    if (debug) {
-      printf("Added %d fixture(s) to Rigidbody\n", count);
-      if (body != nullptr) printf("Rigidbody created!\n");
-      else printf("Rigidbody failed!\n");
-    }
   }
 }
 
+// Get gravity
+sf::Vector2f
+PhysicsSystem::getGravity() const {
+  return convertToSF(world_.GetGravity());
+}
+
+// Set gravity multiplier
+void
+PhysicsSystem::setGravityMult(float m) {
+  const auto g = getGravity();
+  setGravity(g.x * m, g.y * m);
+}
+
+// Set gravity
+void
+PhysicsSystem::setGravity(float gx, float gy) {
+  world_.SetGravity(convertToB2(sf::Vector2f(gx, gy)));
+}
+
 // Convert to SFML vectors
-sf::Vector2i 
-PhysicsSystem::convertToSF(const b2Vec2& vec) {
-  return sf::Vector2i(std::round(vec.x * scale_), std::round(vec.y * scale_));
+sf::Vector2f 
+PhysicsSystem::convertToSF(const b2Vec2& vec) const {
+  return sf::Vector2f(vec.x * scale_, vec.y * scale_);
 }
 
 // Convert to Box2D vectors
 b2Vec2 
-PhysicsSystem::convertToB2(const sf::Vector2i& vec) {
+PhysicsSystem::convertToB2(const sf::Vector2f& vec) const {
   return b2Vec2(vec.x / scale_, vec.y / scale_);
 }
 

@@ -14,6 +14,10 @@
 
 class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<DebugRenderPhysicsEvent> {
   public:
+
+    // Register a physics system in this world
+    static void registerPhysicsSystemFunctions(ECS::World* world);
+
     // Constructor
     PhysicsSystem();
 
@@ -24,7 +28,15 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
     virtual void configure(ECS::World* world) override { world->subscribe<DebugRenderPhysicsEvent>(this); }
     virtual void unconfigure(ECS::World* world) override { world->unsubscribeAll(this); }
 
+    // Change the gravity
+    void setGravity(float gx, float gy);
+    void setGravityMult(float multiplier);
+    sf::Vector2f getGravity() const;
+
   private:
+
+    // Default gravity setting
+    const sf::Vector2f defaultGravity_;
 
     // The box2D world for physics simulation
     b2World world_;
@@ -41,7 +53,7 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
     const float fixedTimeStep_ = 1.0f / 60.0f;
 
     // Scale between pixels and physics
-    const float scale_ = 1.0f;
+    const float scale_ = 100.f;
 
     // A more accurate 'step' for interpolation
     float fixedTimeStepRatio_;
@@ -58,8 +70,8 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
     void ensureRigidBody(ECS::ComponentHandle<RigidBody> r, ECS::ComponentHandle<Transform> t);
 
     // Conversion functions
-    sf::Vector2i convertToSF(const b2Vec2& vec);
-    b2Vec2 convertToB2(const sf::Vector2i& vec); 
+    sf::Vector2f convertToSF(const b2Vec2& vec) const;
+    b2Vec2 convertToB2(const sf::Vector2f& vec) const; 
 
     // Render the physics when debug mode is enabled
     virtual void receive(ECS::World* ecsWorld, const DebugRenderPhysicsEvent& ev) override;

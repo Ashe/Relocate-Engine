@@ -10,8 +10,11 @@
 
 namespace Script {
 
-  // Begin using Guile and register functions
+  // Begin using Lua and register functions
   void startLua();
+
+  // Register scene-specific functions
+  void registerSceneFunctions(ECS::World* world);
 
   // Unregister functions that belong to a scene
   void unregisterSceneFunctions();

@@ -14,10 +14,6 @@ struct DebugRenderPhysicsEvent {
   sf::RenderWindow& window;
 };
 
-namespace sfdd {
-	const float SCALE = 1.f;
-}
-
 class PhysicsDebugDraw : public b2Draw {
   public:
 		PhysicsDebugDraw()
@@ -25,6 +21,8 @@ class PhysicsDebugDraw : public b2Draw {
 
     // Window to draw from
     sf::RenderWindow* window;
+
+    static float scale;
 
 		// Convert Box2D's OpenGL style color definition[0-1] to SFML's color definition[0-255]
 		// with optional alpha byte[Default - opaque]
@@ -37,8 +35,8 @@ class PhysicsDebugDraw : public b2Draw {
 		// Convert Box2D's vector to SFML vector 
 		// [Default - scales the vector up by SCALE constants amount]
 		static sf::Vector2f B2VecToSFVec(const b2Vec2 &vector, bool scaleToPixels = true) {
-			return sf::Vector2f(vector.x * (scaleToPixels ? sfdd::SCALE : 1.f), 
-				vector.y * (scaleToPixels ? sfdd::SCALE : 1.f));
+			return sf::Vector2f(vector.x * (scaleToPixels ? scale : 1.f), 
+				vector.y * (scaleToPixels ? scale : 1.f));
 		}
 
     void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override;

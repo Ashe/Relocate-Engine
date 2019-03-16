@@ -57,6 +57,7 @@ target_sources(${EXECUTABLE_NAME} PRIVATE
 
   src/Transform.h
   src/RigidBody.h
+  src/RigidBody.cpp
 
   src/PhysicsSystem.h
   src/PhysicsSystem.cpp

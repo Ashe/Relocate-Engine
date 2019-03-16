@@ -8,9 +8,6 @@ Scene::Scene(const std::string& script)
   : hasBegun_(false)
   , world_(ECS::World::createWorld())
   , script_(script) {
-
-  // Register any systems
-  world_->registerSystem(new PhysicsSystem());
 }
 
 // Destructor
@@ -39,7 +36,7 @@ Scene::begin() {
 // Run this scene's script to register it's functions
 void
 Scene::registerFunctions() {
-  Game::lua["world"] = world_;
+  Script::registerSceneFunctions(world_);
   Game::lua.script_file(script_, sol::script_pass_on_error);
 }
 

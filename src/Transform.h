@@ -33,7 +33,7 @@ class Transform {
       : position(sf::Vector2f(x, y))
       , rotation(r) {}
 
-    sf::Vector2i position;
+    sf::Vector2f position;
     float rotation;
 };
 
