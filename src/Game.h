@@ -12,7 +12,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "ECS.h"
-#include "Scripting.h"
+#include "Sol.h"
 
 // Forward declaration
 class Scene;

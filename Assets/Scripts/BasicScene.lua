@@ -13,6 +13,7 @@ function spawnBox(x, y, size)
   boxFixture.density = 1
   boxFixture.friction = 0.3
   boxBody:addFixtureDef(boxFixture)
+  return box
 end
 
 -- When the scene is shown for the first time
@@ -28,12 +29,25 @@ function onBegin()
   groundTrans.position = Vector2f.new(size.x * 0.5, size.y * 0.9)
   groundBody.bodyDef = BodyDef.new()
   groundFixture = FixtureDef.new()
-  groundFixture.shape = BoxShape(size.x, 0.1)
+  groundFixture.shape = LineShape(- size.x * 0.5, 0, size.x * 0.5, 0)
   groundBody:addFixtureDef(groundFixture)
 end
 
+-- Holding down right mouse
+holdRightMouse = false
+
+-- Coords
+mouseX = 0
+mouseY = 0
+
+-- The last box that was spawned
+lastBox = nil
+
 -- Every scene tick
 function onUpdate(dt)
+  if holdRightMouse and lastBox then
+    warpTo(lastBox, mouseX, mouseY)
+  end
 end
 
 -- On Window events
@@ -52,12 +66,28 @@ function onWindowEvent(ev)
 
   elseif ev.type == EventType_MouseButtonPressed then
 
+    mouseX = ev.mouseButton.x
+    mouseY = ev.mouseButton.y
+
     -- Spawn box on left click
     if ev.mouseButton.button == MouseButton_Left then
-      spawnBox(ev.mouseButton.x, ev.mouseButton.y, 0.5)
+      lastBox = spawnBox(mouseX, mouseY, 0.5)
+
+    -- Warp on right click
     elseif ev.mouseButton.button == MouseButton_Right then
-      spawnBox(ev.mouseButton.x, ev.mouseButton.y, 1.5)
+      if (lastBox) then
+        holdRightMouse = true
+      end
     end
+
+  elseif ev.type == EventType_MouseButtonReleased then
+    if ev.mouseButton.button == MouseButton_Right then
+      holdRightMouse = false
+    end
+
+  elseif ev.type == EventType_MouseMoved then
+    mouseX = ev.mouseMove.x
+    mouseY = ev.mouseMove.y
   end
 
 end

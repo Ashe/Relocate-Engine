@@ -5,20 +5,16 @@
 #define TRANSFORM_H
 
 #include "Game.h"
+#include "Scripting.h"
 
 class Transform {
   public:
-
-    // Register assign method
-    static Transform& assign(ECS::Entity* e) {
-      return (e->assign<Transform>()).get();
-    }
 
     // Make this component scriptable
     static void registerFunctions() {
 
       // Make a way of assigning a transform to an entity
-      Game::lua.set_function("assignTransform", &assign);
+      Script::registerComponentDefaults<Transform>("Transform");
 
       // Create the Transform type
       Game::lua.new_usertype<Transform>("Transform",

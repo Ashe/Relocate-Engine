@@ -5,6 +5,7 @@
 #define RIGIDBODY_H
 
 #include "Game.h"
+#include "Scripting.h"
 #include <Box2D/Box2D.h>
 #include <vector>
 
@@ -14,8 +15,10 @@ class RigidBody {
     // Make a RigidBody and assign to an entity
     static RigidBody& assign(ECS::Entity* e);
 
-    // Make a box shape
+    // Make different shapes
     static b2Shape* BoxShape(float w, float h);
+    static b2Shape* CircleShape(float x, float y, float r);
+    static b2Shape* LineShape(float x1, float y1, float x2, float y2);
 
     // Make this component scriptable
     static void registerFunctions();
@@ -27,6 +30,7 @@ class RigidBody {
     // Manipulated by physics system
     b2Vec2 previousPosition_;
     float previousAngle_;
+
 
     // Only change the body if there is none
     void setBody(b2Body* body);

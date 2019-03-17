@@ -4,6 +4,7 @@
 #include "Game.h"
 #include "Scene.h"
 #include "Config.h"
+#include "Scripting.h"
 
 // Initialise static members
 sf::RenderWindow Game::window_ = sf::RenderWindow();

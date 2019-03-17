@@ -3,13 +3,6 @@
 
 #include "RigidBody.h"
 
-
-// Make a RigidBody and assign to an entity
-RigidBody& 
-RigidBody::assign(ECS::Entity* e) {
-  return (e->assign<RigidBody>()).get();
-}
-
 // Make a box shape
 b2Shape* 
 RigidBody::BoxShape(float w, float h) {
@@ -18,13 +11,34 @@ RigidBody::BoxShape(float w, float h) {
   return new b2PolygonShape(polygon);
 }
 
+// Make a circle shape
+b2Shape* 
+RigidBody::CircleShape(float x, float y, float r) {
+  b2CircleShape circle;
+  circle.m_p.Set(x, y);
+  circle.m_radius = r;
+  return new b2CircleShape(circle);
+}
+
+// Line shape
+b2Shape* 
+RigidBody::LineShape(float x1, float y1, float x2, float y2) {
+  b2EdgeShape line;
+  line.Set(b2Vec2(x1, y1), b2Vec2(x2, y2));
+  return new b2EdgeShape(line);
+}
+
 // Make this component scriptable
 void 
 RigidBody::registerFunctions() {
 
-  // Register assign method
-  Game::lua.set_function("assignRigidBody", &assign);
+  // Register default methods
+  Script::registerComponentDefaults<RigidBody>("RigidBody");
+
+  // Register additional functions
   Game::lua.set_function("BoxShape", &BoxShape);
+  Game::lua.set_function("CircleShape", &CircleShape);
+  Game::lua.set_function("LineShape", &LineShape);
 
   // Create the RigidBody type
   Game::lua.new_usertype<RigidBody>("RigidBody",
@@ -35,6 +49,7 @@ RigidBody::registerFunctions() {
 
   // Different body types
   Game::lua.set("Physics_DynamicBody", b2_dynamicBody);
+  Game::lua.set("Physics_KinematicBody", b2_kinematicBody);
   Game::lua.set("Physics_StaticBody", b2_staticBody);
 
   // Create the BodyDef type
@@ -48,7 +63,8 @@ RigidBody::registerFunctions() {
     sol::constructors<b2FixtureDef()>(),
     "shape", &b2FixtureDef::shape,
     "density", &b2FixtureDef::density,
-    "friction", &b2FixtureDef::friction
+    "friction", &b2FixtureDef::friction,
+    "restitution", &b2FixtureDef::restitution
   );
 }
 

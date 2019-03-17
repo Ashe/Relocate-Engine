@@ -21,6 +21,9 @@ PhysicsSystem::registerPhysicsSystemFunctions(ECS::World* world) {
     Game::lua.set_function("getGravity", &PhysicsSystem::getGravity, newPS);
     Game::lua.set_function("setGravity", &PhysicsSystem::setGravity, newPS);
     Game::lua.set_function("setGravityMult", &PhysicsSystem::setGravityMult, newPS);
+    
+    // Register advanced component functions
+    Game::lua.set_function("warpTo", &PhysicsSystem::warpEntityTo, newPS);
 
     return newPS;
   });
@@ -38,6 +41,11 @@ PhysicsSystem::PhysicsSystem()
   // Set up the drawing of physics
 	physicsDebugDraw_.SetFlags(PhysicsDebugDraw::e_shapeBit);
 	world_.SetDebugDraw(&physicsDebugDraw_);
+}
+
+// Clean up the world
+PhysicsSystem::~PhysicsSystem() {
+  //@TODO: Figure out if we need to do something here?
 }
 
 // Handle the physics independant to game FPS
@@ -140,10 +148,8 @@ PhysicsSystem::ensureRigidBody(ECS::ComponentHandle<Transform> t, ECS::Component
 
     // Create any fixtures
     const std::vector<b2FixtureDef>& fixtureDefs_ = r->getFixtureDefs();
-    int count = 0;
     for (auto& fixture : fixtureDefs_) {
       body->CreateFixture(&fixture);
-      count++;
     }
   }
 }
@@ -165,6 +171,31 @@ PhysicsSystem::setGravityMult(float m) {
 void
 PhysicsSystem::setGravity(float gx, float gy) {
   world_.SetGravity(convertToB2(sf::Vector2f(gx, gy)));
+}
+
+// Warp an entity to somewhere
+void
+PhysicsSystem::warpEntityTo(ECS::Entity* e, float x, float y) {
+
+  // Convert destination to vector
+  const auto dest = sf::Vector2f(x, y);
+
+  // If it has a Transform, move it
+  auto t = e->get<Transform>();
+  if (t.isValid()) {
+    t->position = dest;
+  }
+
+  // If it has a RididBody, warp it through physics
+  auto r = e->get<RigidBody>();
+  if (r.isValid()) {
+    auto* body = r->getBody();
+    if (body != nullptr) {
+      body->SetTransform(convertToB2(dest), body->GetAngle());
+      body->SetLinearVelocity(b2Vec2(0, 0));
+      body->SetAwake(true);
+    }
+  }
 }
 
 // Convert to SFML vectors

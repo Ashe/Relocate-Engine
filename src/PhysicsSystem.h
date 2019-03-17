@@ -18,8 +18,9 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
     // Register a physics system in this world
     static void registerPhysicsSystemFunctions(ECS::World* world);
 
-    // Constructor
+    // Constructors
     PhysicsSystem();
+    ~PhysicsSystem();
 
     // Simulate Physics every update
     virtual void update(ECS::World* world, const sf::Time& dt) override;
@@ -32,6 +33,9 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
     void setGravity(float gx, float gy);
     void setGravityMult(float multiplier);
     sf::Vector2f getGravity() const;
+
+    // Warp entities
+    void warpEntityTo(ECS::Entity* e, float x, float y);
 
   private:
 
