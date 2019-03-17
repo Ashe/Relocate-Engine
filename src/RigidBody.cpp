@@ -1,7 +1,11 @@
 // RigidBody.cpp
-// A component encapsulating Box2D structure
+// A component encapsulating Box2D structures b2Body and b2Fixture
 
 #include "RigidBody.h"
+
+// Define statics
+b2World* RigidBody::worldToSpawnIn_ = nullptr;
+b2BodyDef RigidBody::defaultBodyDefinition_ = b2BodyDef();
 
 // Make a box shape
 b2Shape* 
@@ -28,9 +32,19 @@ RigidBody::LineShape(float x1, float y1, float x2, float y2) {
   return new b2EdgeShape(line);
 }
 
-// Make this component scriptable
+// Enable use of this component when physics system is enabled
 void 
-RigidBody::registerFunctions() {
+RigidBody::registerFunctions(b2World* world) {
+
+  // Debug message
+  if (Game::getDebugMode()) {
+    printf("Enabling usage of RigidBody components..\n");
+  }
+
+  // Set all future rigidbodies to use this world
+  // This takes away the responsibility of the programmer to
+  // pass the world around
+  worldToSpawnIn_ = world;
 
   // Register default methods
   Script::registerComponentDefaults<RigidBody>("RigidBody");
@@ -43,8 +57,8 @@ RigidBody::registerFunctions() {
   // Create the RigidBody type
   Game::lua.new_usertype<RigidBody>("RigidBody",
     sol::constructors<RigidBody()>(),
-    "bodyDef", sol::property(&RigidBody::getBodyDef, &RigidBody::setBodyDef),
-    "addFixtureDef", &RigidBody::addFixtureDef
+    "instantiate", &RigidBody::instantiateBody,
+    "addFixture", &RigidBody::addFixture
   );
 
   // Different body types
@@ -70,56 +84,34 @@ RigidBody::registerFunctions() {
 
 // Constructor
 RigidBody::RigidBody()
-  : previousPosition_(b2Vec2(0.0f, 0.0f))
-  , previousAngle_(0.0f)
-  , body_(nullptr) {}
+  : physics_(worldToSpawnIn_)
+  , body_(physics_->CreateBody(&defaultBodyDefinition_))
+  , previousPosition_(b2Vec2(0.0f, 0.0f))
+  , previousAngle_(0.0f) 
+  , isOutOfSync_(true) {}
 
-RigidBody::~RigidBody() {
-  // Delete all fixture shapes
-  for (auto& fixture : fixtureDefs_) {
-    if (fixture.shape != nullptr) {
-      delete fixture.shape;
-      fixture.shape = nullptr;
-    }
+// Destructor
+RigidBody::~RigidBody() {}
+
+// Recreate the b2Body out of a b2BodyDef
+void
+RigidBody::instantiateBody(const b2BodyDef& def) {
+
+  // If the body already exists, destroy it
+  if (body_ != nullptr) {
+   disposeList_.push_back(body_);
+   body_ = nullptr;
   }
+
+  // Create a new body out of the new definitions
+  body_ = physics_->CreateBody(&def);
+
+  // Mark this RididBody as out of sync with it's transform
+  isOutOfSync_ = true;
 }
 
-// Only change the body if there is none
-void 
-RigidBody::setBody(b2Body* body) {
-  if (body_ == nullptr) {
-    body_ = body;
-  }
-}
-
-// Retrieve the body, whatever it is
-b2Body* const
-RigidBody::getBody() {
-  return body_;
-}
-
-// Only set the bodydef if there's no body yet
-void 
-RigidBody::setBodyDef(const b2BodyDef& bodyDef) {
-  if (body_ == nullptr) {
-    bodyDef_ = b2BodyDef(bodyDef);
-  }
-}
-const b2BodyDef& 
-RigidBody::getBodyDef() {
-  return bodyDef_;
-}
-
-// Only set fixturedefs if there's no body yet
-void 
-RigidBody::addFixtureDef(const b2FixtureDef& fixtureDef) {
-  if (body_ == nullptr) {
-    fixtureDefs_.push_back(fixtureDef);
-  }
-}
-
-// Get fixturedefs
-const std::vector<b2FixtureDef>& 
-RigidBody::getFixtureDefs() {
-  return fixtureDefs_;
+// Add a fixture to this RigidBody
+void
+RigidBody::addFixture(const b2FixtureDef& def) {
+  body_->CreateFixture(&def);
 }

@@ -29,6 +29,9 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
     virtual void configure(ECS::World* world) override { world->subscribe<DebugRenderPhysicsEvent>(this); }
     virtual void unconfigure(ECS::World* world) override { world->unsubscribeAll(this); }
 
+    // Get this physics system's world
+    b2World* getWorld();
+
     // Change the gravity
     void setGravity(float gx, float gy);
     void setGravityMult(float multiplier);
@@ -68,10 +71,14 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
     int32 velocityIterations_ = 8;
     int32 positionIterations_ = 3;
 
+    // Step through physics once
     void singleStep(float timeStep);
+
+    // Interpolate between physics steps
     void smoothState(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r);
+
+    // Reset interpolation to the actual physics locations
     void resetSmoothStates(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r);
-    void ensureRigidBody(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r);
 
     // Conversion functions
     sf::Vector2f convertToSF(const b2Vec2& vec) const;

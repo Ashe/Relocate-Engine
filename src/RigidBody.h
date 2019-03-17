@@ -1,5 +1,5 @@
 // RigidBody.h
-// A component encapsulating Box2D structure
+// A component encapsulating Box2D structures b2Body and b2Fixture
 
 #ifndef RIGIDBODY_H
 #define RIGIDBODY_H
@@ -12,8 +12,8 @@
 class RigidBody {
   public:
 
-    // Make a RigidBody and assign to an entity
-    static RigidBody& assign(ECS::Entity* e);
+    // Friend of the physics system
+    friend class PhysicsSystem;
 
     // Make different shapes
     static b2Shape* BoxShape(float w, float h);
@@ -21,35 +21,47 @@ class RigidBody {
     static b2Shape* LineShape(float x1, float y1, float x2, float y2);
 
     // Make this component scriptable
-    static void registerFunctions();
+    static void registerFunctions(b2World* world);
 
     // Constructors
     RigidBody();
     ~RigidBody();
 
+    // Create the b2Body out of a b2BodyDef
+    void instantiateBody(const b2BodyDef& def);
+
+    // Add a fixture to this body
+    void addFixture(const b2FixtureDef& def);
+
+    // We have static operators so this operator must be defined
+    void operator= (const RigidBody& other) { 
+       body_ = other.body_;
+       previousPosition_ = other.previousPosition_;
+       previousAngle_ = other.previousAngle_;
+       isOutOfSync_ = other.isOutOfSync_;
+    }
+
+  private:
+
+    // Default body definition to use
+    static b2BodyDef defaultBodyDefinition_;
+
+    // The world of this object, not to be confused with the ECS world
+    static b2World* worldToSpawnIn_;
+    b2World* const physics_;
+
+    // The encapsulated body of this object
+    b2Body* body_;
+
     // Manipulated by physics system
     b2Vec2 previousPosition_;
     float previousAngle_;
 
+    // Marks whether this b2Body's position is out of sync with transform
+    bool isOutOfSync_;
 
-    // Only change the body if there is none
-    void setBody(b2Body* body);
-
-    // Retrieve the body, whatever it is
-    b2Body* const getBody();
-
-    // Only set the bodydef if there's no body yet
-    void setBodyDef(const b2BodyDef& bodyDef);
-    const b2BodyDef& getBodyDef();
-
-    // Only set fixturedefs if there's no body yet
-    void addFixtureDef(const b2FixtureDef& fixtureDef);
-    const std::vector<b2FixtureDef>& getFixtureDefs();
-
-  private:
-    b2Body* body_;
-    b2BodyDef bodyDef_;
-    std::vector<b2FixtureDef> fixtureDefs_;
+    // List of b2Bodys to destroy
+    std::vector<b2Body*> disposeList_;
 };
 
 #endif

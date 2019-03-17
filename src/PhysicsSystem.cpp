@@ -7,29 +7,41 @@
 void
 PhysicsSystem::registerPhysicsSystemFunctions(ECS::World* world) {
 
-  // Debug message
-  if (Game::getDebugMode()) {
-    printf("Initialising Physics\n");
-  }
-
   // Create and install physics system
   Game::lua.set_function("usePhysicsSystem", [world]() { 
+
+    // Debug message
+    if (Game::getDebugMode()) {
+      printf("Initialising Physics system..\n");
+    }
+
+    // Create the physics system to return to the world
     auto* newPS = new PhysicsSystem();
     world->registerSystem(newPS);
+
+    // Get the new physics world
+    b2World* physicsWorld = newPS->getWorld();
 
     // Register functions to address this system
     Game::lua.set_function("getGravity", &PhysicsSystem::getGravity, newPS);
     Game::lua.set_function("setGravity", &PhysicsSystem::setGravity, newPS);
     Game::lua.set_function("setGravityMult", &PhysicsSystem::setGravityMult, newPS);
-    
+    Game::lua.set_function("toPhysicsVec", &PhysicsSystem::convertToB2, newPS);
+    Game::lua.set_function("fromPhysicsVec", &PhysicsSystem::convertToSF, newPS);
+    Game::lua.set_function("physicsBodyCount", &b2World::GetBodyCount, physicsWorld);
+
     // Register advanced component functions
     Game::lua.set_function("warpTo", &PhysicsSystem::warpEntityTo, newPS);
 
+    // Allow the use of RigidBodies
+    RigidBody::registerFunctions(physicsWorld);
+
+    // Return the newly made physics system
     return newPS;
   });
 }
 
-// Constructor
+// Constructor, enable debugging of physics
 PhysicsSystem::PhysicsSystem() 
   : defaultGravity_(sf::Vector2f(0.f, 10.f))
   , world_(b2Vec2(defaultGravity_.x, defaultGravity_.y))
@@ -64,6 +76,22 @@ PhysicsSystem::update(ECS::World* world, const sf::Time& dt) {
   fixedTimeStepRatio_ = timeStepAccumilator_ / fixedTimeStep_;
   const int stepsClamped = std::min(steps, maxSteps_);
 
+  // Check if any b2Body's are out of sync
+  world->each<Transform, RigidBody>([&](ECS::Entity* e, ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r) {
+    b2Body* const body = r->body_;
+    if (r->isOutOfSync_ && body != nullptr) {
+      const b2Vec2 newPos = convertToB2(t->position);
+      const float newRot = t->rotation;
+      //printf("Setting new location to (%f, %f)\n", newPos.x, newPos.y);
+      //printf("Setting new rotation to %f\n", t->rotation);
+      body->SetTransform(newPos, newRot);
+      body->SetAwake(true);
+      r->previousPosition_ = newPos;
+      r->previousAngle_ = newRot;
+      r->isOutOfSync_ = false;
+    }
+  });
+
   // Simulate only when we should
   for (int i = 0; i < stepsClamped; ++i) {
 
@@ -79,10 +107,15 @@ PhysicsSystem::update(ECS::World* world, const sf::Time& dt) {
   // Reset applied forces
   world_.ClearForces();
 
-  // Create rigidbodies on entities that need them and tween
+  // Tween in between physics steps and destroy any old bodies
   world->each<Transform, RigidBody>([&](ECS::Entity* e, ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r) {
-    ensureRigidBody(t, r);
     smoothState(t, r);
+
+    // Dispose of any old bodies and clear the disposal list
+    for (auto* d : r->disposeList_) {
+      world_.DestroyBody(d);
+    }
+    r->disposeList_.clear();
   });
 }
 
@@ -97,7 +130,7 @@ void
 PhysicsSystem::smoothState(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> rb) {
 
   // Ensure there's a body to work with
-  b2Body* const body = rb->getBody();
+  b2Body* const body = rb->body_;
   if (body != nullptr) {
 
     // Set up variables
@@ -112,8 +145,11 @@ PhysicsSystem::smoothState(ECS::ComponentHandle<Transform> t, ECS::ComponentHand
         oneMinusRatio * rb->previousPosition_);
 
       // Tween rotation
-      t->rotation = body->GetAngle() +
-        oneMinusRatio * rb->previousAngle_;
+      t->rotation = body->GetAngle();
+      // @TODO: This code sets t->rotation to infinity and breaks the game
+      // it must be fixed in order to tween rotation
+      //  t->rotation = body->GetAngle() +
+      //  oneMinusRatio * rb->previousAngle_;
     }
   }
 }
@@ -123,7 +159,7 @@ void
 PhysicsSystem::resetSmoothStates(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r) {
 
   // Set up variables
-  b2Body* body = r->getBody();
+  b2Body* const body = r->body_;
 
   // Reset any smoothing
   if (body != nullptr && body->GetType() != b2_staticBody) {
@@ -132,26 +168,10 @@ PhysicsSystem::resetSmoothStates(ECS::ComponentHandle<Transform> t, ECS::Compone
   }
 }
 
-// Creates rigidbodies as needed
-void
-PhysicsSystem::ensureRigidBody(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r) {
-
-  // Create rigidbodies if they don't exist
-  if (r->getBody() == nullptr) {
-
-    // Make the rigidbody
-    b2Body* body = world_.CreateBody(&r->getBodyDef());
-    r->setBody(body);
-
-    // Initialise the body with correct transforms
-    body->SetTransform (convertToB2(t->position), t->rotation);
-
-    // Create any fixtures
-    const std::vector<b2FixtureDef>& fixtureDefs_ = r->getFixtureDefs();
-    for (auto& fixture : fixtureDefs_) {
-      body->CreateFixture(&fixture);
-    }
-  }
+// Get this system's physics world
+b2World*
+PhysicsSystem::getWorld() {
+  return &world_;
 }
 
 // Get gravity
@@ -186,14 +206,13 @@ PhysicsSystem::warpEntityTo(ECS::Entity* e, float x, float y) {
     t->position = dest;
   }
 
-  // If it has a RididBody, warp it through physics
+  // If it has a RididBody, set it as out of sync
   auto r = e->get<RigidBody>();
   if (r.isValid()) {
-    auto* body = r->getBody();
+    r->isOutOfSync_ = true;
+    auto* const body = r->body_;
     if (body != nullptr) {
-      body->SetTransform(convertToB2(dest), body->GetAngle());
       body->SetLinearVelocity(b2Vec2(0, 0));
-      body->SetAwake(true);
     }
   }
 }

@@ -56,9 +56,8 @@ Script::startLua() {
   // RenderWindow
   Game::lua.set_function("getWindowSize", &sf::RenderWindow::getSize);
 
-  // COMPONENTS
+  // GENERIC COMPONENTS
   Transform::registerFunctions();
-  RigidBody::registerFunctions();
 }
 
 // Register scene specific functions (for the world)
