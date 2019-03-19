@@ -48,11 +48,19 @@ Script::startLua() {
   // Vectors
   Funcs::registerVectors();
   // Time
-  Game::lua.set_function("asMicroseconds", &sf::Time::asMicroseconds);
-  Game::lua.set_function("asMilliseconds", &sf::Time::asMilliseconds);
-  Game::lua.set_function("asSeconds", &sf::Time::asSeconds);
+  Game::lua.set_function("microseconds", &sf::microseconds);
+  Game::lua.set_function("milliseconds", &sf::milliseconds);
+  Game::lua.set_function("seconds", &sf::seconds);
+  Game::lua.new_usertype<sf::Time>("Time",
+    sol::constructors<sf::Time()>(),
+    "asMicroseconds", &sf::Time::asMicroseconds,
+    "asMilliseconds", &sf::Time::asMilliseconds,
+    "asSeconds", &sf::Time::asSeconds
+  );
   // RenderWindow
-  Game::lua.set_function("getWindowSize", &sf::RenderWindow::getSize);
+  Game::lua.new_usertype<sf::RenderWindow>("RenderWindow",
+    "getSize", &sf::RenderWindow::getSize
+    );
 
   // REGISTER ENTITY FUNCTIONS
   Game::lua.new_usertype<ECS::Entity>("Entity",

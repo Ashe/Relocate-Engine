@@ -32,8 +32,10 @@ end
 -- When the scene is shown for the first time
 function onBegin()
 
-  size = getWindowSize(getWindow())
+  -- Get window size
+  size = getWindow():getSize()
 
+  -- Spawn bottom of map
   print("Spawning ground")
   ground = createEntity()
   groundTrans = ground:assignTransform()
