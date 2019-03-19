@@ -7,7 +7,7 @@
 #include "Scripting.h"
 
 // Initialise static members
-sf::RenderWindow Game::window_ = sf::RenderWindow();
+sf::RenderWindow* Game::window_ = nullptr;
 bool Game::multiThread_ = false;
 std::mutex Game::windowMutex_;
 bool Game::debug_ = false;
@@ -48,7 +48,7 @@ Game::initialise(const sf::VideoMode& mode, const std::string& title, bool multi
   }
 
   // Create window
-  window_.create(mode, title);
+  window_ = new sf::RenderWindow(mode, title);
 
   // Flag that the game is ready to start
   status_ = Game::Status::Ready;
@@ -76,7 +76,7 @@ Game::start() {
 
   // Disable the window
   if (multiThread_) {
-    window_.setActive(false);
+    window_->setActive(false);
   }
 
   // Pointer to the render thread if necessary
@@ -114,7 +114,7 @@ Game::start() {
     if (process) {
 
       // Collect events
-      while (window_.pollEvent(e)) {
+      while (window_->pollEvent(e)) {
         events.push_back(e);
       }
 
@@ -142,7 +142,9 @@ Game::start() {
 
     // Render every frame after updating
     if (!multiThread_) {
-      render();
+      if (status_ < Game::Status::ShuttingDown) {
+        render();
+      }
     }
     else {
       std::this_thread::yield();
@@ -191,15 +193,15 @@ void
 Game::render() {
 
   // Clear the window for rendering
-  window_.clear();
+  window_->clear();
 
   // Render the game if pointer is set
   if (currentScene_ != nullptr) {
-    currentScene_->render(window_);
+    currentScene_->render(*window_);
   }
 
   // Render everything in the screen
-  window_.display();
+  window_->display();
 }
 
 // Respond to any key or mouse related events
@@ -237,7 +239,8 @@ Game::terminate() {
   status_ = Game::Status::ShuttingDown;
 
   // Close the window, exiting the game loop
-  window_.close();
+  window_->close();
+  delete window_;
 }
 
 // Free resources before program closes
@@ -292,7 +295,7 @@ Game::openDevConsole() {
 // Get a pointer to the game's window
 const sf::RenderWindow*
 Game::getWindow() {
-  return &window_;
+  return window_;
 }
 
 // Get FPS of application

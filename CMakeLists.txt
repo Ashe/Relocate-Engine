@@ -23,6 +23,11 @@ set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake-modules/)
 message("Module path: ${CMAKE_MODULE_PATH}")
 
+# If on Windows, specify where these packages are installed
+if (WIN32)
+  set(SFML_DIR "C:/Program Files (x86)/SFML-2.5.1/lib/cmake/SFML")
+endif()
+
 # Find X11
 find_package(X11)
 
@@ -30,10 +35,13 @@ find_package(X11)
 find_package(Threads REQUIRED)
 
 # Find SFML
+set(SFML_STATIC_LIBRARIES TRUE)
 find_package(SFML 2.5.1 REQUIRED COMPONENTS window system graphics audio network)
 
 # Find Box2D
+set(BOX2D_STATIC_LIBRARIES TRUE)
 find_package(Box2D REQUIRED)
+include_directories(${BOX2D_INCLUDE_DIR})
 
 # Find lua
 find_package(Lua REQUIRED)
@@ -72,7 +80,7 @@ target_link_libraries(${EXECUTABLE_NAME}
   sfml-graphics
   sfml-audio
   sfml-network
-  Box2D
+  ${BOX2D_LIBRARY_DEBUG}
   ${X11_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${LUA_LIBRARIES}

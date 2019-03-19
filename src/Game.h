@@ -69,7 +69,7 @@ class Game {
     static bool debug_;
 
     // Window to render to
-    static sf::RenderWindow window_;
+    static sf::RenderWindow* window_;
 
     // Mutex to protect the window for rendering
     static std::mutex windowMutex_;
