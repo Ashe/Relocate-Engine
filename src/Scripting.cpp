@@ -20,8 +20,6 @@ Game::lua.new_usertype<TYPE>(NAME, \
   "y", &TYPE::y \
 );
 
-#define ENUM_TO_STR(ENUM) std::string(#ENUM)
-
 ///////////////////////
 // MANAGER FUNCTIONS //
 ///////////////////////
@@ -56,14 +54,26 @@ Script::startLua() {
   // RenderWindow
   Game::lua.set_function("getWindowSize", &sf::RenderWindow::getSize);
 
-  // GENERIC COMPONENTS
+  // REGISTER ENTITY FUNCTIONS
+  Game::lua.new_usertype<ECS::Entity>("Entity",
+    "removeAllComponents", [](ECS::Entity& self) {self.removeAll();}
+  );
+
+  // NON-SYSTEM COMPONENTS
   Transform::registerFunctions();
 }
 
-// Register scene specific functions (for the world)
+// Register scene specific functions (EG. SYSTEMS FOR THE WORLD)
 void
 Script::registerSceneFunctions(ECS::World* world) {
+
+  // Enable the creation and destruction of entities
   Game::lua.set_function("createEntity", &ECS::World::create, world);
+  Game::lua.new_usertype<ECS::Entity>("Entity",
+    "destroy", [world](ECS::Entity& self) { world->destroy(&self);}
+  );
+
+  // Register functions that 'turn on' systems in the world
   PhysicsSystem::registerPhysicsSystemFunctions(world);
 }
 

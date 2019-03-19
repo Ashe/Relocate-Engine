@@ -13,8 +13,8 @@ class Transform {
     // Make this component scriptable
     static void registerFunctions() {
 
-      // Make a way of assigning a transform to an entity
-      Script::registerComponentDefaults<Transform>("Transform");
+      // Register the usual assign, has, remove functions to Entity
+      Script::registerComponentToEntity<Transform>("Transform");
 
       // Create the Transform type
       Game::lua.new_usertype<Transform>("Transform",

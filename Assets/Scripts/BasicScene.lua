@@ -17,8 +17,8 @@ spawnPos = nil
 
 function spawnBox(x, y, size)
   box = createEntity()
-  boxTrans = assignTransform(box)
-  boxBody = assignRigidBody(box)
+  boxTrans = box:assignTransform()
+  boxBody = box:assignRigidBody()
   spawnPos = Vector2f.new(x, y)
   boxTrans.position = spawnPos
   print("Spawning box")
@@ -36,8 +36,8 @@ function onBegin()
 
   print("Spawning ground")
   ground = createEntity()
-  groundTrans = assignTransform(ground)
-  groundBody = assignRigidBody(ground)
+  groundTrans = ground:assignTransform()
+  groundBody = ground:assignRigidBody()
   groundTrans.position = Vector2f.new(size.x * 0.5, size.y * 0.9)
   fixture = FixtureDef.new()
   fixture.shape = LineShape(- size.x * 0.4, 0, size.x * 0.4, 0)
@@ -57,8 +57,7 @@ lastBox = nil
 -- Every scene tick
 function onUpdate(dt)
   if holdLeftMouse and lastBox then
-    r = getRigidBody(lastBox)
-    r:warpTo(spawnPos)
+    lastBox:getRigidBody():warpTo(spawnPos)
   end
 end
 
@@ -102,7 +101,7 @@ function onWindowEvent(ev)
       holdLeftMouse = false
       throwScale = 1
       impulse = Vector2f.new((mouseX - spawnPos.x) * throwScale, (mouseY - spawnPos.y) * throwScale)
-      getRigidBody(lastBox):applyImpulseToCentre(impulse)
+      lastBox:getRigidBody():applyImpulseToCentre(impulse)
       lastBox = nil
     end
 

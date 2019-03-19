@@ -4,6 +4,9 @@
 #ifndef SCRIPTING_H
 #define SCRIPTING_H
 
+#include <algorithm>
+#include <string>
+
 #include "Sol.h"
 #include "ECS.h"
 #include "Game.h"
@@ -36,24 +39,29 @@ namespace Script {
     void registerVectors();
     void registerEvents();
 
-    /////////////////////////
-    // COMPONENT FUNCTIONS //
-    /////////////////////////
+    ////////////////////////////////
+    // ENTITY COMPONENT FUNCTIONS //
+    ////////////////////////////////
 
     // Generic component defaults for Lua
     template <typename T> T& assign(ECS::Entity* e) { return (e->assign<T>()).get(); }
-    template <typename T> T& get(ECS::Entity* e) { return (e->get<T>()).get(); }
     template <typename T> bool has(ECS::Entity* e) { return e->has<T>(); }
+    template <typename T> T& get(ECS::Entity* e) { return (e->get<T>()).get(); }
+    template <typename T> void remove(ECS::Entity* e) {e->remove<T>();}
   };
 
   // Convenience function for defining glue code in Lua
   template <typename T> void
-  registerComponentDefaults(const std::string& name) {
-    Game::lua.set_function("assign" + name, &Funcs::assign<T>);
-    Game::lua.set_function("get" + name, &Funcs::get<T>);
-    Game::lua.set_function("has" + name, &Funcs::has<T>);
-  }
+  registerComponentToEntity(const std::string& name) {
 
+    // Create simple functions for use in Lua
+    Game::lua.new_usertype<ECS::Entity>("Entity",
+      "assign" + name, &Funcs::assign<T>,
+      "has" + name, &Funcs::has<T>,
+      "get" + name, &Funcs::get<T>,
+      "remove" + name, &Funcs::remove<T>
+    );
+  }
 };
 
 #endif

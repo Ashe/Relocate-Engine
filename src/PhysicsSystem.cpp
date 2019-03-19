@@ -77,8 +77,6 @@ PhysicsSystem::update(ECS::World* world, const sf::Time& dt) {
     if (r->isOutOfSync_ && body != nullptr) {
       const b2Vec2 newPos = convertToB2(t->position);
       const float newRot = t->rotation;
-      //printf("Setting new location to (%f, %f)\n", newPos.x, newPos.y);
-      //printf("Setting new rotation to %f\n", t->rotation);
       body->SetTransform(newPos, newRot);
       body->SetAwake(true);
       r->previousPosition_ = newPos;

@@ -54,7 +54,7 @@ RigidBody::registerFunctions(b2World* world) {
   worldToSpawnIn_ = world;
 
   // Register default methods
-  Script::registerComponentDefaults<RigidBody>("RigidBody");
+  Script::registerComponentToEntity<RigidBody>("RigidBody");
 
   // Register additional functions
   Game::lua.set_function("BoxShape", &BoxShape);
@@ -64,9 +64,15 @@ RigidBody::registerFunctions(b2World* world) {
   // Create the RigidBody type
   Game::lua.new_usertype<RigidBody>("RigidBody",
     sol::constructors<RigidBody()>(),
+    // Properties
+    "gravity", sol::property(
+      [](const RigidBody& self) {return self.body_->GetGravityScale();},
+      [](RigidBody& self, float g) {self.body_->SetGravityScale(g);}),
+    // Basic functions
     "instantiate", &RigidBody::instantiateBody,
     "addFixture", &RigidBody::addFixture,
     "warpTo", sol::overload(&RigidBody::warpTo, &RigidBody::warpToVec),
+    // Forces
     "applyForce", sol::overload(&RigidBody::applyForce, &RigidBody::applyForceVec),
     "applyForceToCentre", sol::overload(&RigidBody::applyForceToCentre, &RigidBody::applyForceToCentreVec),
     "applyForceRel", sol::overload(&RigidBody::applyForceRel, &RigidBody::applyForceRelVec),
