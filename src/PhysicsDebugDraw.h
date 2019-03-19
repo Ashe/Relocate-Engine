@@ -22,23 +22,14 @@ class PhysicsDebugDraw : public b2Draw {
     // Window to draw from
     sf::RenderWindow* window;
 
+    // Scale
     static float scale;
 
-		// Convert Box2D's OpenGL style color definition[0-1] to SFML's color definition[0-255]
-		// with optional alpha byte[Default - opaque]
-		static sf::Color GLColorToSFML(const b2Color &color, sf::Uint8 alpha = 255) {
-			return sf::Color(static_cast<sf::Uint8>(color.r * 255), 
-				static_cast<sf::Uint8>(color.g * 255), 
-				static_cast<sf::Uint8>(color.b * 255), alpha);
-		}
+    // Conversion functions
+		static sf::Color GLColorToSFML(const b2Color &color, sf::Uint8 alpha = 255);
+		static sf::Vector2f B2VecToSFVec(const b2Vec2 &vector, bool scaleToPixels = true);
 
-		// Convert Box2D's vector to SFML vector 
-		// [Default - scales the vector up by SCALE constants amount]
-		static sf::Vector2f B2VecToSFVec(const b2Vec2 &vector, bool scaleToPixels = true) {
-			return sf::Vector2f(vector.x * (scaleToPixels ? scale : 1.f), 
-				vector.y * (scaleToPixels ? scale : 1.f));
-		}
-
+    // Draw SFML objects
     void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override;
     void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override;
     void DrawCircle(const b2Vec2& center, float32 radius, const b2Color& color) override;

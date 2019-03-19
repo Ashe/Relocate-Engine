@@ -3,6 +3,9 @@
 
 #include "RigidBody.h"
 
+// Avoid cyclic dependancies
+#include "PhysicsSystem.h"
+
 // Define statics
 b2World* RigidBody::worldToSpawnIn_ = nullptr;
 b2BodyDef RigidBody::defaultBodyDefinition_ = b2BodyDef();
@@ -11,7 +14,8 @@ b2BodyDef RigidBody::defaultBodyDefinition_ = b2BodyDef();
 b2Shape* 
 RigidBody::BoxShape(float w, float h) {
   b2PolygonShape polygon;
-  polygon.SetAsBox(w, h);
+  const auto pos = PhysicsSystem::convertToB2(sf::Vector2f(w, h));
+  polygon.SetAsBox(pos.x, pos.y);
   return new b2PolygonShape(polygon);
 }
 
@@ -19,7 +23,8 @@ RigidBody::BoxShape(float w, float h) {
 b2Shape* 
 RigidBody::CircleShape(float x, float y, float r) {
   b2CircleShape circle;
-  circle.m_p.Set(x, y);
+  const auto pos = PhysicsSystem::convertToB2(sf::Vector2f(x, y));
+  circle.m_p.Set(pos.x, pos.y);
   circle.m_radius = r;
   return new b2CircleShape(circle);
 }
@@ -28,7 +33,9 @@ RigidBody::CircleShape(float x, float y, float r) {
 b2Shape* 
 RigidBody::LineShape(float x1, float y1, float x2, float y2) {
   b2EdgeShape line;
-  line.Set(b2Vec2(x1, y1), b2Vec2(x2, y2));
+  const auto begin = PhysicsSystem::convertToB2(sf::Vector2f(x1, y1));
+  const auto end = PhysicsSystem::convertToB2(sf::Vector2f(x2, y2));
+  line.Set(begin, end);
   return new b2EdgeShape(line);
 }
 
@@ -58,7 +65,14 @@ RigidBody::registerFunctions(b2World* world) {
   Game::lua.new_usertype<RigidBody>("RigidBody",
     sol::constructors<RigidBody()>(),
     "instantiate", &RigidBody::instantiateBody,
-    "addFixture", &RigidBody::addFixture
+    "addFixture", &RigidBody::addFixture,
+    "warpTo", sol::overload(&RigidBody::warpTo, &RigidBody::warpToVec),
+    "applyForce", sol::overload(&RigidBody::applyForce, &RigidBody::applyForceVec),
+    "applyForceToCentre", sol::overload(&RigidBody::applyForceToCentre, &RigidBody::applyForceToCentreVec),
+    "applyForceRel", sol::overload(&RigidBody::applyForceRel, &RigidBody::applyForceRelVec),
+    "applyImpulse", sol::overload(&RigidBody::applyImpulse, &RigidBody::applyImpulseVec),
+    "applyImpulseToCentre", sol::overload(&RigidBody::applyImpulseToCentre, &RigidBody::applyImpulseToCentreVec),
+    "applyImpulseRel", sol::overload(&RigidBody::applyImpulseRel, &RigidBody::applyImpulseRelVec)
   );
 
   // Different body types
@@ -76,9 +90,15 @@ RigidBody::registerFunctions(b2World* world) {
   Game::lua.new_usertype<b2FixtureDef>("FixtureDef",
     sol::constructors<b2FixtureDef()>(),
     "shape", &b2FixtureDef::shape,
-    "density", &b2FixtureDef::density,
-    "friction", &b2FixtureDef::friction,
-    "restitution", &b2FixtureDef::restitution
+    "density", sol::property(
+      [](const b2FixtureDef& self) {return self.density * PhysicsSystem::scale;},
+      [](b2FixtureDef& self, float d) {self.density = d / PhysicsSystem::scale;}),
+    "friction", sol::property(
+      [](const b2FixtureDef& self) {return self.friction * PhysicsSystem::scale;},
+      [](b2FixtureDef& self, float f) {self.friction = f / PhysicsSystem::scale;}),
+    "restitution", sol::property(
+      [](const b2FixtureDef& self) {return self.restitution * PhysicsSystem::scale; },
+      [](b2FixtureDef& self, float r) {self.restitution = r / PhysicsSystem::scale;})
   );
 }
 
@@ -114,4 +134,75 @@ RigidBody::instantiateBody(const b2BodyDef& def) {
 void
 RigidBody::addFixture(const b2FixtureDef& def) {
   body_->CreateFixture(&def);
+}
+
+// Warp somewhere instantaneously
+void 
+RigidBody::warpTo(float x, float y) {
+  warpToVec(sf::Vector2f(x,y));
+}
+void 
+RigidBody::warpToVec(const sf::Vector2f& dest) {
+  body_->SetTransform(PhysicsSystem::convertToB2(dest), body_->GetAngle());
+  body_->SetLinearVelocity(b2Vec2(0,0));
+}
+
+// Apply a force to the RigidBody
+void 
+RigidBody::applyForceToCentre(float i, float j) {
+  applyForceToCentreVec(sf::Vector2f(i,j));
+}
+void 
+RigidBody::applyForceToCentreVec(const sf::Vector2f& force) {
+  body_->ApplyForceToCenter(PhysicsSystem::convertToB2(force), true);
+}
+
+// Apply a force relative to the body's centre
+void 
+RigidBody::applyForceRel(float i, float j, float x, float y) {
+  applyForceRelVec(sf::Vector2f(i, j), sf::Vector2f(x, y));
+}
+void 
+RigidBody::applyForceRelVec(const sf::Vector2f& force, const sf::Vector2f& relPos) {
+  body_->ApplyForce(PhysicsSystem::convertToB2(force), body_->GetWorldPoint(PhysicsSystem::convertToB2(relPos)), true);
+}
+
+// Apply a force to this body from somewhere
+void 
+RigidBody::applyForce(float i, float j, float x, float y) {
+  applyForceVec(sf::Vector2f(i, j), sf::Vector2f(x, y));
+}
+void 
+RigidBody::applyForceVec(const sf::Vector2f& force, const sf::Vector2f& location) {
+  body_->ApplyForce(PhysicsSystem::convertToB2(force), PhysicsSystem::convertToB2(location), true);
+}
+
+// Apply an impulse to the RigidBody
+void
+RigidBody::applyImpulseToCentre(float i, float j) {
+  applyImpulseToCentreVec(sf::Vector2f(i, j));
+}
+void 
+RigidBody::applyImpulseToCentreVec(const sf::Vector2f& impulse) {
+  body_->ApplyLinearImpulseToCenter(PhysicsSystem::convertToB2(impulse), true);
+}
+
+// Apply an impulse relative to the body's centre
+void
+RigidBody::applyImpulseRel(float i, float j, float x, float y) {
+  applyImpulseRelVec(sf::Vector2f(i, j), sf::Vector2f(x, y));
+}
+void
+RigidBody::applyImpulseRelVec(const sf::Vector2f& impulse, const sf::Vector2f& relPos) {
+  body_->ApplyLinearImpulse(PhysicsSystem::convertToB2(impulse), body_->GetWorldPoint(PhysicsSystem::convertToB2(relPos)), true);
+}
+
+// Apply an impulse to this body from somewhere
+void
+RigidBody::applyImpulse(float i, float j, float x, float y) {
+  applyImpulseVec(sf::Vector2f(i, j), sf::Vector2f(x, y));
+}
+void
+RigidBody::applyImpulseVec(const sf::Vector2f& impulse, const sf::Vector2f& location) {
+  body_->ApplyLinearImpulse(PhysicsSystem::convertToB2(impulse), PhysicsSystem::convertToB2(location), true);
 }

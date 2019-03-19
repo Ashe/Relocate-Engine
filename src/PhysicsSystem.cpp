@@ -3,6 +3,9 @@
 
 #include "PhysicsSystem.h"
 
+// Define statics
+const float PhysicsSystem::scale = 100.f;
+
 // Register a physics system in this world
 void
 PhysicsSystem::registerPhysicsSystemFunctions(ECS::World* world) {
@@ -26,12 +29,7 @@ PhysicsSystem::registerPhysicsSystemFunctions(ECS::World* world) {
     Game::lua.set_function("getGravity", &PhysicsSystem::getGravity, newPS);
     Game::lua.set_function("setGravity", &PhysicsSystem::setGravity, newPS);
     Game::lua.set_function("setGravityMult", &PhysicsSystem::setGravityMult, newPS);
-    Game::lua.set_function("toPhysicsVec", &PhysicsSystem::convertToB2, newPS);
-    Game::lua.set_function("fromPhysicsVec", &PhysicsSystem::convertToSF, newPS);
     Game::lua.set_function("physicsBodyCount", &b2World::GetBodyCount, physicsWorld);
-
-    // Register advanced component functions
-    Game::lua.set_function("warpTo", &PhysicsSystem::warpEntityTo, newPS);
 
     // Allow the use of RigidBodies
     RigidBody::registerFunctions(physicsWorld);
@@ -47,9 +45,6 @@ PhysicsSystem::PhysicsSystem()
   , world_(b2Vec2(defaultGravity_.x, defaultGravity_.y))
   , timeStepAccumilator_(0.0f) {
 
-  // Ensure that the debug system's scale matches this system
-  PhysicsDebugDraw::scale = scale_;
-  
   // Set up the drawing of physics
 	physicsDebugDraw_.SetFlags(PhysicsDebugDraw::e_shapeBit);
 	world_.SetDebugDraw(&physicsDebugDraw_);
@@ -193,40 +188,16 @@ PhysicsSystem::setGravity(float gx, float gy) {
   world_.SetGravity(convertToB2(sf::Vector2f(gx, gy)));
 }
 
-// Warp an entity to somewhere
-void
-PhysicsSystem::warpEntityTo(ECS::Entity* e, float x, float y) {
-
-  // Convert destination to vector
-  const auto dest = sf::Vector2f(x, y);
-
-  // If it has a Transform, move it
-  auto t = e->get<Transform>();
-  if (t.isValid()) {
-    t->position = dest;
-  }
-
-  // If it has a RididBody, set it as out of sync
-  auto r = e->get<RigidBody>();
-  if (r.isValid()) {
-    r->isOutOfSync_ = true;
-    auto* const body = r->body_;
-    if (body != nullptr) {
-      body->SetLinearVelocity(b2Vec2(0, 0));
-    }
-  }
-}
-
 // Convert to SFML vectors
 sf::Vector2f 
-PhysicsSystem::convertToSF(const b2Vec2& vec) const {
-  return sf::Vector2f(vec.x * scale_, vec.y * scale_);
+PhysicsSystem::convertToSF(const b2Vec2& vec) {
+  return sf::Vector2f(vec.x * PhysicsSystem::scale, vec.y * PhysicsSystem::scale);
 }
 
 // Convert to Box2D vectors
 b2Vec2 
-PhysicsSystem::convertToB2(const sf::Vector2f& vec) const {
-  return b2Vec2(vec.x / scale_, vec.y / scale_);
+PhysicsSystem::convertToB2(const sf::Vector2f& vec) {
+  return b2Vec2(vec.x / PhysicsSystem::scale, vec.y / PhysicsSystem::scale);
 }
 
 // Render the physics in debug mode

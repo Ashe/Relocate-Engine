@@ -6,17 +6,21 @@
 -- onBegin() is just a formal function that runs AFTER this file is ready
 usePhysicsSystem()
 
+-- Global vars
 bodyDef = BodyDef.new()
 bodyDef.type = Physics_DynamicBody
 boxFixture = FixtureDef.new()
-boxFixture.density = 1
-boxFixture.friction = 0.3
+boxFixture.density = 20
+boxFixture.friction = 500
+
+spawnPos = nil
 
 function spawnBox(x, y, size)
   box = createEntity()
   boxTrans = assignTransform(box)
   boxBody = assignRigidBody(box)
-  boxTrans.position = Vector2f.new(x, y)
+  spawnPos = Vector2f.new(x, y)
+  boxTrans.position = spawnPos
   print("Spawning box")
   boxBody:instantiate(bodyDef)
   boxFixture.shape = BoxShape(size, size)
@@ -28,8 +32,6 @@ end
 -- When the scene is shown for the first time
 function onBegin()
 
-  --usePhysicsSystem()
-
   size = getWindowSize(getWindow())
 
   print("Spawning ground")
@@ -38,12 +40,12 @@ function onBegin()
   groundBody = assignRigidBody(ground)
   groundTrans.position = Vector2f.new(size.x * 0.5, size.y * 0.9)
   fixture = FixtureDef.new()
-  fixture.shape = LineShape(- size.x * 0.5, 0, size.x * 0.5, 0)
+  fixture.shape = LineShape(- size.x * 0.4, 0, size.x * 0.4, 0)
   groundBody:addFixture(fixture)
 end
 
--- Holding down right mouse
-holdRightMouse = false
+-- Holding down mousekeys
+holdLeftMouse = false
 
 -- Coords
 mouseX = 0
@@ -54,14 +56,16 @@ lastBox = nil
 
 -- Every scene tick
 function onUpdate(dt)
-  if holdRightMouse and lastBox then
-    warpTo(lastBox, mouseX, mouseY)
+  if holdLeftMouse and lastBox then
+    r = getRigidBody(lastBox)
+    r:warpTo(spawnPos)
   end
 end
 
 -- On Window events
 function onWindowEvent(ev)
 
+  -- Key pressed
   if ev.type == EventType_KeyPressed then
 
     -- Toggle debug on F1
@@ -73,30 +77,38 @@ function onWindowEvent(ev)
       openDevConsole()
     end
 
+  -- Mouse pressed
   elseif ev.type == EventType_MouseButtonPressed then
 
+    -- Record mouse
     mouseX = ev.mouseButton.x
     mouseY = ev.mouseButton.y
 
     -- Spawn box on left click
     if ev.mouseButton.button == MouseButton_Left then
-      lastBox = spawnBox(mouseX, mouseY, 0.5)
-
-    -- Warp on right click
-    elseif ev.mouseButton.button == MouseButton_Right then
-      if (lastBox) then
-        holdRightMouse = true
-      end
+      lastBox = spawnBox(mouseX, mouseY, 50)
+      holdLeftMouse = true
     end
 
+  -- Mouse release
   elseif ev.type == EventType_MouseButtonReleased then
-    if ev.mouseButton.button == MouseButton_Right then
-      holdRightMouse = false
+
+    -- Record mouse
+    mouseX = ev.mouseButton.x
+    mouseY = ev.mouseButton.y
+
+    -- On left release, 'fire' the object
+    if ev.mouseButton.button == MouseButton_Left then
+      holdLeftMouse = false
+      throwScale = 1
+      impulse = Vector2f.new((mouseX - spawnPos.x) * throwScale, (mouseY - spawnPos.y) * throwScale)
+      getRigidBody(lastBox):applyImpulseToCentre(impulse)
+      lastBox = nil
     end
 
+  -- Record where the mouse goes
   elseif ev.type == EventType_MouseMoved then
     mouseX = ev.mouseMove.x
     mouseY = ev.mouseMove.y
   end
-
 end

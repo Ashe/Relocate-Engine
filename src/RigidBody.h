@@ -33,6 +33,34 @@ class RigidBody {
     // Add a fixture to this body
     void addFixture(const b2FixtureDef& def);
 
+    // Warp this entity to a location instantaneously
+    void warpTo(float x, float y);
+    void warpToVec(const sf::Vector2f& dest);
+
+    // Apply a force to this body
+    void applyForceToCentre(float i, float j);
+    void applyForceToCentreVec(const sf::Vector2f& force);
+
+    // Apply a force relative to this body's position
+    void applyForceRel(float i, float j, float x, float y);
+    void applyForceRelVec(const sf::Vector2f& force, const sf::Vector2f& relPos);
+
+    // Apply a force to this body from somewhere
+    void applyForce(float i, float j, float x, float y);
+    void applyForceVec(const sf::Vector2f& force, const sf::Vector2f& location);
+
+    // Apply an impulse to this body
+    void applyImpulseToCentre(float i, float j);
+    void applyImpulseToCentreVec(const sf::Vector2f& impulse);
+
+    // Apply an impulse relative to this body's position
+    void applyImpulseRel(float i, float j, float x, float y);
+    void applyImpulseRelVec(const sf::Vector2f& impulse, const sf::Vector2f& relPos);
+
+    // Apply an impulse to this body from somewhere
+    void applyImpulse(float i, float j, float x, float y);
+    void applyImpulseVec(const sf::Vector2f& impulse, const sf::Vector2f& location);
+
     // We have static operators so this operator must be defined
     void operator= (const RigidBody& other) { 
        body_ = other.body_;

@@ -15,8 +15,18 @@
 class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<DebugRenderPhysicsEvent> {
   public:
 
+    // Friend class
+    friend class PhysicsDebugDraw;
+
     // Register a physics system in this world
     static void registerPhysicsSystemFunctions(ECS::World* world);
+
+    // Conversion functions
+    static sf::Vector2f convertToSF(const b2Vec2& vec);
+    static b2Vec2 convertToB2(const sf::Vector2f& vec);
+
+    // Scale between pixels and physics
+    static const float scale;
 
     // Constructors
     PhysicsSystem();
@@ -37,9 +47,6 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
     void setGravityMult(float multiplier);
     sf::Vector2f getGravity() const;
 
-    // Warp entities
-    void warpEntityTo(ECS::Entity* e, float x, float y);
-
   private:
 
     // Default gravity setting
@@ -59,9 +66,6 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
     // How long to wait per step
     const float fixedTimeStep_ = 1.0f / 60.0f;
 
-    // Scale between pixels and physics
-    const float scale_ = 100.f;
-
     // A more accurate 'step' for interpolation
     float fixedTimeStepRatio_;
 
@@ -80,12 +84,9 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
     // Reset interpolation to the actual physics locations
     void resetSmoothStates(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r);
 
-    // Conversion functions
-    sf::Vector2f convertToSF(const b2Vec2& vec) const;
-    b2Vec2 convertToB2(const sf::Vector2f& vec) const; 
-
     // Render the physics when debug mode is enabled
     virtual void receive(ECS::World* ecsWorld, const DebugRenderPhysicsEvent& ev) override;
+
 };
 
 #endif

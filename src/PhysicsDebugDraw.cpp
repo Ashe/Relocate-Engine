@@ -3,7 +3,25 @@
 
 #include "PhysicsDebugDraw.h"
 
-float PhysicsDebugDraw::scale = 1.f;
+// Avoid cyclic dependencies
+#include "PhysicsSystem.h"
+
+// Convert Box2D's OpenGL style color definition[0-1] to SFML's color definition[0-255]
+// with optional alpha byte[Default - opaque]
+sf::Color 
+PhysicsDebugDraw::GLColorToSFML(const b2Color &color, sf::Uint8 alpha) {
+  return sf::Color(static_cast<sf::Uint8>(color.r * 255),
+    static_cast<sf::Uint8>(color.g * 255),
+    static_cast<sf::Uint8>(color.b * 255), alpha);
+}
+
+// Convert Box2D's vector to SFML vector 
+// [Default - scales the vector up by SCALE constants amount]
+sf::Vector2f 
+PhysicsDebugDraw::B2VecToSFVec(const b2Vec2 &vector, bool scaleToPixels) {
+  return sf::Vector2f(vector.x * (scaleToPixels ? PhysicsSystem::scale : 1.f),
+    vector.y * (scaleToPixels ? PhysicsSystem::scale : 1.f));
+}
 
 void PhysicsDebugDraw::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {
 	sf::ConvexShape polygon(vertexCount);
@@ -37,8 +55,8 @@ void PhysicsDebugDraw::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCoun
 }
 
 void PhysicsDebugDraw::DrawCircle(const b2Vec2& center, float32 radius, const b2Color& color) {
-	sf::CircleShape circle(radius * scale);
-	circle.setOrigin(radius * scale, radius * scale);
+	sf::CircleShape circle(radius * PhysicsSystem::scale);
+	circle.setOrigin(radius * PhysicsSystem::scale, radius * PhysicsSystem::scale);
 	circle.setPosition(PhysicsDebugDraw::B2VecToSFVec(center));
 	circle.setFillColor(sf::Color::Transparent);
 	circle.setOutlineThickness(-1.f);
@@ -48,8 +66,8 @@ void PhysicsDebugDraw::DrawCircle(const b2Vec2& center, float32 radius, const b2
 }
 
 void PhysicsDebugDraw::DrawSolidCircle(const b2Vec2& center, float32 radius, const b2Vec2& axis, const b2Color& color) {
-	sf::CircleShape circle(radius * scale);
-	circle.setOrigin(radius * scale, radius * scale);
+	sf::CircleShape circle(radius * PhysicsSystem::scale);
+	circle.setOrigin(radius * PhysicsSystem::scale, radius * PhysicsSystem::scale);
 	circle.setPosition(PhysicsDebugDraw::B2VecToSFVec(center));
 	circle.setFillColor(PhysicsDebugDraw::GLColorToSFML(color, 60));
 	circle.setOutlineThickness(1.f);

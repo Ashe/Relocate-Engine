@@ -16,7 +16,6 @@ class Scene {
     ~Scene();
 
     void begin();
-    bool hasBegun();
     void registerFunctions();
     void update(const sf::Time& dt);
     void render(sf::RenderWindow& window);
