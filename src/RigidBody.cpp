@@ -190,7 +190,7 @@ RigidBody::applyImpulseToCentre(float i, float j) {
 }
 void 
 RigidBody::applyImpulseToCentreVec(const sf::Vector2f& impulse) {
-  body_->ApplyLinearImpulseToCenter(PhysicsSystem::convertToB2(impulse), true);
+  body_->ApplyLinearImpulse(PhysicsSystem::convertToB2(impulse), body_->GetWorldCenter(), true);
 }
 
 // Apply an impulse relative to the body's centre

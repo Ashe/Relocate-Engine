@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 20)
+set (Build_VERSION_TWEAK 21)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
@@ -25,6 +25,7 @@ message("Module path: ${CMAKE_MODULE_PATH}")
 
 # If on Windows, specify where these packages are installed
 if (WIN32)
+  set(SFML_STATIC_LIBRARIES TRUE)
   set(SFML_DIR "C:/Program Files (x86)/SFML-2.5.1/lib/cmake/SFML")
 endif()
 
@@ -35,7 +36,6 @@ find_package(X11)
 find_package(Threads REQUIRED)
 
 # Find SFML
-set(SFML_STATIC_LIBRARIES TRUE)
 find_package(SFML 2.5.1 REQUIRED COMPONENTS window system graphics audio network)
 
 # Find Box2D
@@ -73,6 +73,34 @@ target_sources(${EXECUTABLE_NAME} PRIVATE
   src/PhysicsDebugDraw.cpp
 )
 
+# Platform specific building
+if (WIN32)
+  # Link libraries so that they can be used in the project
+  target_link_libraries(${EXECUTABLE_NAME}
+    sfml-window
+    sfml-system
+    sfml-graphics
+    sfml-audio
+    sfml-network
+    ${BOX2D_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${LUA_LIBRARIES}
+  )
+endif()
+if(UNIX)
+  # Link libraries so that they can be used in the project
+  target_link_libraries(${EXECUTABLE_NAME}
+    sfml-window
+    sfml-system
+    sfml-graphics
+    sfml-audio
+    sfml-network
+    lua
+    X11
+    Box2D
+  )
+endif()
+
 # Link libraries so that they can be used in the project
 target_link_libraries(${EXECUTABLE_NAME}
   sfml-window
@@ -80,8 +108,8 @@ target_link_libraries(${EXECUTABLE_NAME}
   sfml-graphics
   sfml-audio
   sfml-network
-  ${BOX2D_LIBRARY_DEBUG}
   ${X11_LIBRARIES}
+  ${BOX2D_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${LUA_LIBRARIES}
 )
