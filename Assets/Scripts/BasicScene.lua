@@ -14,6 +14,9 @@ boxFixture.density = 20
 boxFixture.friction = 500
 ground = nil
 
+-- Create a dead rigidbody with no fixtures
+deadBody = createEntity():assignRigidBody()
+
 spawnPos = nil
 
 function spawnBox(x, y, size)
@@ -109,7 +112,7 @@ function onWindowEvent(ev)
         def = MouseJointDef.new()
         r = lastSpawnedBox:getRigidBody();
         def.target = r:getLocation()
-        def:setBodyA(ground:getRigidBody())
+        def:setBodyA(deadBody)
         def:setBodyB(r)
         def.maxForce = 100
         def.dampingRatio = 1
