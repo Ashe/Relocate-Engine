@@ -8,6 +8,6 @@
 
 #define Build_VERSION_MAJOR 0
 #define Build_VERSION_MINOR 0
-#define Build_VERSION_TWEAK 22
+#define Build_VERSION_TWEAK 23
 
 #endif

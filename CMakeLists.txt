@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 22)
+set (Build_VERSION_TWEAK 23)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
@@ -82,7 +82,7 @@ if (WIN32)
     sfml-graphics
     sfml-audio
     sfml-network
-    ${BOX2D_LIBRARIES}
+    ${BOX2D_LIBRARY_DEBUG}
     ${CMAKE_THREAD_LIBS_INIT}
     ${LUA_LIBRARIES}
   )
@@ -100,19 +100,6 @@ if(UNIX)
     Box2D
   )
 endif()
-
-# Link libraries so that they can be used in the project
-target_link_libraries(${EXECUTABLE_NAME}
-  sfml-window
-  sfml-system
-  sfml-graphics
-  sfml-audio
-  sfml-network
-  ${X11_LIBRARIES}
-  ${BOX2D_LIBRARIES}
-  ${CMAKE_THREAD_LIBS_INIT}
-  ${LUA_LIBRARIES}
-)
 
 # Copy assets
 file(COPY ${CMAKE_SOURCE_DIR}/Assets DESTINATION ${CMAKE_BINARY_DIR})
