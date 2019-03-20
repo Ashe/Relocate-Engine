@@ -18,7 +18,6 @@ class Transform {
 
       // Create the Transform type
       Game::lua.new_usertype<Transform>("Transform",
-        sol::constructors<Transform(float, float, float)>(),
         "position", &Transform::position,
         "rotation", &Transform::rotation
       );

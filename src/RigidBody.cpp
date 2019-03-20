@@ -63,7 +63,6 @@ RigidBody::registerFunctions(b2World* world) {
 
   // Create the RigidBody type
   Game::lua.new_usertype<RigidBody>("RigidBody",
-    sol::constructors<RigidBody()>(),
     // Properties
     "gravity", sol::property(
       [](const RigidBody& self) {return self.body_->GetGravityScale();},
@@ -71,6 +70,7 @@ RigidBody::registerFunctions(b2World* world) {
     // Basic functions
     "instantiate", &RigidBody::instantiateBody,
     "addFixture", &RigidBody::addFixture,
+    "getLocation", [](const RigidBody& self){return PhysicsSystem::convertToSF(self.body_->GetWorldCenter());},
     "warpTo", sol::overload(&RigidBody::warpTo, &RigidBody::warpToVec),
     // Forces
     "applyForce", sol::overload(&RigidBody::applyForce, &RigidBody::applyForceVec),
@@ -105,6 +105,33 @@ RigidBody::registerFunctions(b2World* world) {
     "restitution", sol::property(
       [](const b2FixtureDef& self) {return self.restitution * PhysicsSystem::scale; },
       [](b2FixtureDef& self, float r) {self.restitution = r / PhysicsSystem::scale;})
+  );
+
+  // Define mouse joint creation
+  Game::lua.set_function("createMouseJoint", 
+      [world](const b2MouseJointDef& def){return (b2MouseJoint*) world->CreateJoint(&def);});
+  Game::lua.new_usertype<b2MouseJointDef>("MouseJointDef",
+    sol::constructors<b2MouseJointDef()>(),
+    "dampingRatio", &b2MouseJointDef::dampingRatio,
+    "frequency", &b2MouseJointDef::frequencyHz,
+    "maxForce", &b2MouseJointDef::maxForce,
+    "foo", &b2MouseJointDef::bodyA,
+    "setBodyA", [](b2MouseJointDef& self, RigidBody& body){self.bodyA = body.body_;},
+    "setBodyB", [](b2MouseJointDef& self, RigidBody& body){self.bodyB = body.body_;},
+    "target", sol::property(
+      [](const b2MouseJointDef& self) {return PhysicsSystem::convertToSF(self.target);},
+      [](b2MouseJointDef& self, const sf::Vector2f& target) {self.target = PhysicsSystem::convertToB2(target);})
+  );
+  Game::lua.new_usertype<b2MouseJoint>("MouseJoint",
+   "destroy", [world](b2MouseJoint& self){world->DestroyJoint(&self);},
+   "getAnchorA", &b2MouseJoint::GetAnchorA,
+   "getAnchorB", &b2MouseJoint::GetAnchorB,
+   "frequency", sol::property(&b2MouseJoint::GetFrequency, &b2MouseJoint::SetFrequency),
+   "maxForce", sol::property(&b2MouseJoint::GetMaxForce, &b2MouseJoint::SetMaxForce),
+   "dampingRatio", sol::property(&b2MouseJoint::GetDampingRatio, &b2MouseJoint::SetDampingRatio),
+   "target", sol::property(
+     [](const b2MouseJoint& self) {return PhysicsSystem::convertToSF(self.GetTarget());},
+     [](b2MouseJoint& self, const sf::Vector2f& target) {self.SetTarget(PhysicsSystem::convertToB2(target));})
   );
 }
 

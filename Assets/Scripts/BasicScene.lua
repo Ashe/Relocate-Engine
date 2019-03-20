@@ -12,11 +12,13 @@ bodyDef.type = Physics_DynamicBody
 boxFixture = FixtureDef.new()
 boxFixture.density = 20
 boxFixture.friction = 500
+ground = nil
 
 spawnPos = nil
 
 function spawnBox(x, y, size)
   box = createEntity()
+  lastSpawnedBox = box
   boxTrans = box:assignTransform()
   boxBody = box:assignRigidBody()
   spawnPos = Vector2f.new(x, y)
@@ -54,12 +56,23 @@ mouseX = 0
 mouseY = 0
 
 -- The last box that was spawned
-lastBox = nil
+boxToThrow = nil
+lastSpawnedBox = nil
+
+-- The joint used for right clicking
+joint = nil
 
 -- Every scene tick
 function onUpdate(dt)
-  if holdLeftMouse and lastBox then
-    lastBox:getRigidBody():warpTo(spawnPos)
+
+  -- Hold the current box
+  if holdLeftMouse and boxToThrow then
+    boxToThrow:getRigidBody():warpTo(spawnPos)
+  end
+
+  -- Pull the last spawned box
+  if joint then
+    joint.target = Vector2f.new(mouseX, mouseY)
   end
 end
 
@@ -87,8 +100,21 @@ function onWindowEvent(ev)
 
     -- Spawn box on left click
     if ev.mouseButton.button == MouseButton_Left then
-      lastBox = spawnBox(mouseX, mouseY, 50)
+      boxToThrow = spawnBox(mouseX, mouseY, 50)
       holdLeftMouse = true
+
+    -- Drag the last box on right click
+    elseif ev.mouseButton.button == MouseButton_Right then
+      if lastSpawnedBox then
+        def = MouseJointDef.new()
+        r = lastSpawnedBox:getRigidBody();
+        def.target = r:getLocation()
+        def:setBodyA(ground:getRigidBody())
+        def:setBodyB(r)
+        def.maxForce = 100
+        def.dampingRatio = 1
+        joint = createMouseJoint(def)
+      end
     end
 
   -- Mouse release
@@ -103,8 +129,15 @@ function onWindowEvent(ev)
       holdLeftMouse = false
       throwScale = 1
       impulse = Vector2f.new((mouseX - spawnPos.x) * throwScale, (mouseY - spawnPos.y) * throwScale)
-      lastBox:getRigidBody():applyImpulseToCentre(impulse)
-      lastBox = nil
+      boxToThrow:getRigidBody():applyImpulseToCentre(impulse)
+      boxToThrow = nil
+
+    -- On right release, delete the joint
+    elseif ev.mouseButton.button == MouseButton_Right then
+      if joint then
+        joint:destroy()
+        joint = nil
+      end
     end
 
   -- Record where the mouse goes
