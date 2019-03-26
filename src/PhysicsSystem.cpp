@@ -33,9 +33,6 @@ PhysicsSystem::registerPhysicsSystemFunctions(sol::environment& env, ECS::World*
 
     // Allow the use of RigidBodies
     RigidBody::registerFunctions(env, physicsWorld);
-
-    // Return the newly made physics system
-    return newPS;
   });
 }
 

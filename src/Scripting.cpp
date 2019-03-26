@@ -8,7 +8,9 @@
 #include "Transform.h"
 #include "RigidBody.h"
 #include "Possession.h"
+
 #include "PhysicsSystem.h"
+#include "ControlSystem.h"
 
 ////////////
 // MACROS //
@@ -86,6 +88,7 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
 
   // Register functions that 'turn on' systems in the world
   PhysicsSystem::registerPhysicsSystemFunctions(env, world);
+  ControlSystem::registerControlSystemFunctions(env, world);
 }
 
 ///////////////////////

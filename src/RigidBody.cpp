@@ -67,9 +67,15 @@ RigidBody::registerFunctions(sol::environment& env, b2World* world) {
     // Create the RigidBody type
     env.new_usertype<RigidBody>("RigidBody",
       // Properties
+      "type", sol::property(
+        [](const RigidBody& self) {return self.body_->GetType();},
+        [](RigidBody& self, const b2BodyType& type) { self.body_->SetType(type);}),
       "gravity", sol::property(
         [](const RigidBody& self) {return self.body_->GetGravityScale();},
         [](RigidBody& self, float g) {self.body_->SetGravityScale(g);}),
+      "isFixedRotation", sol::property(
+        [](const RigidBody& self) {return self.body_->IsFixedRotation();},
+        [](RigidBody& self, bool isFixed) { self.body_->SetFixedRotation(isFixed);}),
       // Basic functions
       "instantiate", &RigidBody::instantiateBody,
       "addFixture", &RigidBody::addFixture,
@@ -120,7 +126,8 @@ RigidBody::registerNonDependantFunctions() {
   // Create the BodyDef type
   Game::lua.new_usertype<b2BodyDef>("BodyDef",
     sol::constructors<b2BodyDef()>(),
-    "type", &b2BodyDef::type
+    "type", &b2BodyDef::type,
+    "isFixedRotation", &b2BodyDef::fixedRotation
   );
 
   // Different body types

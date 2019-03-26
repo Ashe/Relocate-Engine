@@ -4,8 +4,7 @@
 #include "Scene.h"
 
 // Avoid cyclic dependencies
-#include "Possession.h"
-#include "RigidBody.h"
+#include "ControlSystem.h"
 
 // Constructor
 Scene::Scene(const std::string& script) 
@@ -135,19 +134,29 @@ void
 Scene::handleEvent(const sf::Event& event) {
 
   // Control the scene
-  world_->each<Possession>([&](ECS::Entity* e, ECS::ComponentHandle<Possession> p) {
-    auto r = e->get<RigidBody>();
-    if (r.isValid() && event.type == sf::Event::KeyPressed) {
+  if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased) {
+    const int inv = event.type == sf::Event::KeyPressed ? 1 : -1;
 
-      // Move left or right
-      if (event.key.code == sf::Keyboard::A) {
-        r->applyImpulseToCentreVec(sf::Vector2f(-100.f, 0.f));
-      }
-      if (event.key.code == sf::Keyboard::D) {
-        r->applyImpulseToCentreVec(sf::Vector2f(100.f, 0.f));
-      }
+    // Move left or right
+    if (event.key.code == sf::Keyboard::A) {
+      ControlSystem::inputAxis.x += -1 * inv;
     }
-  });
+    if (event.key.code == sf::Keyboard::D) {
+      ControlSystem::inputAxis.x += 1 * inv;
+    }
+    if (ControlSystem::inputAxis.x > 1) ControlSystem::inputAxis.x = 1;
+    if (ControlSystem::inputAxis.x < -1) ControlSystem::inputAxis.x = -1;
+
+    // Up and down (for flight)
+    if (event.key.code == sf::Keyboard::W) {
+      ControlSystem::inputAxis.y += -1 * inv;
+    }
+    if (event.key.code == sf::Keyboard::S) {
+      ControlSystem::inputAxis.y += 1 * inv;
+    }
+    if (ControlSystem::inputAxis.y > 1) ControlSystem::inputAxis.y = 1;
+    if (ControlSystem::inputAxis.y < -1) ControlSystem::inputAxis.y = -1;
+  }
 
   // Call scene's input script
   if (onWindowEvent.valid()) {

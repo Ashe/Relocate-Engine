@@ -18,7 +18,7 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
     // Friend class
     friend class PhysicsDebugDraw;
 
-    // Register a physics system in this world
+    // Register a Physics System in this world
     static void registerPhysicsSystemFunctions(sol::environment& env, ECS::World* world);
 
     // Conversion functions

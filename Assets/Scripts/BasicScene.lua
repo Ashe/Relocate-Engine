@@ -23,6 +23,7 @@ function onBegin()
   -- These are parsed when the file is read and activated
   -- onBegin() is just a formal function that runs AFTER the file is ready
   usePhysicsSystem()
+  useControlSystem()
 
   -- Get window size
   size = getWindow():getSize()
@@ -62,14 +63,15 @@ function onBegin()
   local player = createEntity()
   local possession = player:assignPossession()
   local playerTrans = player:assignTransform()
-  local playerBody = player:assignRigidBody()
   playerTrans.position = Vector2f.new(size.x * 0.5, size.y * 0.5)
-  fixture = FixtureDef.new()
-  fixture.shape = BoxShape(32, 64)
-  fixture.density = 20
+  local playerBody = player:assignRigidBody()
   local bodyDef = BodyDef.new()
   bodyDef.type = Physics_DynamicBody
+  bodyDef.isFixedRotation = true
   playerBody:instantiate(bodyDef)
+  fixture = FixtureDef.new()
+  fixture.shape = BoxShape(32, 64)
+  fixture.density = 100
   playerBody:addFixture(fixture)
   
 end
