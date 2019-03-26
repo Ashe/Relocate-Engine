@@ -3,6 +3,10 @@
 
 #include "Scene.h"
 
+// Avoid cyclic dependencies
+#include "Possession.h"
+#include "RigidBody.h"
+
 // Constructor
 Scene::Scene(const std::string& script) 
   : hasBegun_(false)
@@ -130,7 +134,22 @@ Scene::render(sf::RenderWindow& window) {
 void
 Scene::handleEvent(const sf::Event& event) {
 
-  // Call scene's update script
+  // Control the scene
+  world_->each<Possession>([&](ECS::Entity* e, ECS::ComponentHandle<Possession> p) {
+    auto r = e->get<RigidBody>();
+    if (r.isValid() && event.type == sf::Event::KeyPressed) {
+
+      // Move left or right
+      if (event.key.code == sf::Keyboard::A) {
+        r->applyImpulseToCentreVec(sf::Vector2f(-100.f, 0.f));
+      }
+      if (event.key.code == sf::Keyboard::D) {
+        r->applyImpulseToCentreVec(sf::Vector2f(100.f, 0.f));
+      }
+    }
+  });
+
+  // Call scene's input script
   if (onWindowEvent.valid()) {
     auto attempt = onWindowEvent(event);
     if (!attempt.valid()) {

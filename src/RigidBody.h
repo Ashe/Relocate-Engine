@@ -38,6 +38,10 @@ class RigidBody {
     void warpTo(float x, float y);
     void warpToVec(const sf::Vector2f& dest);
 
+    // Set linear velocity
+    void setLinearVelocity(float i, float j);
+    void setLinearVelocityVec(const sf::Vector2f& vel);
+
     // Apply a force to this body
     void applyForceToCentre(float i, float j);
     void applyForceToCentreVec(const sf::Vector2f& force);

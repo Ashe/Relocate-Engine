@@ -56,6 +56,22 @@ function onBegin()
   local fixture = FixtureDef.new()
   fixture.shape = LineShape(- size.x * 0.4, 0, size.x * 0.4, 0)
   groundBody:addFixture(fixture)
+
+  -- Spawn the player
+  print("Spawning player")
+  local player = createEntity()
+  local possession = player:assignPossession()
+  local playerTrans = player:assignTransform()
+  local playerBody = player:assignRigidBody()
+  playerTrans.position = Vector2f.new(size.x * 0.5, size.y * 0.5)
+  fixture = FixtureDef.new()
+  fixture.shape = BoxShape(32, 64)
+  fixture.density = 20
+  local bodyDef = BodyDef.new()
+  bodyDef.type = Physics_DynamicBody
+  playerBody:instantiate(bodyDef)
+  playerBody:addFixture(fixture)
+  
 end
 
 -- Every scene tick
