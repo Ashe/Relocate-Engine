@@ -67,33 +67,23 @@ Script::startLua() {
     "removeAllComponents", [](ECS::Entity& self) {self.removeAll();}
   );
 
-  // NON-SYSTEM COMPONENTS
+  // COMPONENTS
   Transform::registerFunctions();
+  RigidBody::registerNonDependantFunctions();
 }
 
 // Register scene specific functions (EG. SYSTEMS FOR THE WORLD)
 void
-Script::registerSceneFunctions(ECS::World* world) {
+Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
 
   // Enable the creation and destruction of entities
-  Game::lua.set_function("createEntity", &ECS::World::create, world);
-  Game::lua.new_usertype<ECS::Entity>("Entity",
+  env.set_function("createEntity", &ECS::World::create, world);
+  env.new_usertype<ECS::Entity>("Entity",
     "destroy", [world](ECS::Entity& self) { world->destroy(&self);}
   );
 
   // Register functions that 'turn on' systems in the world
-  PhysicsSystem::registerPhysicsSystemFunctions(world);
-}
-
-// Unregister the standard scene functionality
-void
-Script::unregisterSceneFunctions() {
-  Game::lua.set_function("onBegin", &Funcs::emptyFunction);
-  Game::lua.set_function("onUpdate", &Funcs::emptyUpdateFunction);
-  Game::lua.set_function("onWindowEvent", &Funcs::emptyWindowEventFunction);
-  Game::lua.set_function("onShow", &Funcs::emptyFunction);
-  Game::lua.set_function("onHide", &Funcs::emptyFunction);
-  Game::lua.set_function("onQuit", &Game::terminate);
+  PhysicsSystem::registerPhysicsSystemFunctions(env, world);
 }
 
 ///////////////////////

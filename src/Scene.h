@@ -34,6 +34,17 @@ class Scene {
 
     // Script file
     const std::string& script_;
+
+    // The environment for this scene
+    sol::environment lua_;
+
+    // Functions for this scene
+    sol::protected_function onBegin;
+    sol::protected_function onShow;
+    sol::protected_function onHide;
+    sol::protected_function onUpdate;
+    sol::protected_function onWindowEvent;
+    sol::protected_function onQuit;
 };
 
 #endif

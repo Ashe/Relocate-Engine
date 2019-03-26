@@ -20,7 +20,7 @@ void
 Scene::begin() {
 
   // Try to call the begin function from this scene's lua
-  sol::protected_function onBegin = Game::lua["onBegin"];
+  sol::protected_function onBegin = lua_["onBegin"];
 	auto attempt = onBegin();
 	if (!attempt.valid()) {
 		sol::error err = attempt;
@@ -36,8 +36,20 @@ Scene::begin() {
 // Run this scene's script to register it's functions
 void
 Scene::registerFunctions() {
-  Script::registerSceneFunctions(world_);
-  Game::lua.script_file(script_, sol::script_pass_on_error);
+
+  // Set up environment
+  lua_ = sol::environment(Game::lua, sol::create, Game::lua.globals());
+  Game::lua.script_file(script_, lua_, sol::script_pass_on_error);
+  Script::registerSceneFunctions(lua_, world_);
+  Game::lua["Scene"] = lua_;
+
+  // Save this scene's functions
+  onBegin = lua_["onBegin"];
+  onShow = lua_["onShow"];
+  onHide = lua_["onHide"];
+  onUpdate = lua_["onUpdate"];
+  onWindowEvent = lua_["onWindowEvent"];
+  onQuit = lua_["onQuit"];
 }
 
 // When the screen is shown
@@ -50,12 +62,13 @@ Scene::showScene() {
   }
 
   // Try to call the begin function from this scene's lua
-  sol::protected_function onShow = Game::lua["onShow"];
-	auto attempt = onShow();
-	if (!attempt.valid()) {
-		sol::error err = attempt;
-    if (Game::getDebugMode()) {
-      printf("Error has occured: %s\n", err.what());
+  if (onShow.valid()) {
+    auto attempt = onShow();
+    if (!attempt.valid()) {
+      sol::error err = attempt;
+      if (Game::getDebugMode()) {
+        printf("Error has occured: %s\n", err.what());
+      }
     }
   }
 }
@@ -63,12 +76,13 @@ Scene::showScene() {
 // When the screen is hidden
 void
 Scene::hideScene() {
-  sol::protected_function onHide = Game::lua["onHide"];
-	auto attempt = onHide();
-	if (!attempt.valid()) {
-		sol::error err = attempt;
-    if (Game::getDebugMode()) {
-      printf("Error has occured: %s\n", err.what());
+  if (onHide.valid()) {
+    auto attempt = onHide();
+    if (!attempt.valid()) {
+      sol::error err = attempt;
+      if (Game::getDebugMode()) {
+        printf("Error has occured: %s\n", err.what());
+      }
     }
   }
 }
@@ -78,12 +92,13 @@ void
 Scene::update(const sf::Time& dt) {
 
   // Call scene's update script
-  sol::protected_function onUpdate = Game::lua["onUpdate"];
-	auto attempt = onUpdate(dt);
-	if (!attempt.valid()) {
-		sol::error err = attempt;
-    if (Game::getDebugMode()) {
-      printf("Error has occured: %s\n", err.what());
+  if (onUpdate.valid()) {
+    auto attempt = onUpdate(dt);
+    if (!attempt.valid()) {
+      sol::error err = attempt;
+      if (Game::getDebugMode()) {
+        printf("Error has occured: %s\n", err.what());
+      }
     }
   }
 
@@ -116,12 +131,13 @@ void
 Scene::handleEvent(const sf::Event& event) {
 
   // Call scene's update script
-  sol::protected_function onWindowEvent = Game::lua["onWindowEvent"];
-	auto attempt = onWindowEvent(event);
-	if (!attempt.valid()) {
-		sol::error err = attempt;
-    if (Game::getDebugMode()) {
-      printf("Error has occured: %s\n", err.what());
+  if (onWindowEvent.valid()) {
+    auto attempt = onWindowEvent(event);
+    if (!attempt.valid()) {
+      sol::error err = attempt;
+      if (Game::getDebugMode()) {
+        printf("Error has occured: %s\n", err.what());
+      }
     }
   }
 }
@@ -129,14 +145,18 @@ Scene::handleEvent(const sf::Event& event) {
 // When the game is quit
 void
 Scene::quit() {
-  sol::protected_function onQuit = Game::lua["onQuit"];
-	auto attempt = onQuit();
-	if (!attempt.valid()) {
-		sol::error err = attempt;
-    if (Game::getDebugMode()) {
-      printf("Error has occured: %s\n", err.what());
-      printf("Terminating program anyway.\n");
+  bool quitAnyway = !onQuit.valid();
+  if (!quitAnyway) {
+    auto attempt = onQuit();
+    if (!attempt.valid()) {
+      quitAnyway = true;
+      sol::error err = attempt;
+      if (Game::getDebugMode()) { printf("Error has occured: %s\n", err.what()); }
     }
+  }
+  if (quitAnyway) {
+    quitAnyway = false;
+    if (Game::getDebugMode()) { printf("Terminating program.\n"); }
     Game::terminate();
   }
 }

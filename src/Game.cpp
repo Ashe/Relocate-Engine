@@ -260,9 +260,6 @@ Game::switchScene(Scene* scene) {
     currentScene_->hideScene();
   }
 
-  // Unregister previous scene's functions
-  Script::unregisterSceneFunctions();
-
   // Change the screen to be rendered
   currentScene_ = scene;
 

@@ -17,10 +17,7 @@ namespace Script {
   void startLua();
 
   // Register scene-specific functions
-  void registerSceneFunctions(ECS::World* world);
-
-  // Unregister functions that belong to a scene
-  void unregisterSceneFunctions();
+  void registerSceneFunctions(sol::environment& env, ECS::World* world);
 
   namespace Funcs {
 
@@ -51,11 +48,23 @@ namespace Script {
   };
 
   // Convenience function for defining glue code in Lua
+  // Convenience function for defining glue code in Lua
   template <typename T> void
   registerComponentToEntity(const std::string& name) {
 
     // Create simple functions for use in Lua
     Game::lua.new_usertype<ECS::Entity>("Entity",
+      "assign" + name, &Funcs::assign<T>,
+      "has" + name, &Funcs::has<T>,
+      "get" + name, &Funcs::get<T>,
+      "remove" + name, &Funcs::remove<T>
+    );
+  }
+  template <typename T> void
+  registerComponentToEntity(sol::environment& env, const std::string& name) {
+
+    // Create simple functions for use in Lua
+    env.new_usertype<ECS::Entity>("Entity",
       "assign" + name, &Funcs::assign<T>,
       "has" + name, &Funcs::has<T>,
       "get" + name, &Funcs::get<T>,

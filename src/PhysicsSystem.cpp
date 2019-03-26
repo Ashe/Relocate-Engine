@@ -8,10 +8,10 @@ const float PhysicsSystem::scale = 100.f;
 
 // Register a physics system in this world
 void
-PhysicsSystem::registerPhysicsSystemFunctions(ECS::World* world) {
+PhysicsSystem::registerPhysicsSystemFunctions(sol::environment& env, ECS::World* world) {
 
   // Create and install physics system
-  Game::lua.set_function("usePhysicsSystem", [world]() { 
+  env.set_function("usePhysicsSystem", [&env, world]() { 
 
     // Debug message
     if (Game::getDebugMode()) {
@@ -26,13 +26,13 @@ PhysicsSystem::registerPhysicsSystemFunctions(ECS::World* world) {
     b2World* physicsWorld = newPS->getWorld();
 
     // Register functions to address this system
-    Game::lua.set_function("getGravity", &PhysicsSystem::getGravity, newPS);
-    Game::lua.set_function("setGravity", &PhysicsSystem::setGravity, newPS);
-    Game::lua.set_function("setGravityMult", &PhysicsSystem::setGravityMult, newPS);
-    Game::lua.set_function("physicsBodyCount", &b2World::GetBodyCount, physicsWorld);
+    env.set_function("getGravity", &PhysicsSystem::getGravity, newPS);
+    env.set_function("setGravity", &PhysicsSystem::setGravity, newPS);
+    env.set_function("setGravityMult", &PhysicsSystem::setGravityMult, newPS);
+    env.set_function("physicsBodyCount", &b2World::GetBodyCount, physicsWorld);
 
     // Allow the use of RigidBodies
-    RigidBody::registerFunctions(physicsWorld);
+    RigidBody::registerFunctions(env, physicsWorld);
 
     // Return the newly made physics system
     return newPS;

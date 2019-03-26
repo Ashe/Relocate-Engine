@@ -41,7 +41,7 @@ RigidBody::LineShape(float x1, float y1, float x2, float y2) {
 
 // Enable use of this component when physics system is enabled
 void 
-RigidBody::registerFunctions(b2World* world) {
+RigidBody::registerFunctions(sol::environment& env, b2World* world) {
 
   // Debug message
   if (Game::getDebugMode()) {
@@ -53,44 +53,79 @@ RigidBody::registerFunctions(b2World* world) {
   // pass the world around
   worldToSpawnIn_ = world;
 
-  // Register default methods
-  Script::registerComponentToEntity<RigidBody>("RigidBody");
-
   // Register additional functions
-  Game::lua.set_function("BoxShape", &BoxShape);
-  Game::lua.set_function("CircleShape", &CircleShape);
-  Game::lua.set_function("LineShape", &LineShape);
+  env.set_function("BoxShape", &BoxShape);
+  env.set_function("CircleShape", &CircleShape);
+  env.set_function("LineShape", &LineShape);
 
-  // Create the RigidBody type
-  Game::lua.new_usertype<RigidBody>("RigidBody",
-    // Properties
-    "gravity", sol::property(
-      [](const RigidBody& self) {return self.body_->GetGravityScale();},
-      [](RigidBody& self, float g) {self.body_->SetGravityScale(g);}),
-    // Basic functions
-    "instantiate", &RigidBody::instantiateBody,
-    "addFixture", &RigidBody::addFixture,
-    "getLocation", [](const RigidBody& self){return PhysicsSystem::convertToSF(self.body_->GetWorldCenter());},
-    "warpTo", sol::overload(&RigidBody::warpTo, &RigidBody::warpToVec),
-    // Forces
-    "applyForce", sol::overload(&RigidBody::applyForce, &RigidBody::applyForceVec),
-    "applyForceToCentre", sol::overload(&RigidBody::applyForceToCentre, &RigidBody::applyForceToCentreVec),
-    "applyForceRel", sol::overload(&RigidBody::applyForceRel, &RigidBody::applyForceRelVec),
-    "applyImpulse", sol::overload(&RigidBody::applyImpulse, &RigidBody::applyImpulseVec),
-    "applyImpulseToCentre", sol::overload(&RigidBody::applyImpulseToCentre, &RigidBody::applyImpulseToCentreVec),
-    "applyImpulseRel", sol::overload(&RigidBody::applyImpulseRel, &RigidBody::applyImpulseRelVec)
+  // Register the RigidBody only if there's a 'world'
+  if (worldToSpawnIn_ != nullptr) {
+
+    // Register default methods
+    Script::registerComponentToEntity<RigidBody>(env, "RigidBody");
+
+    // Create the RigidBody type
+    env.new_usertype<RigidBody>("RigidBody",
+      // Properties
+      "gravity", sol::property(
+        [](const RigidBody& self) {return self.body_->GetGravityScale();},
+        [](RigidBody& self, float g) {self.body_->SetGravityScale(g);}),
+      // Basic functions
+      "instantiate", &RigidBody::instantiateBody,
+      "addFixture", &RigidBody::addFixture,
+      "getLocation", [](const RigidBody& self){return PhysicsSystem::convertToSF(self.body_->GetWorldCenter());},
+      "warpTo", sol::overload(&RigidBody::warpTo, &RigidBody::warpToVec),
+      // Forces
+      "applyForce", sol::overload(&RigidBody::applyForce, &RigidBody::applyForceVec),
+      "applyForceToCentre", sol::overload(&RigidBody::applyForceToCentre, &RigidBody::applyForceToCentreVec),
+      "applyForceRel", sol::overload(&RigidBody::applyForceRel, &RigidBody::applyForceRelVec),
+      "applyImpulse", sol::overload(&RigidBody::applyImpulse, &RigidBody::applyImpulseVec),
+      "applyImpulseToCentre", sol::overload(&RigidBody::applyImpulseToCentre, &RigidBody::applyImpulseToCentreVec),
+      "applyImpulseRel", sol::overload(&RigidBody::applyImpulseRel, &RigidBody::applyImpulseRelVec)
+    );
+  }
+
+  // Define mouse joint creation
+  env.set_function("createMouseJoint", 
+      [world](const b2MouseJointDef& def){return (b2MouseJoint*) world->CreateJoint(&def);});
+  env.new_usertype<b2MouseJointDef>("MouseJointDef",
+    sol::constructors<b2MouseJointDef()>(),
+    "dampingRatio", &b2MouseJointDef::dampingRatio,
+    "frequency", &b2MouseJointDef::frequencyHz,
+    "maxForce", &b2MouseJointDef::maxForce,
+    "foo", &b2MouseJointDef::bodyA,
+    "setBodyA", [](b2MouseJointDef& self, RigidBody& body){self.bodyA = body.body_;},
+    "setBodyB", [](b2MouseJointDef& self, RigidBody& body){self.bodyB = body.body_;},
+    "target", sol::property(
+      [](const b2MouseJointDef& self) {return PhysicsSystem::convertToSF(self.target);},
+      [](b2MouseJointDef& self, const sf::Vector2f& target) {self.target = PhysicsSystem::convertToB2(target);})
+  );
+  env.new_usertype<b2MouseJoint>("MouseJoint",
+   "destroy", [world](b2MouseJoint& self){world->DestroyJoint(&self);},
+   "getAnchorA", &b2MouseJoint::GetAnchorA,
+   "getAnchorB", &b2MouseJoint::GetAnchorB,
+   "frequency", sol::property(&b2MouseJoint::GetFrequency, &b2MouseJoint::SetFrequency),
+   "maxForce", sol::property(&b2MouseJoint::GetMaxForce, &b2MouseJoint::SetMaxForce),
+   "dampingRatio", sol::property(&b2MouseJoint::GetDampingRatio, &b2MouseJoint::SetDampingRatio),
+   "target", sol::property(
+     [](const b2MouseJoint& self) {return PhysicsSystem::convertToSF(self.GetTarget());},
+     [](b2MouseJoint& self, const sf::Vector2f& target) {self.SetTarget(PhysicsSystem::convertToB2(target));})
+  );
+}
+
+// Register functions that don't need a physics world
+void
+RigidBody::registerNonDependantFunctions() {
+  // Create the BodyDef type
+  Game::lua.new_usertype<b2BodyDef>("BodyDef",
+    sol::constructors<b2BodyDef()>(),
+    "type", &b2BodyDef::type
   );
 
   // Different body types
   Game::lua.set("Physics_DynamicBody", b2_dynamicBody);
   Game::lua.set("Physics_KinematicBody", b2_kinematicBody);
   Game::lua.set("Physics_StaticBody", b2_staticBody);
-
-  // Create the BodyDef type
-  Game::lua.new_usertype<b2BodyDef>("BodyDef",
-    sol::constructors<b2BodyDef()>(),
-    "type", &b2BodyDef::type
-  );
 
   // Create the FixtureDef type
   Game::lua.new_usertype<b2FixtureDef>("FixtureDef",
@@ -105,33 +140,6 @@ RigidBody::registerFunctions(b2World* world) {
     "restitution", sol::property(
       [](const b2FixtureDef& self) {return self.restitution * PhysicsSystem::scale; },
       [](b2FixtureDef& self, float r) {self.restitution = r / PhysicsSystem::scale;})
-  );
-
-  // Define mouse joint creation
-  Game::lua.set_function("createMouseJoint", 
-      [world](const b2MouseJointDef& def){return (b2MouseJoint*) world->CreateJoint(&def);});
-  Game::lua.new_usertype<b2MouseJointDef>("MouseJointDef",
-    sol::constructors<b2MouseJointDef()>(),
-    "dampingRatio", &b2MouseJointDef::dampingRatio,
-    "frequency", &b2MouseJointDef::frequencyHz,
-    "maxForce", &b2MouseJointDef::maxForce,
-    "foo", &b2MouseJointDef::bodyA,
-    "setBodyA", [](b2MouseJointDef& self, RigidBody& body){self.bodyA = body.body_;},
-    "setBodyB", [](b2MouseJointDef& self, RigidBody& body){self.bodyB = body.body_;},
-    "target", sol::property(
-      [](const b2MouseJointDef& self) {return PhysicsSystem::convertToSF(self.target);},
-      [](b2MouseJointDef& self, const sf::Vector2f& target) {self.target = PhysicsSystem::convertToB2(target);})
-  );
-  Game::lua.new_usertype<b2MouseJoint>("MouseJoint",
-   "destroy", [world](b2MouseJoint& self){world->DestroyJoint(&self);},
-   "getAnchorA", &b2MouseJoint::GetAnchorA,
-   "getAnchorB", &b2MouseJoint::GetAnchorB,
-   "frequency", sol::property(&b2MouseJoint::GetFrequency, &b2MouseJoint::SetFrequency),
-   "maxForce", sol::property(&b2MouseJoint::GetMaxForce, &b2MouseJoint::SetMaxForce),
-   "dampingRatio", sol::property(&b2MouseJoint::GetDampingRatio, &b2MouseJoint::SetDampingRatio),
-   "target", sol::property(
-     [](const b2MouseJoint& self) {return PhysicsSystem::convertToSF(self.GetTarget());},
-     [](b2MouseJoint& self, const sf::Vector2f& target) {self.SetTarget(PhysicsSystem::convertToB2(target));})
   );
 }
 

@@ -3,4 +3,5 @@
 -- You can use this space to create global functions
 
 print("Running GameConfig.lua")
+
 setDebugMode(true)

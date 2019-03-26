@@ -19,7 +19,7 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
     friend class PhysicsDebugDraw;
 
     // Register a physics system in this world
-    static void registerPhysicsSystemFunctions(ECS::World* world);
+    static void registerPhysicsSystemFunctions(sol::environment& env, ECS::World* world);
 
     // Conversion functions
     static sf::Vector2f convertToSF(const b2Vec2& vec);

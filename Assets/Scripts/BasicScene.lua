@@ -1,29 +1,11 @@
 -- BasicScene.lua
 -- Lua file for the default scene
 
--- We define what systems we want to use
--- These are parsed when the file is read and activated
--- onBegin() is just a formal function that runs AFTER this file is ready
-usePhysicsSystem()
-
--- Global vars
-bodyDef = BodyDef.new()
-bodyDef.type = Physics_DynamicBody
-boxFixture = FixtureDef.new()
-boxFixture.density = 20
-boxFixture.friction = 500
-ground = nil
-
--- Create a dead rigidbody with no fixtures
-deadBody = createEntity():assignRigidBody()
-
-spawnPos = nil
-
-function spawnBox(x, y, size)
-  box = createEntity()
+local function spawnBox(x, y, size)
+  local box = createEntity()
   lastSpawnedBox = box
-  boxTrans = box:assignTransform()
-  boxBody = box:assignRigidBody()
+  local boxTrans = box:assignTransform()
+  local boxBody = box:assignRigidBody()
   spawnPos = Vector2f.new(x, y)
   boxTrans.position = spawnPos
   print("Spawning box")
@@ -37,33 +19,44 @@ end
 -- When the scene is shown for the first time
 function onBegin()
 
+  -- We define what systems we want to use
+  -- These are parsed when the file is read and activated
+  -- onBegin() is just a formal function that runs AFTER the file is ready
+  usePhysicsSystem()
+
   -- Get window size
   size = getWindow():getSize()
 
+  -- Spawn a 'dead' RigidBody
+  deadBody = createEntity():assignRigidBody()
+
+  -- Create global vars
+  bodyDef = BodyDef.new()
+  bodyDef.type = Physics_DynamicBody
+  boxFixture = FixtureDef.new()
+  boxFixture.density = 20
+  boxFixture.friction = 500
+
+  -- Holding down mousekeys
+  holdLeftMouse = false
+
+  -- Coords
+  mouseX = 0
+  mouseY = 0
+
+  -- The joint used for right clicking
+  joint = nil
+
   -- Spawn bottom of map
   print("Spawning ground")
-  ground = createEntity()
-  groundTrans = ground:assignTransform()
-  groundBody = ground:assignRigidBody()
+  local ground = createEntity()
+  local groundTrans = ground:assignTransform()
+  local groundBody = ground:assignRigidBody()
   groundTrans.position = Vector2f.new(size.x * 0.5, size.y * 0.9)
-  fixture = FixtureDef.new()
+  local fixture = FixtureDef.new()
   fixture.shape = LineShape(- size.x * 0.4, 0, size.x * 0.4, 0)
   groundBody:addFixture(fixture)
 end
-
--- Holding down mousekeys
-holdLeftMouse = false
-
--- Coords
-mouseX = 0
-mouseY = 0
-
--- The last box that was spawned
-boxToThrow = nil
-lastSpawnedBox = nil
-
--- The joint used for right clicking
-joint = nil
 
 -- Every scene tick
 function onUpdate(dt)
@@ -130,7 +123,7 @@ function onWindowEvent(ev)
     -- On left release, 'fire' the object
     if ev.mouseButton.button == MouseButton_Left then
       holdLeftMouse = false
-      throwScale = 1
+      local throwScale = 1
       impulse = Vector2f.new((mouseX - spawnPos.x) * throwScale, (mouseY - spawnPos.y) * throwScale)
       boxToThrow:getRigidBody():applyImpulseToCentre(impulse)
       boxToThrow = nil

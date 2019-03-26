@@ -21,7 +21,8 @@ class RigidBody {
     static b2Shape* LineShape(float x1, float y1, float x2, float y2);
 
     // Make this component scriptable
-    static void registerFunctions(b2World* world);
+    static void registerFunctions(sol::environment& env, b2World* world);
+    static void registerNonDependantFunctions();
 
     // Constructors
     RigidBody();
