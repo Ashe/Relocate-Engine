@@ -7,6 +7,7 @@
 #include "Game.h"
 #include "Transform.h"
 #include "RigidBody.h"
+#include "Possession.h"
 #include "PhysicsSystem.h"
 
 ////////////
@@ -70,6 +71,7 @@ Script::startLua() {
   // COMPONENTS
   Transform::registerFunctions();
   RigidBody::registerNonDependantFunctions();
+  Possession::registerFunctions();
 }
 
 // Register scene specific functions (EG. SYSTEMS FOR THE WORLD)
