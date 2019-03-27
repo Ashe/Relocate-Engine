@@ -72,8 +72,9 @@ function onBegin()
   fixture = FixtureDef.new()
   fixture.shape = BoxShape(32, 64)
   fixture.density = 100
+  fixture.friction = 500
   playerBody:addFixture(fixture)
-  
+
 end
 
 -- Every scene tick

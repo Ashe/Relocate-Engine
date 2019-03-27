@@ -38,9 +38,8 @@ ControlSystem::update(ECS::World* world, const sf::Time& dt) {
     // If we have a RigidBody, we can move it
     auto r = e->get<RigidBody>();
     if (r.isValid()) {
-      float XAxisSpeed = 0.005f;
-      float YAxisSpeed = 0.015f;
-      r->applyImpulseToCentre(inputAxis.x * XAxisSpeed, inputAxis.y * YAxisSpeed);
+      const auto speed = sf::Vector2f(inputAxis.x * 2.f, inputAxis.y * 2.f);
+      r->applyImpulseToCentreVec(speed * dt.asSeconds() * 500.f);
     }
   });
 }
