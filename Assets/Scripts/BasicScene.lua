@@ -62,6 +62,13 @@ function onBegin()
   print("Spawning player")
   local player = createEntity()
   local possession = player:assignPossession()
+  local movement = player:assignMovement()
+  movement.movementSpeed = 100
+  movement.canSprint = true
+  movement.sprintSpeedMult = 3
+  movement.canJump = true
+  movement.canFly = true
+  movement.flightSpeed = 100
   local playerTrans = player:assignTransform()
   playerTrans.position = Vector2f.new(size.x * 0.5, size.y * 0.5)
   local playerBody = player:assignRigidBody()

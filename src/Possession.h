@@ -7,7 +7,7 @@
 #include "Game.h"
 #include "Scripting.h"
 
-// Class to allow possession
+// Component to allow possession
 class Possession {
   public:
 
@@ -28,6 +28,5 @@ class Possession {
     // Whether this component should respond to input
     bool isActive;
 };
-
 
 #endif

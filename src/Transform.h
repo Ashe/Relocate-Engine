@@ -7,6 +7,7 @@
 #include "Game.h"
 #include "Scripting.h"
 
+// The position of which things should be rendered at
 class Transform {
   public:
 
@@ -28,7 +29,10 @@ class Transform {
       : position(sf::Vector2f(x, y))
       , rotation(r) {}
 
+    // Position of the entity to render
     sf::Vector2f position;
+
+    // Rotation of the entity to render
     float rotation;
 };
 

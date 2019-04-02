@@ -11,6 +11,7 @@
 #include "ECS.h"
 #include "Game.h"
 
+// Everything to do with scripting goes in this namespace
 namespace Script {
 
   // Begin using Lua and register functions
@@ -19,6 +20,7 @@ namespace Script {
   // Register scene-specific functions
   void registerSceneFunctions(sol::environment& env, ECS::World* world);
 
+  // Helper functions are contained in this namespace
   namespace Funcs {
 
     ///////////////////////
@@ -47,7 +49,6 @@ namespace Script {
     template <typename T> void remove(ECS::Entity* e) {e->remove<T>();}
   };
 
-  // Convenience function for defining glue code in Lua
   // Convenience function for defining glue code in Lua
   template <typename T> void
   registerComponentToEntity(const std::string& name) {

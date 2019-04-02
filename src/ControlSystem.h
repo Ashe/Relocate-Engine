@@ -9,19 +9,25 @@
 
 #include "Possession.h"
 #include "RigidBody.h"
+#include "Movement.h"
 
+// System that manipulates possessed entities
 class ControlSystem : public ECS::EntitySystem {
   public:
 
     // Register Control System in the world
     static void registerControlSystemFunctions(sol::environment& env, ECS::World* world);
 
-    // All control systems will 'know' about input
-    static sf::Vector2f inputAxis;
+    // Handle input and store meaningful actions
+    static void handleInput(const sf::Event& ev);
 
     // Constructors
     ControlSystem();
     ~ControlSystem();
+
+    // All control systems will 'know' about input
+    static sf::Vector2f inputAxis;
+    static bool isSprinting;
 
     // Manipulate all possessed components using their data
     virtual void update(ECS::World* world, const sf::Time& dt) override;

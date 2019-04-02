@@ -74,6 +74,7 @@ Script::startLua() {
   Transform::registerFunctions();
   RigidBody::registerNonDependantFunctions();
   Possession::registerFunctions();
+  Movement::registerFunctions();
 }
 
 // Register scene specific functions (EG. SYSTEMS FOR THE WORLD)

@@ -81,8 +81,12 @@ RigidBody::registerFunctions(sol::environment& env, b2World* world) {
       "addFixture", &RigidBody::addFixture,
       "getLocation", [](const RigidBody& self){return PhysicsSystem::convertToSF(self.body_->GetWorldCenter());},
       "warpTo", sol::overload(&RigidBody::warpTo, &RigidBody::warpToVec),
-      "setLinearVelocity", sol::overload(&RigidBody::setLinearVelocity, &RigidBody::setLinearVelocityVec),
+      // Properties
+      "linearVelocity", sol::property(
+        &RigidBody::getLinearVelocity,
+        &RigidBody::setLinearVelocityVec),
       // Forces
+      "setLinearVelocity", sol::overload(&RigidBody::setLinearVelocity, &RigidBody::setLinearVelocityVec),
       "applyForce", sol::overload(&RigidBody::applyForce, &RigidBody::applyForceVec),
       "applyForceToCentre", sol::overload(&RigidBody::applyForceToCentre, &RigidBody::applyForceToCentreVec),
       "applyForceRel", sol::overload(&RigidBody::applyForceRel, &RigidBody::applyForceRelVec),
@@ -204,6 +208,12 @@ RigidBody::setLinearVelocity(float i, float j) {
 void
 RigidBody::setLinearVelocityVec(const sf::Vector2f& vel) {
   body_->SetLinearVelocity(PhysicsSystem::convertToB2(vel));
+}
+
+// Get linear velocity
+sf::Vector2f
+RigidBody::getLinearVelocity() const {
+  return PhysicsSystem::convertToSF(body_->GetLinearVelocity());
 }
 
 // Apply a force to the RigidBody

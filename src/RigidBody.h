@@ -9,6 +9,7 @@
 #include <Box2D/Box2D.h>
 #include <vector>
 
+// Encapsulate physics interactions
 class RigidBody {
   public:
 
@@ -41,6 +42,9 @@ class RigidBody {
     // Set linear velocity
     void setLinearVelocity(float i, float j);
     void setLinearVelocityVec(const sf::Vector2f& vel);
+
+    // Get linear velocity
+    sf::Vector2f getLinearVelocity() const;
 
     // Apply a force to this body
     void applyForceToCentre(float i, float j);
