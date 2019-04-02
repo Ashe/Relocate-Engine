@@ -63,9 +63,9 @@ function onBegin()
   local player = createEntity()
   local possession = player:assignPossession()
   local movement = player:assignMovement()
-  movement.movementSpeed = 100
+  movement.movementSpeed = 300
   movement.canSprint = true
-  movement.sprintSpeedMult = 3
+  movement.sprintSpeedMult = 2
   movement.canJump = true
   movement.canFly = true
   movement.flightSpeed = 100
@@ -79,8 +79,9 @@ function onBegin()
   fixture = FixtureDef.new()
   fixture.shape = BoxShape(32, 64)
   fixture.density = 100
+  fixture.friction = 500
   playerBody:addFixture(fixture)
-  
+
 end
 
 -- Every scene tick
