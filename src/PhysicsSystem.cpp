@@ -42,6 +42,9 @@ PhysicsSystem::PhysicsSystem()
   , world_(b2Vec2(defaultGravity_.x, defaultGravity_.y))
   , timeStepAccumilator_(0.0f) {
 
+  // Set up our contact listener
+  world_.SetContactListener(&contactListener_);
+
   // Set up the drawing of physics
 	physicsDebugDraw_.SetFlags(PhysicsDebugDraw::e_shapeBit);
 	world_.SetDebugDraw(&physicsDebugDraw_);

@@ -6,6 +6,7 @@
 
 #include "Game.h"
 #include "Scripting.h"
+#include "ContactListener.h"
 #include <Box2D/Box2D.h>
 #include <vector>
 
@@ -34,6 +35,12 @@ class RigidBody {
 
     // Add a fixture to this body
     void addFixture(const b2FixtureDef& def);
+
+    // Get number of contacts under this entity
+    bool getIsOnGround() const;
+
+    // Get the mass of this body
+    float getMass() const;
 
     // Warp this entity to a location instantaneously
     void warpTo(float x, float y);
@@ -70,6 +77,10 @@ class RigidBody {
     void applyImpulse(float i, float j, float x, float y);
     void applyImpulseVec(const sf::Vector2f& impulse, const sf::Vector2f& location);
 
+    // On collide 
+    void startContact(const FixtureType& type);
+    void endContact(const FixtureType& type);
+
     // We have static operators so this operator must be defined
     void operator= (const RigidBody& other) { 
        body_ = other.body_;
@@ -94,11 +105,17 @@ class RigidBody {
     b2Vec2 previousPosition_;
     float previousAngle_;
 
+    // List of b2Bodys to destroy
+    std::vector<b2Body*> disposeList_;
+
     // Marks whether this b2Body's position is out of sync with transform
     bool isOutOfSync_;
 
-    // List of b2Bodys to destroy
-    std::vector<b2Body*> disposeList_;
+    // How many sensors are underfoot
+    int underfootContacts_;
+
+    // Make a sensor for detecting the ground
+    void makeGroundSensor();
 };
 
 #endif

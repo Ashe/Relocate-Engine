@@ -67,7 +67,7 @@ function onBegin()
   movement.canSprint = true
   movement.sprintSpeedMult = 2
   movement.canJump = true
-  movement.canFly = true
+  movement.canFly = false
   movement.flightSpeed = 100
   local playerTrans = player:assignTransform()
   playerTrans.position = Vector2f.new(size.x * 0.5, size.y * 0.5)
@@ -79,8 +79,9 @@ function onBegin()
   fixture = FixtureDef.new()
   fixture.shape = BoxShape(32, 64)
   fixture.density = 100
-  fixture.friction = 500
+  fixture.friction = 10
   playerBody:addFixture(fixture)
+  playerBody:makeGroundSensor()
 
 end
 

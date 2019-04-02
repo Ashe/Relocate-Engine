@@ -79,6 +79,9 @@ RigidBody::registerFunctions(sol::environment& env, b2World* world) {
       // Basic functions
       "instantiate", &RigidBody::instantiateBody,
       "addFixture", &RigidBody::addFixture,
+      "getIsOnGround", &RigidBody::getIsOnGround,
+      "getMass", &RigidBody::getMass,
+      "makeGroundSensor", &RigidBody::makeGroundSensor,
       "getLocation", [](const RigidBody& self){return PhysicsSystem::convertToSF(self.body_->GetWorldCenter());},
       "warpTo", sol::overload(&RigidBody::warpTo, &RigidBody::warpToVec),
       // Properties
@@ -151,8 +154,13 @@ RigidBody::registerNonDependantFunctions() {
       [](b2FixtureDef& self, float f) {self.friction = f / PhysicsSystem::scale;}),
     "restitution", sol::property(
       [](const b2FixtureDef& self) {return self.restitution * PhysicsSystem::scale; },
-      [](b2FixtureDef& self, float r) {self.restitution = r / PhysicsSystem::scale;})
-  );
+      [](b2FixtureDef& self, float r) {self.restitution = r / PhysicsSystem::scale;}),
+    "setType", [](b2FixtureDef& self, const FixtureType& type) {self.userData = (void*)type;}
+    );
+
+  // Specify FixtureTypes to lua
+  Game::lua.set("FixtureType_Unknown", FixtureType::Unknown);
+  Game::lua.set("FixtureType_GroundSensor", FixtureType::GroundSensor);
 }
 
 // Constructor
@@ -161,7 +169,12 @@ RigidBody::RigidBody()
   , body_(physics_->CreateBody(&defaultBodyDefinition_))
   , previousPosition_(b2Vec2(0.0f, 0.0f))
   , previousAngle_(0.0f) 
-  , isOutOfSync_(true) {}
+  , isOutOfSync_(true) 
+  , underfootContacts_(0) {
+  
+  // Ensure this body contains the RigidBody
+  body_->SetUserData(this);
+}
 
 // Destructor
 RigidBody::~RigidBody() {}
@@ -178,6 +191,7 @@ RigidBody::instantiateBody(const b2BodyDef& def) {
 
   // Create a new body out of the new definitions
   body_ = physics_->CreateBody(&def);
+  body_->SetUserData(this);
 
   // Mark this RididBody as out of sync with it's transform
   isOutOfSync_ = true;
@@ -187,6 +201,18 @@ RigidBody::instantiateBody(const b2BodyDef& def) {
 void
 RigidBody::addFixture(const b2FixtureDef& def) {
   body_->CreateFixture(&def);
+}
+
+// Check if this entity is on the ground
+bool
+RigidBody::getIsOnGround() const {
+  return underfootContacts_ > 0;
+}
+
+// Get the mass of this object
+float
+RigidBody::getMass() const {
+  return body_->GetMass();
 }
 
 // Warp somewhere instantaneously
@@ -274,4 +300,38 @@ RigidBody::applyImpulse(float i, float j, float x, float y) {
 void
 RigidBody::applyImpulseVec(const sf::Vector2f& impulse, const sf::Vector2f& location) {
   body_->ApplyLinearImpulse(PhysicsSystem::convertToB2(impulse), PhysicsSystem::convertToB2(location), true);
+}
+
+// When contact starts
+void
+RigidBody::startContact(const FixtureType& type) {
+
+  // Check type of fixture that was triggered 
+  if (type == FixtureType::GroundSensor) {
+    ++underfootContacts_;
+  }
+}
+// When contact ends
+void
+RigidBody::endContact(const FixtureType& type) {
+
+  // Check type of fixture that was triggered 
+  if (type == FixtureType::GroundSensor) {
+    --underfootContacts_;
+  }
+}
+
+// Create default sensor
+void
+RigidBody::makeGroundSensor() {
+  b2FixtureDef sensor;
+  b2PolygonShape box;
+  box.SetAsBox(0.2, 0.1, b2Vec2(0, 0.6), 0);
+  sensor.shape = &box;
+  sensor.density = 0;
+  sensor.isSensor = true;
+  auto* groundSensor = body_->CreateFixture(&sensor);
+
+  // Ensure the sensor knows about this rigidbody
+  groundSensor->SetUserData((void*)FixtureType::GroundSensor);
 }

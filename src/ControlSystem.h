@@ -28,6 +28,7 @@ class ControlSystem : public ECS::EntitySystem {
     // All control systems will 'know' about input
     static sf::Vector2f inputAxis;
     static bool isSprinting;
+    static bool isJumping;
 
     // Manipulate all possessed components using their data
     virtual void update(ECS::World* world, const sf::Time& dt) override;

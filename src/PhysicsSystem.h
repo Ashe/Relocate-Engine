@@ -49,6 +49,9 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
 
   private:
 
+    // ContactListener
+    ContactListener contactListener_;
+
     // Default gravity setting
     const sf::Vector2f defaultGravity_;
 
