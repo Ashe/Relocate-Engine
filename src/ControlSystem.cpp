@@ -72,7 +72,7 @@ ControlSystem::update(ECS::World* world, const sf::Time& dt) {
 
       // If on the ground and if desired, jump
       if (m->canJump && isJumping && r->getIsOnGround()) {
-        r->applyImpulseToCentre(0, r->getMass() * -0.2);
+        r->applyImpulseToCentre(0, r->getMass() * t * -100);
       }
     }
   });
