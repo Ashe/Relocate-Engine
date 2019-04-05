@@ -11,12 +11,15 @@ sf::RenderWindow* Game::window_ = nullptr;
 sf::View Game::view = sf::View();
 bool Game::multiThread_ = false;
 std::mutex Game::windowMutex_;
+std::mutex Game::imguiMutex_;
 bool Game::debug_ = false;
 Game::Status Game::status_ = Game::Status::Uninitialised;
 Scene* Game::currentScene_ = nullptr;
 sol::state Game::lua;
 sf::Vector2f Game::mousePosition_ = sf::Vector2f();
+sf::Vector2f Game::displaySize_ = sf::Vector2f();
 unsigned Game::fps_ = 0;
+bool Game::isImguiReady_ = false;
 
 // Initialise the game without starting the loop
 void
@@ -48,10 +51,16 @@ Game::initialise(const sf::VideoMode& mode, const std::string& title, bool multi
     return;
   }
 
-
   // Create window and prepare view
   window_ = new sf::RenderWindow(mode, title);
   view = window_->getDefaultView();
+
+  // Set up size of the window
+  const auto size = window_->getSize();
+  displaySize_ = sf::Vector2f(size.x, size.y);
+
+  // Enable debugging functionality
+  ImGui::SFML::Init(*window_);
 
   // Flag that the game is ready to start
   status_ = Game::Status::Ready;
@@ -206,6 +215,22 @@ Game::update(const sf::Time& dt) {
   sf::Vector2i mousePixelCoords = sf::Mouse::getPosition(*window_);
   mousePosition_ = window_->mapPixelToCoords(mousePixelCoords);
 
+  // Update IMGUI debug interfaces
+  if (debug_ && !isImguiReady_ && (!multiThread_ || imguiMutex_.try_lock())) {
+    ImGui::SFML::Update(mousePixelCoords, displaySize_, dt);
+
+    // Test IMGUI stuff
+    ImGui::Begin("Debug");
+    ImGui::Text(std::string("FPS: " + std::to_string(fps_)).c_str());
+    ImGui::End();
+    isImguiReady_ = true;
+
+    // Unlock mutex if multithreaded
+    if (multiThread_) {
+      imguiMutex_.unlock();
+    }
+  }
+
   // Update the screen if the pointer is set
   if (currentScene_ != nullptr) {
     currentScene_->update(dt);
@@ -244,6 +269,17 @@ Game::render() {
     currentScene_->render(*window_);
   }
 
+  // Render IMGUI debug interface
+  if (debug_ && isImguiReady_ && (!multiThread_ || imguiMutex_.try_lock())) {
+    ImGui::SFML::Render(*window_);
+    isImguiReady_ = false;
+
+    // Unlock mutex if multithreaded
+    if (multiThread_) {
+      imguiMutex_.unlock();
+    }
+  }
+
   // Render everything in the screen
   window_->display();
 }
@@ -254,11 +290,17 @@ Game::handleEvent(const sf::Event& event) {
 
   // Adjust the viewport if window is resized
   if (event.type == sf::Event::Resized) {
-    sf::FloatRect visibleArea(0.f, 0.f, event.size.width, event.size.height);
+    displaySize_ = sf::Vector2f(event.size.width, event.size.height);
+    sf::FloatRect visibleArea(0.f, 0.f, displaySize_.x, displaySize_.y);
     Game::view = sf::View(visibleArea);
   }
 
-  // Feed the screen the input
+  // Pass events to IMGUI debug interface
+  if (debug_) {
+    ImGui::SFML::ProcessEvent(event);
+  }
+
+  // Pass events to scene
   if (currentScene_ != nullptr) {
     currentScene_->handleEvent(event);
   }
@@ -287,6 +329,9 @@ Game::terminate() {
 
   // Set the game's status to break game loop
   status_ = Game::Status::ShuttingDown;
+
+  // Shut down IMGUI debug interface
+  ImGui::SFML::Shutdown();
 
   // Close the window, exiting the game loop
   if (window_ != nullptr) {

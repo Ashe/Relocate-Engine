@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 36)
+set (Build_VERSION_TWEAK 37)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
@@ -35,6 +35,10 @@ find_package(X11)
 # Find multithreading package
 find_package(Threads REQUIRED)
 
+# Find OpenGL
+set(OpenGL_GL_PREFERENCE "GLVND")
+find_package(OpenGL REQUIRED)
+
 # Find SFML
 find_package(SFML 2.5.1 REQUIRED COMPONENTS window system graphics audio network)
 
@@ -53,6 +57,8 @@ add_executable (${EXECUTABLE_NAME} src/main.cpp)
 
 # Add sources
 target_sources(${EXECUTABLE_NAME} PRIVATE
+
+  # Core
   src/Config.h
   src/ECS.h
   src/Sol.h
@@ -63,6 +69,7 @@ target_sources(${EXECUTABLE_NAME} PRIVATE
   src/Scene.h
   src/Scene.cpp
 
+  # Components
   src/Transform.h
   src/Camera.h
   src/RigidBody.h
@@ -70,16 +77,32 @@ target_sources(${EXECUTABLE_NAME} PRIVATE
   src/Possession.h
   src/Movement.h
 
+  # Systems
   src/CameraSystem.h
   src/CameraSystem.cpp
   src/PhysicsSystem.h
   src/PhysicsSystem.cpp
-  src/PhysicsDebugDraw.h
-  src/PhysicsDebugDraw.cpp
   src/ContactListener.h
   src/ContactListener.cpp
   src/ControlSystem.h
   src/ControlSystem.cpp
+
+  #Debug
+  src/PhysicsDebugDraw.h
+  src/PhysicsDebugDraw.cpp
+  src/imgui/imconfig.h
+  src/imgui/imgui.h
+  src/imgui/imgui.cpp
+  src/imgui/imgui-SFML.h
+  src/imgui/imgui-SFML.cpp
+  src/imgui/imgui_demo.cpp
+  src/imgui/imgui_draw.cpp
+  src/imgui/imgui_internal.h
+  src/imgui/imgui_widgets.cpp
+  src/imgui/imstb_rectpack.h
+  src/imgui/imstb_textedit.h
+  src/imgui/imstb_truetype.h
+
 )
 
 # Platform specific building
@@ -99,6 +122,7 @@ endif()
 if(UNIX)
   # Link libraries so that they can be used in the project
   target_link_libraries(${EXECUTABLE_NAME}
+    GL
     sfml-window
     sfml-system
     sfml-graphics

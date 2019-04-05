@@ -14,6 +14,8 @@
 #include "ECS.h"
 #include "Sol.h"
 
+#include "imgui/imgui-SFML.h"
+
 // Forward declaration
 class Scene;
 
@@ -79,6 +81,7 @@ class Game {
 
     // Mutex to protect the window for rendering
     static std::mutex windowMutex_;
+    static std::mutex imguiMutex_;
 
     // Scene management
     static Scene* currentScene_;
@@ -86,8 +89,14 @@ class Game {
     // Up to date mouse position
     static sf::Vector2f mousePosition_;
 
+    // Up to date display size
+    static sf::Vector2f displaySize_;
+
     // FPS
     static unsigned fps_;
+
+    // Whether IMGUI is ready
+    static bool isImguiReady_;
 
     // Initialise lua
     static bool initialiseLua(const std::string& fp);
