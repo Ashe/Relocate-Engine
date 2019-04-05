@@ -24,6 +24,7 @@ function onBegin()
   -- onBegin() is just a formal function that runs AFTER the file is ready
   usePhysicsSystem()
   useControlSystem()
+  useCameraSystem()
 
   -- Get window size
   size = getWindow():getSize()
@@ -36,7 +37,7 @@ function onBegin()
   bodyDef.type = Physics_DynamicBody
   boxFixture = FixtureDef.new()
   boxFixture.density = 20
-  boxFixture.friction = 500
+  boxFixture.friction = 100
 
   -- Holding down mousekeys
   holdLeftMouse = false
@@ -60,7 +61,7 @@ function onBegin()
 
   -- Spawn the player
   print("Spawning player")
-  local player = createEntity()
+  player = createEntity()
   local possession = player:assignPossession()
   local movement = player:assignMovement()
   movement.movementSpeed = 300

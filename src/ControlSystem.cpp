@@ -12,7 +12,7 @@ bool ControlSystem::isJumping = false;
 void
 ControlSystem::registerControlSystemFunctions(sol::environment& env, ECS::World* world) {
 
-  // Create and install physics system
+  // Create and install control system
   env.set_function("useControlSystem", [&env, world]() { 
 
     // Debug message
@@ -20,7 +20,7 @@ ControlSystem::registerControlSystemFunctions(sol::environment& env, ECS::World*
       printf("Initialising Control system..\n");
     }
 
-    // Create the physics system to return to the world
+    // Create the control system to return to the world
     auto* newCS = new ControlSystem();
     world->registerSystem(newCS);
   });

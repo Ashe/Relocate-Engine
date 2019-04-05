@@ -8,6 +8,7 @@
 
 // Initialise static members
 sf::RenderWindow* Game::window_ = nullptr;
+sf::View Game::view = sf::View();
 bool Game::multiThread_ = false;
 std::mutex Game::windowMutex_;
 bool Game::debug_ = false;
@@ -47,8 +48,9 @@ Game::initialise(const sf::VideoMode& mode, const std::string& title, bool multi
     return;
   }
 
-  // Create window
+  // Create window and prepare view
   window_ = new sf::RenderWindow(mode, title);
+  view = window_->getDefaultView();
 
   // Flag that the game is ready to start
   status_ = Game::Status::Ready;
@@ -197,6 +199,7 @@ Game::render() {
 
   // Render the game if pointer is set
   if (currentScene_ != nullptr) {
+    window_->setView(view);
     currentScene_->render(*window_);
   }
 
@@ -207,6 +210,12 @@ Game::render() {
 // Respond to any key or mouse related events
 void
 Game::handleEvent(const sf::Event& event) {
+
+  // Adjust the viewport if window is resized
+  if (event.type == sf::Event::Resized) {
+    sf::FloatRect visibleArea(0.f, 0.f, event.size.width, event.size.height);
+    Game::view = sf::View(visibleArea);
+  }
 
   // Feed the screen the input
   if (currentScene_ != nullptr) {

@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 34)
+set (Build_VERSION_TWEAK 35)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
@@ -64,11 +64,14 @@ target_sources(${EXECUTABLE_NAME} PRIVATE
   src/Scene.cpp
 
   src/Transform.h
+  src/Camera.h
   src/RigidBody.h
   src/RigidBody.cpp
   src/Possession.h
   src/Movement.h
 
+  src/CameraSystem.h
+  src/CameraSystem.cpp
   src/PhysicsSystem.h
   src/PhysicsSystem.cpp
   src/PhysicsDebugDraw.h

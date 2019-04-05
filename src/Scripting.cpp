@@ -6,9 +6,11 @@
 // Avoid cyclic dependancies
 #include "Game.h"
 #include "Transform.h"
+#include "Camera.h"
 #include "RigidBody.h"
 #include "Possession.h"
 
+#include "CameraSystem.h"
 #include "PhysicsSystem.h"
 #include "ControlSystem.h"
 
@@ -72,6 +74,7 @@ Script::startLua() {
 
   // COMPONENTS
   Transform::registerFunctions();
+  Camera::registerFunctions();
   RigidBody::registerNonDependantFunctions();
   Possession::registerFunctions();
   Movement::registerFunctions();
@@ -88,6 +91,7 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
   );
 
   // Register functions that 'turn on' systems in the world
+  CameraSystem::registerCameraSystemFunctions(env, world);
   PhysicsSystem::registerPhysicsSystemFunctions(env, world);
   ControlSystem::registerControlSystemFunctions(env, world);
 }

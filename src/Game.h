@@ -26,6 +26,9 @@ class Game {
     // The lua state
     static sol::state lua;
 
+    // View to use for rendering
+    static sf::View view;
+
     // Initialise the game window
     static void initialise(const sf::VideoMode& m, const std::string& title, bool multiThread = false);
 
