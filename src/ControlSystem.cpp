@@ -4,9 +4,9 @@
 #include "ControlSystem.h"
 
 // Initialise static variables
-sf::Vector2f ControlSystem::inputAxis = sf::Vector2f();
-bool ControlSystem::isSprinting = false;
-bool ControlSystem::isJumping = false;
+sf::Vector2f ControlSystem::inputAxis_ = sf::Vector2f();
+bool ControlSystem::isSprinting_ = false;
+bool ControlSystem::isJumping_ = false;
 
 // Register Control System in the world
 void
@@ -46,24 +46,24 @@ ControlSystem::update(ECS::World* world, const sf::Time& dt) {
       // Calculate max speeds
       const sf::Vector2f currentSpeed = r->getLinearVelocity();
       sf::Vector2f maxSpeed;
-      maxSpeed.x = (m->canSprint && isSprinting ? m->sprintSpeedMult : 1.f) * m->movementSpeed;
-      maxSpeed.y = (m->canSprint && m->canSprintWhileFlying && isSprinting ? m->sprintSpeedMult : 1.f) * 
+      maxSpeed.x = (m->canSprint && isSprinting_ ? m->sprintSpeedMult : 1.f) * m->movementSpeed;
+      maxSpeed.y = (m->canSprint && m->canSprintWhileFlying && isSprinting_ ? m->sprintSpeedMult : 1.f) * 
         (m->canFly ? m->flightSpeed : 0.f);
       sf::Vector2f impulse;
 
       // Use difference in current and max speed to find speed
-      int dir = (inputAxis.x > 0) * 2 - 1;
-      if (inputAxis.x != 0.f) {
-        impulse.x = ((dir * maxSpeed.x) - currentSpeed.x) * abs(inputAxis.x);
+      int dir = (inputAxis_.x > 0) * 2 - 1;
+      if (inputAxis_.x != 0.f) {
+        impulse.x = ((dir * maxSpeed.x) - currentSpeed.x) * abs(inputAxis_.x);
       }
       else {
         impulse.x = -currentSpeed.x * 0.1f;
       }
 
       // Do same for Y, taking flight into account
-      dir = (inputAxis.y > 0) * 2 - 1;
-      if (inputAxis.y != 0.f && m->canFly) {
-        impulse.y = ((dir * maxSpeed.y) - currentSpeed.y) * abs(inputAxis.y);
+      dir = (inputAxis_.y > 0) * 2 - 1;
+      if (inputAxis_.y != 0.f && m->canFly) {
+        impulse.y = ((dir * maxSpeed.y) - currentSpeed.y) * abs(inputAxis_.y);
       }
 
       // Apply the movement speed
@@ -71,7 +71,7 @@ ControlSystem::update(ECS::World* world, const sf::Time& dt) {
       r->applyImpulseToCentreVec(impulse * t);
 
       // If on the ground and if desired, jump
-      if (m->canJump && isJumping && r->getIsOnGround()) {
+      if (m->canJump && isJumping_ && r->getIsOnGround()) {
         r->applyImpulseToCentre(0, r->getMass() * t * -100);
       }
     }
@@ -82,38 +82,38 @@ ControlSystem::update(ECS::World* world, const sf::Time& dt) {
 void
 ControlSystem::handleInput(const sf::Event& ev) {
 
-  // Control the scene
+  // Handle keypresses
   if (ev.type == sf::Event::KeyPressed || ev.type == sf::Event::KeyReleased) {
     const int inv = ev.type == sf::Event::KeyPressed ? 1 : -1;
 
     // Handle x-axis
     if (ev.key.code == sf::Keyboard::A) {
-      inputAxis.x -= 1.f * inv;
+      inputAxis_.x -= 1.f * inv;
     }
     if (ev.key.code == sf::Keyboard::D) {
-      inputAxis.x += 1.f * inv;
+      inputAxis_.x += 1.f * inv;
     }
-    if (inputAxis.x > 1) inputAxis.x = 1;
-    if (inputAxis.x < -1) inputAxis.x = -1;
+    if (inputAxis_.x > 1) inputAxis_.x = 1;
+    if (inputAxis_.x < -1) inputAxis_.x = -1;
 
     // Handle y-axis
     if (ev.key.code == sf::Keyboard::W || ev.key.code == sf::Keyboard::Space) {
-      inputAxis.y -= 1.f * inv;
+      inputAxis_.y -= 1.f * inv;
     }
     if (ev.key.code == sf::Keyboard::S) {
-      inputAxis.y += 1.f * inv;
+      inputAxis_.y += 1.f * inv;
     }
-    if (inputAxis.y > 1) inputAxis.y = 1;
-    if (inputAxis.y < -1) inputAxis.y = -1;
+    if (inputAxis_.y > 1) inputAxis_.y = 1;
+    if (inputAxis_.y < -1) inputAxis_.y = -1;
 
     // Handle sprinting
     if (ev.key.code == sf::Keyboard::LShift || ev.key.code == sf::Keyboard::RShift) {
-      isSprinting = ev.type == sf::Event::KeyPressed;
+      isSprinting_ = ev.type == sf::Event::KeyPressed;
     }
 
     // Handle jumping
     if (ev.key.code == sf::Keyboard::Space) {
-      isJumping = ev.type == sf::Event::KeyPressed;
+      isJumping_ = ev.type == sf::Event::KeyPressed;
     }
   }
 }

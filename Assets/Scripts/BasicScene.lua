@@ -27,7 +27,7 @@ function onBegin()
   useCameraSystem()
 
   -- Get window size
-  size = getWindow():getSize()
+  size = Game.window.size
 
   -- Spawn a 'dead' RigidBody
   deadBody = createEntity():assignRigidBody()
@@ -36,15 +36,11 @@ function onBegin()
   bodyDef = BodyDef.new()
   bodyDef.type = Physics_DynamicBody
   boxFixture = FixtureDef.new()
-  boxFixture.density = 20
+  boxFixture.density = 500
   boxFixture.friction = 100
 
   -- Holding down mousekeys
   holdLeftMouse = false
-
-  -- Coords
-  mouseX = 0
-  mouseY = 0
 
   -- The joint used for right clicking
   joint = nil
@@ -63,6 +59,7 @@ function onBegin()
   print("Spawning player")
   player = createEntity()
   local possession = player:assignPossession()
+  local camera = player:assignCamera()
   local movement = player:assignMovement()
   movement.movementSpeed = 300
   movement.canSprint = true
@@ -96,7 +93,7 @@ function onUpdate(dt)
 
   -- Pull the last spawned box
   if joint then
-    joint.target = Vector2f.new(mouseX, mouseY)
+    joint.target = Vector2f.new(Game.mousePosition.x, Game.mousePosition.y)
   end
 end
 
@@ -108,23 +105,19 @@ function onWindowEvent(ev)
 
     -- Toggle debug on F1
     if ev.key.code == Key_F1 then
-      setDebugMode(not getDebugMode())
+      Game.debug = not Game.debug
 
     -- Open console on F2
     elseif ev.key.code == Key_F2 then
-      openDevConsole()
+      Game:openDevConsole()
     end
 
   -- Mouse pressed
   elseif ev.type == EventType_MouseButtonPressed then
 
-    -- Record mouse
-    mouseX = ev.mouseButton.x
-    mouseY = ev.mouseButton.y
-
     -- Spawn box on left click
     if ev.mouseButton.button == MouseButton_Left then
-      boxToThrow = spawnBox(mouseX, mouseY, 50)
+      boxToThrow = spawnBox(Game.mousePosition.x, Game.mousePosition.y, 50)
       holdLeftMouse = true
 
     -- Drag the last box on right click
@@ -132,10 +125,10 @@ function onWindowEvent(ev)
       if lastSpawnedBox then
         def = MouseJointDef.new()
         r = lastSpawnedBox:getRigidBody();
-        def.target = r:getLocation()
+        def.target = r.location
         def:setBodyA(deadBody)
         def:setBodyB(r)
-        def.maxForce = 100
+        def.maxForce = 500
         def.dampingRatio = 1
         joint = createMouseJoint(def)
       end
@@ -144,16 +137,13 @@ function onWindowEvent(ev)
   -- Mouse release
   elseif ev.type == EventType_MouseButtonReleased then
 
-    -- Record mouse
-    mouseX = ev.mouseButton.x
-    mouseY = ev.mouseButton.y
-
     -- On left release, 'fire' the object
     if ev.mouseButton.button == MouseButton_Left then
       holdLeftMouse = false
-      local throwScale = 1
-      impulse = Vector2f.new((mouseX - spawnPos.x) * throwScale, (mouseY - spawnPos.y) * throwScale)
-      boxToThrow:getRigidBody():applyImpulseToCentre(impulse)
+      local r = boxToThrow:getRigidBody()
+      local throwScale = 25
+      local impulse = Vector2f.new((Game.mousePosition.x - spawnPos.x) * throwScale, (Game.mousePosition.y - spawnPos.y) * throwScale)
+      r:applyImpulseToCentre(impulse)
       boxToThrow = nil
 
     -- On right release, delete the joint
@@ -163,10 +153,5 @@ function onWindowEvent(ev)
         joint = nil
       end
     end
-
-  -- Record where the mouse goes
-  elseif ev.type == EventType_MouseMoved then
-    mouseX = ev.mouseMove.x
-    mouseY = ev.mouseMove.y
   end
 end

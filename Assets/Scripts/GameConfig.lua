@@ -4,4 +4,5 @@
 
 print("Running GameConfig.lua")
 
-setDebugMode(true)
+-- Simply enable debug from the very beginning
+Game.debug = true

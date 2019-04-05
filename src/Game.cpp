@@ -15,6 +15,7 @@ bool Game::debug_ = false;
 Game::Status Game::status_ = Game::Status::Uninitialised;
 Scene* Game::currentScene_ = nullptr;
 sol::state Game::lua;
+sf::Vector2f Game::mousePosition_ = sf::Vector2f();
 unsigned Game::fps_ = 0;
 
 // Initialise the game without starting the loop
@@ -38,15 +39,15 @@ Game::initialise(const sf::VideoMode& mode, const std::string& title, bool multi
   printf("Running in %s mode.\n", multiThread_ ? "multithreaded" : "standard");
 
   // Initialise Lua and ensure it works
-  Script::startLua();
-	auto functional = Game::lua.script_file("Assets/Scripts/GameConfig.lua", &sol::script_pass_on_error);
-  if (functional.valid()) { 
+  bool success = initialiseLua("Assets/Scripts/GameConfig.lua");
+  if (success) { 
     printf("Lua successfully initialised.\n"); 
   }
   else {
     printf("Error: Cannot initialise Lua correctly.\n"); 
     return;
   }
+
 
   // Create window and prepare view
   window_ = new sf::RenderWindow(mode, title);
@@ -164,9 +165,46 @@ Game::start() {
   printf("Exiting..\n");
 }
 
+// Initialise lua
+bool 
+Game::initialiseLua(const std::string& fp) {
+
+  // Register basic SFML functions
+  Script::startLua();
+
+  // Register Game functionality
+  Game::lua.set("Game", Game());
+  Game::lua.new_usertype<Game>("Game",
+    // Control functions
+    "quit", &Game::quit,
+    "terminate", &Game::terminate,
+    "openDevConsole", &Game::openDevConsole,
+    // Variables
+    "window", sol::property(&Game::getWindow),
+    "debug", sol::property(
+      &Game::getDebugMode,
+      &Game::setDebugMode),
+    "fps", sol::property(&Game::getFPS),
+    "status", sol::property(&Game::getStatus),
+    "mousePosition", sol::property(&Game::getMousePosition)
+  );
+
+  // Tries to call the global config script
+  // If this fails, lua is not working and cannot read files
+	auto functional = Game::lua.script_file(fp, &sol::script_pass_on_error);
+  return functional.valid();
+}
+
 // Called every frame, returns true when game should end
 void
 Game::update(const sf::Time& dt) {
+
+  // Easy out
+  if (window_ == nullptr) return;
+
+  // Update mouse position every frame
+  sf::Vector2i mousePixelCoords = sf::Mouse::getPosition(*window_);
+  mousePosition_ = window_->mapPixelToCoords(mousePixelCoords);
 
   // Update the screen if the pointer is set
   if (currentScene_ != nullptr) {
@@ -193,6 +231,9 @@ Game::handleRenderThread() {
 // Render the game every frame, after update
 void
 Game::render() {
+
+  // Easy out
+  if (window_ == nullptr) return;
 
   // Clear the window for rendering
   window_->clear();
@@ -248,8 +289,11 @@ Game::terminate() {
   status_ = Game::Status::ShuttingDown;
 
   // Close the window, exiting the game loop
-  window_->close();
-  delete window_;
+  if (window_ != nullptr) {
+    window_->close();
+    delete window_;
+    window_ = nullptr;
+  }
 }
 
 // Free resources before program closes
@@ -295,7 +339,7 @@ Game::openDevConsole() {
       std::cout << "Invalid command '" << str << "'.\nError: " << err.what() << std::endl;
     }
   }
-  printf("-------------~END OF CONSOLE~-------------\n");
+  printf("---------------~END CONSOLE~---------------\n\n");
 }
 
 // Get a pointer to the game's window
@@ -314,6 +358,12 @@ Game::getFPS() {
 Game::Status
 Game::getStatus() {
   return status_;
+}
+
+// Get up to date mouse position
+sf::Vector2f
+Game::getMousePosition() {
+  return mousePosition_;
 }
 
 // Set debug mode

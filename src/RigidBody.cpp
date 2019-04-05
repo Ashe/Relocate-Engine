@@ -76,18 +76,17 @@ RigidBody::registerFunctions(sol::environment& env, b2World* world) {
       "isFixedRotation", sol::property(
         [](const RigidBody& self) {return self.body_->IsFixedRotation();},
         [](RigidBody& self, bool isFixed) { self.body_->SetFixedRotation(isFixed);}),
-      // Basic functions
-      "instantiate", &RigidBody::instantiateBody,
-      "addFixture", &RigidBody::addFixture,
-      "getIsOnGround", &RigidBody::getIsOnGround,
-      "getMass", &RigidBody::getMass,
-      "makeGroundSensor", &RigidBody::makeGroundSensor,
-      "getLocation", [](const RigidBody& self){return PhysicsSystem::convertToSF(self.body_->GetWorldCenter());},
-      "warpTo", sol::overload(&RigidBody::warpTo, &RigidBody::warpToVec),
-      // Properties
       "linearVelocity", sol::property(
         &RigidBody::getLinearVelocity,
         &RigidBody::setLinearVelocityVec),
+      "mass", sol::property(&RigidBody::getMass),
+      "isOnGround", sol::property(&RigidBody::getIsOnGround),
+      "location", sol::property([](const RigidBody& self){return PhysicsSystem::convertToSF(self.body_->GetWorldCenter());}),
+      // Basic functions
+      "instantiate", &RigidBody::instantiateBody,
+      "addFixture", &RigidBody::addFixture,
+      "makeGroundSensor", &RigidBody::makeGroundSensor,
+      "warpTo", sol::overload(&RigidBody::warpTo, &RigidBody::warpToVec),
       // Forces
       "setLinearVelocity", sol::overload(&RigidBody::setLinearVelocity, &RigidBody::setLinearVelocityVec),
       "applyForce", sol::overload(&RigidBody::applyForce, &RigidBody::applyForceVec),

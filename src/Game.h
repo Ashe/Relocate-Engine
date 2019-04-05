@@ -56,6 +56,9 @@ class Game {
     // Signal that the application can now close safely
     static void terminate();
 
+    // Get the up to date mouse position
+    static sf::Vector2f getMousePosition();
+
     // Debug mode
     static bool getDebugMode();
     static void setDebugMode(bool enable);
@@ -80,8 +83,14 @@ class Game {
     // Scene management
     static Scene* currentScene_;
 
+    // Up to date mouse position
+    static sf::Vector2f mousePosition_;
+
     // FPS
     static unsigned fps_;
+
+    // Initialise lua
+    static bool initialiseLua(const std::string& fp);
 
     // Main game loop 
     static void update(const sf::Time& dt);

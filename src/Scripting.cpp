@@ -35,18 +35,6 @@ Script::startLua() {
   printf("Initialising Lua..\n");
   Game::lua.open_libraries(sol::lib::base);
 
-  // GAME FUNCTIONS
-  // Control
-  Game::lua.set_function("quit", &Game::quit);
-  Game::lua.set_function("terminate", &Game::terminate);
-  Game::lua.set_function("openDevConsole", &Game::openDevConsole);
-  // Variables
-  Game::lua.set_function("getWindow", &Game::getWindow);
-  Game::lua.set_function("getDebugMode", &Game::getDebugMode);
-  Game::lua.set_function("setDebugMode", &Game::setDebugMode);
-  Game::lua.set_function("getFPS", &Game::getFPS);
-  Game::lua.set_function("getStatus", &Game::getStatus);
-
   // SFML FUNCTIONS
   // Events
   Funcs::registerEvents();
@@ -64,7 +52,7 @@ Script::startLua() {
   );
   // RenderWindow
   Game::lua.new_usertype<sf::RenderWindow>("RenderWindow",
-    "getSize", &sf::RenderWindow::getSize
+    "size", sol::property(&sf::RenderWindow::getSize)
     );
 
   // REGISTER ENTITY FUNCTIONS
