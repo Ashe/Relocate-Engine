@@ -166,3 +166,15 @@ Scene::quit() {
     Game::terminate();
   }
 }
+
+// Add entries to debug menu
+void
+Scene::addDebugMenuEntries() {
+  world_->emit<addDebugMenuEntryEvent>({});
+}
+
+// Add information to the main IMGUI debug window
+void
+Scene::addDebugInfoToDefault() {
+  world_->emit<addDebugInfoEvent>({});
+}

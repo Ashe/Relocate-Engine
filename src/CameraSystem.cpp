@@ -31,6 +31,5 @@ CameraSystem::update(ECS::World* world, const sf::Time& dt) {
 
       // Combine position of transform and offset of camera
       Game::view.setCenter(t->position + c->offset);
-
   });
 }

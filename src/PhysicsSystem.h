@@ -12,7 +12,11 @@
 
 #include "PhysicsDebugDraw.h"
 
-class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<DebugRenderPhysicsEvent> {
+class PhysicsSystem 
+: public ECS::EntitySystem
+, public ECS::EventSubscriber<DebugRenderPhysicsEvent>
+, public ECS::EventSubscriber<addDebugInfoEvent>
+, public ECS::EventSubscriber<addDebugMenuEntryEvent> {
   public:
 
     // Friend class
@@ -36,7 +40,11 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
     virtual void update(ECS::World* world, const sf::Time& dt) override;
 
     // Subscribe to the DebugDraw method
-    virtual void configure(ECS::World* world) override { world->subscribe<DebugRenderPhysicsEvent>(this); }
+    virtual void configure(ECS::World* world) override { 
+      world->subscribe<DebugRenderPhysicsEvent>(this); 
+      world->subscribe<addDebugMenuEntryEvent>(this); 
+      world->subscribe<addDebugInfoEvent>(this); 
+    }
     virtual void unconfigure(ECS::World* world) override { world->unsubscribeAll(this); }
 
     // Get this physics system's world
@@ -90,6 +98,11 @@ class PhysicsSystem : public ECS::EntitySystem, public ECS::EventSubscriber<Debu
     // Render the physics when debug mode is enabled
     virtual void receive(ECS::World* ecsWorld, const DebugRenderPhysicsEvent& ev) override;
 
+    // Add physics menu entry to menu window
+    virtual void receive(ECS::World* ecsWorld, const addDebugMenuEntryEvent& ev) override;
+
+    // Add the location of the player to debug window
+    virtual void receive(ECS::World* ecsWorld, const addDebugInfoEvent& ev) override;
 };
 
 #endif

@@ -14,10 +14,15 @@
 #include "ECS.h"
 #include "Sol.h"
 
+#include "imgui/imgui.h"
 #include "imgui/imgui-SFML.h"
 
 // Forward declaration
 class Scene;
+
+// Events for IMGUI
+struct addDebugMenuEntryEvent {};
+struct addDebugInfoEvent {};
 
 class Game {
   public:
@@ -60,6 +65,9 @@ class Game {
 
     // Get the up to date mouse position
     static sf::Vector2f getMousePosition();
+
+    // Get the up to date mouse position
+    static sf::Vector2f getDisplaySize();
 
     // Debug mode
     static bool getDebugMode();
@@ -115,6 +123,9 @@ class Game {
 
     // Release resources before closing
     static void shutdown();
+
+    // Handle the updating of IMGUI interfaces
+    static void handleImgui();
 };
 
 #endif

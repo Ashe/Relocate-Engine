@@ -8,11 +8,9 @@ local function spawnBox(x, y, size)
   local boxBody = box:assignRigidBody()
   spawnPos = Vector2f.new(x, y)
   boxTrans.position = spawnPos
-  print("Spawning box")
   boxBody:instantiate(bodyDef)
   boxFixture.shape = BoxShape(size, size)
   boxBody:addFixture(boxFixture)
-  print("There are " .. physicsBodyCount() .. " bodies in the system")
   return box
 end
 
@@ -27,7 +25,7 @@ function onBegin()
   useCameraSystem()
 
   -- Get window size
-  size = Game.window.size
+  size = Game.displaySize
 
   -- Spawn a 'dead' RigidBody
   deadBody = createEntity():assignRigidBody()

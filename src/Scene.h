@@ -10,11 +10,13 @@
 #include "Game.h"
 #include "PhysicsSystem.h"
 
+// Represents it's own world of objects
 class Scene {
   public:
     Scene(const std::string& script);
     ~Scene();
 
+    // Handle standard Game functions
     void begin();
     void registerFunctions();
     void update(const sf::Time& dt);
@@ -23,6 +25,12 @@ class Scene {
     void showScene();
     void hideScene();
     void quit();
+
+    // Add a menu entry to the debug menu
+    void addDebugMenuEntries();
+
+    // Add functionality to the default window
+    void addDebugInfoToDefault();
 
   private:
 

@@ -190,6 +190,7 @@ Game::initialiseLua(const std::string& fp) {
     "openDevConsole", &Game::openDevConsole,
     // Variables
     "window", sol::property(&Game::getWindow),
+    "displaySize", sol::property(&Game::getDisplaySize),
     "debug", sol::property(
       &Game::getDebugMode,
       &Game::setDebugMode),
@@ -215,25 +216,19 @@ Game::update(const sf::Time& dt) {
   sf::Vector2i mousePixelCoords = sf::Mouse::getPosition(*window_);
   mousePosition_ = window_->mapPixelToCoords(mousePixelCoords);
 
-  // Update IMGUI debug interfaces
-  if (debug_ && !isImguiReady_ && (!multiThread_ || imguiMutex_.try_lock())) {
-    ImGui::SFML::Update(mousePixelCoords, displaySize_, dt);
-
-    // Test IMGUI stuff
-    ImGui::Begin("Debug");
-    ImGui::Text(std::string("FPS: " + std::to_string(fps_)).c_str());
-    ImGui::End();
-    isImguiReady_ = true;
-
-    // Unlock mutex if multithreaded
-    if (multiThread_) {
-      imguiMutex_.unlock();
-    }
-  }
-
   // Update the screen if the pointer is set
   if (currentScene_ != nullptr) {
     currentScene_->update(dt);
+  }
+
+  // Update IMGUI debug interfaces
+  if (debug_ && !isImguiReady_ && (!multiThread_ || imguiMutex_.try_lock())) {
+
+    // Update imgui
+    ImGui::SFML::Update(mousePixelCoords, displaySize_, dt);
+
+    // Draw imgui interfaces
+    Game::handleImgui();
   }
 }
 
@@ -270,7 +265,7 @@ Game::render() {
   }
 
   // Render IMGUI debug interface
-  if (debug_ && isImguiReady_ && (!multiThread_ || imguiMutex_.try_lock())) {
+  if (isImguiReady_ && (!multiThread_ || imguiMutex_.try_lock())) {
     ImGui::SFML::Render(*window_);
     isImguiReady_ = false;
 
@@ -296,12 +291,26 @@ Game::handleEvent(const sf::Event& event) {
   }
 
   // Pass events to IMGUI debug interface
+  bool passToGame = true;
   if (debug_) {
+
+    // Handle imgui events
     ImGui::SFML::ProcessEvent(event);
+
+    // Decide whether the game should get the event
+    if (event.type == sf::Event::MouseButtonPressed || event.type == sf::Event::MouseButtonReleased) {
+      if (ImGui::GetIO().WantCaptureMouse) passToGame = false;
+    }
+    else if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased) {
+      if (ImGui::GetIO().WantCaptureKeyboard) passToGame = false;
+    }
+    else if (event.type == sf::Event::TextEntered) {
+      if (ImGui::GetIO().WantTextInput) passToGame = false;
+    }
   }
 
   // Pass events to scene
-  if (currentScene_ != nullptr) {
+  if (currentScene_ != nullptr && passToGame) {
     currentScene_->handleEvent(event);
   }
 }
@@ -368,6 +377,72 @@ Game::switchScene(Scene* scene) {
   }
 }
 
+// Update imgui interfaces
+void
+Game::handleImgui() {
+
+  // Set up IMGUI flags
+  ImGuiWindowFlags flags = 0;
+  flags |= ImGuiWindowFlags_MenuBar;
+
+  // Standard debug info
+  // @TODO: Remove call to imgui demo
+  static bool showImguiDemo = false;
+  ImGui::Begin("Debug", NULL, flags);
+  if (ImGui::BeginMenuBar()) {
+    if (ImGui::BeginMenu("View")) {
+      ImGui::MenuItem("Demo imgui", NULL, &showImguiDemo);
+
+      // Allow the scene to make entries to the view tab
+      if (currentScene_ != nullptr) {
+        currentScene_->addDebugMenuEntries();
+      }
+      ImGui::EndMenu();
+    }
+    ImGui::EndMenuBar();
+  }
+
+  // Show ImGui demo on request
+  if (showImguiDemo) { ImGui::ShowDemoWindow(&showImguiDemo); }
+
+  // Info
+  ImGui::Spacing();
+  ImGui::Text(std::string(
+    "FPS: " + std::to_string(fps_)).c_str());
+  ImGui::Text(std::string(
+    "Window Size: " + 
+    std::to_string((int)displaySize_.x) + "x" + 
+    std::to_string((int)displaySize_.y)).c_str());
+
+  // Camera
+  const auto viewCentre = view.getCenter();
+  ImGui::Text(std::string(
+    "Camera Position: (" + 
+    std::to_string((int)viewCentre.x) + "," + 
+    std::to_string((int)viewCentre.y) + ")").c_str());
+
+  // Mouse
+  ImGui::Text(std::string(
+    "Mouse Position: (" + 
+    std::to_string((int)mousePosition_.x) + "," + 
+    std::to_string((int)mousePosition_.y) + ")").c_str());
+  ImGui::Spacing();
+
+  // End default debug window
+  ImGui::End();
+
+  // Allow scene to make debug windows
+  if (currentScene_ != nullptr) {
+    currentScene_->addDebugInfoToDefault();
+  }
+
+  // Ready the IMGUI frame and Unlock mutex if multithreaded
+  isImguiReady_ = true;
+  if (multiThread_) {
+    imguiMutex_.unlock();
+  }
+}
+
 // Open the dev console in the terminal
 void
 Game::openDevConsole() {
@@ -409,6 +484,12 @@ Game::getStatus() {
 sf::Vector2f
 Game::getMousePosition() {
   return mousePosition_;
+}
+
+// Get up to display size
+sf::Vector2f
+Game::getDisplaySize() {
+  return displaySize_;
 }
 
 // Set debug mode

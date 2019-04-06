@@ -38,8 +38,8 @@ PhysicsSystem::registerPhysicsSystemFunctions(sol::environment& env, ECS::World*
 
 // Constructor, enable debugging of physics
 PhysicsSystem::PhysicsSystem() 
-  : defaultGravity_(sf::Vector2f(0.f, 10.f))
-  , world_(b2Vec2(defaultGravity_.x, defaultGravity_.y))
+  : defaultGravity_(sf::Vector2f(0.f, 1000.f))
+  , world_(convertToB2(defaultGravity_))
   , timeStepAccumilator_(0.0f) {
 
   // Set up our contact listener
@@ -207,4 +207,34 @@ PhysicsSystem::receive(ECS::World* w, const DebugRenderPhysicsEvent& e) {
 
   // Render the physics system
   world_.DrawDebugData();
+}
+
+static bool showPhysics = false;
+
+// Add physics entry to the main menu
+void
+PhysicsSystem::receive(ECS::World* w, const addDebugMenuEntryEvent& e) {
+  ImGui::MenuItem("PhysicsSystem", NULL, &showPhysics);
+}
+
+// Add information to debug window
+void
+PhysicsSystem::receive(ECS::World* w, const addDebugInfoEvent& e) {
+
+  // Add to default window
+  ImGui::Begin("Debug");
+  ImGui::Text(std::string("Physics bodies: " + std::to_string(world_.GetBodyCount())).c_str());
+  ImGui::End();
+
+  // Make a physics window
+  if (showPhysics) {
+    const auto gravityVec = getGravity();
+    float gravity = gravityVec.y / 10.f;
+    ImGui::Begin("Physics System", &showPhysics);
+    ImGui::SliderFloat("Gravity", &gravity, -300.f, 300.f);
+    ImGui::End();
+    if (gravity * 10.f != gravityVec.y) {
+      setGravity(gravityVec.x, gravity * 10.f);
+    }
+  }
 }
