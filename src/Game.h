@@ -89,7 +89,6 @@ class Game {
 
     // Mutex to protect the window for rendering
     static std::mutex windowMutex_;
-    static std::mutex imguiMutex_;
 
     // Scene management
     static Scene* currentScene_;

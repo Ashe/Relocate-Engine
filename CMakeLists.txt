@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 38)
+set (Build_VERSION_TWEAK 39)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
@@ -100,7 +100,6 @@ target_sources(${EXECUTABLE_NAME} PRIVATE
   src/imgui/imgui_internal.h
   src/imgui/imgui_widgets.cpp
   src/imgui/imstb_rectpack.h
-  src/imgui/imstb_textedit.h
   src/imgui/imstb_truetype.h
 
 )

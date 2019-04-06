@@ -11,7 +11,6 @@ sf::RenderWindow* Game::window_ = nullptr;
 sf::View Game::view = sf::View();
 bool Game::multiThread_ = false;
 std::mutex Game::windowMutex_;
-std::mutex Game::imguiMutex_;
 bool Game::debug_ = false;
 Game::Status Game::status_ = Game::Status::Uninitialised;
 Scene* Game::currentScene_ = nullptr;
@@ -222,13 +221,16 @@ Game::update(const sf::Time& dt) {
   }
 
   // Update IMGUI debug interfaces
-  if (debug_ && !isImguiReady_ && (!multiThread_ || imguiMutex_.try_lock())) {
+  if (debug_ && !isImguiReady_) {
 
     // Update imgui
     ImGui::SFML::Update(mousePixelCoords, displaySize_, dt);
 
     // Draw imgui interfaces
     Game::handleImgui();
+
+    // Ready the IMGUI frame
+    isImguiReady_ = true;
   }
 }
 
@@ -265,14 +267,9 @@ Game::render() {
   }
 
   // Render IMGUI debug interface
-  if (isImguiReady_ && (!multiThread_ || imguiMutex_.try_lock())) {
+  if (isImguiReady_) {
     ImGui::SFML::Render(*window_);
     isImguiReady_ = false;
-
-    // Unlock mutex if multithreaded
-    if (multiThread_) {
-      imguiMutex_.unlock();
-    }
   }
 
   // Render everything in the screen
@@ -292,10 +289,8 @@ Game::handleEvent(const sf::Event& event) {
 
   // Pass events to IMGUI debug interface
   bool passToGame = true;
+  bool passToImgui = true;
   if (debug_) {
-
-    // Handle imgui events
-    ImGui::SFML::ProcessEvent(event);
 
     // Decide whether the game should get the event
     if (event.type == sf::Event::MouseButtonPressed || event.type == sf::Event::MouseButtonReleased) {
@@ -304,10 +299,10 @@ Game::handleEvent(const sf::Event& event) {
     else if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased) {
       if (ImGui::GetIO().WantCaptureKeyboard) passToGame = false;
     }
-    else if (event.type == sf::Event::TextEntered) {
-      if (ImGui::GetIO().WantTextInput) passToGame = false;
-    }
   }
+
+  // Handle imgui events
+  if (passToImgui) { ImGui::SFML::ProcessEvent(event); }
 
   // Pass events to scene
   if (currentScene_ != nullptr && passToGame) {
@@ -434,12 +429,6 @@ Game::handleImgui() {
   // Allow scene to make debug windows
   if (currentScene_ != nullptr) {
     currentScene_->addDebugInfoToDefault();
-  }
-
-  // Ready the IMGUI frame and Unlock mutex if multithreaded
-  isImguiReady_ = true;
-  if (multiThread_) {
-    imguiMutex_.unlock();
   }
 }
 
