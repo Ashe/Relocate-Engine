@@ -19,6 +19,7 @@ sf::Vector2f Game::mousePosition_ = sf::Vector2f();
 sf::Vector2f Game::displaySize_ = sf::Vector2f();
 unsigned Game::fps_ = 0;
 bool Game::isImguiReady_ = false;
+std::queue<ImWchar> Game::queuedChars_ = std::queue<ImWchar>();
 
 // Initialise the game without starting the loop
 void
@@ -223,10 +224,17 @@ Game::update(const sf::Time& dt) {
   // Update IMGUI debug interfaces
   if (debug_ && !isImguiReady_) {
 
-    // Update imgui
+    // Pass queued characters to ImGui
+    auto& io = ImGui::GetIO();
+    while (!queuedChars_.empty()) {
+      io.AddInputCharacter(queuedChars_.front());
+      queuedChars_.pop();
+    }
+
+    // Update imgui (calls ImGui::NewFrame())
     ImGui::SFML::Update(mousePixelCoords, displaySize_, dt);
 
-    // Draw imgui interfaces
+    // Create imgui interfaces
     Game::handleImgui();
 
     // Ready the IMGUI frame
@@ -289,15 +297,23 @@ Game::handleEvent(const sf::Event& event) {
 
   // Pass events to IMGUI debug interface
   bool passToGame = true;
-  bool passToImgui = true;
+  bool passToImgui = debug_;
   if (debug_) {
+
+    // Get reference to IO
+    auto& io = ImGui::GetIO();
 
     // Decide whether the game should get the event
     if (event.type == sf::Event::MouseButtonPressed || event.type == sf::Event::MouseButtonReleased) {
-      if (ImGui::GetIO().WantCaptureMouse) passToGame = false;
+      if (io.WantCaptureMouse) passToGame = false;
     }
     else if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased) {
-      if (ImGui::GetIO().WantCaptureKeyboard) passToGame = false;
+      if (io.WantCaptureKeyboard) passToGame = false;
+    }
+    else if (event.type == sf::Event::TextEntered && io.WantTextInput) {
+      passToImgui = false;
+      auto imguiChar = static_cast<ImWchar>(event.text.unicode);
+      queuedChars_.push(imguiChar);
     }
   }
 

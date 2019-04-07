@@ -8,6 +8,7 @@
 #include <mutex>
 #include <chrono>
 #include <functional>
+#include <queue>
 
 #include <SFML/Graphics.hpp>
 
@@ -104,6 +105,9 @@ class Game {
 
     // Whether IMGUI is ready
     static bool isImguiReady_;
+
+    // Queued characters
+    static std::queue<ImWchar> queuedChars_;
 
     // Initialise lua
     static bool initialiseLua(const std::string& fp);
