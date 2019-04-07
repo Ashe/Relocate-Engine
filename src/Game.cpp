@@ -420,7 +420,7 @@ Game::handleImgui() {
   if (showImguiDemo) { ImGui::ShowDemoWindow(&showImguiDemo); }
 
   // Show console
-  if (showConsole_) { console_.Draw("Console", &showConsole_); }
+  if (showConsole_) { console_.create("Console", &showConsole_); }
 
   // Info
   ImGui::Spacing();
