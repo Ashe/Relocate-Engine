@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 39)
+set (Build_VERSION_TWEAK 41)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
@@ -87,7 +87,8 @@ target_sources(${EXECUTABLE_NAME} PRIVATE
   src/ControlSystem.h
   src/ControlSystem.cpp
 
-  #Debug
+  # Development
+  src/Console.h
   src/PhysicsDebugDraw.h
   src/PhysicsDebugDraw.cpp
   src/imgui/imconfig.h

@@ -14,9 +14,7 @@
 
 #include "ECS.h"
 #include "Sol.h"
-
-#include "imgui/imgui.h"
-#include "imgui/imgui-SFML.h"
+#include "Console.h"
 
 // Forward declaration
 class Scene;
@@ -99,6 +97,10 @@ class Game {
 
     // Up to date display size
     static sf::Vector2f displaySize_;
+
+    // Console for debugging
+    static Console console_;
+    static bool showConsole_;
 
     // FPS
     static unsigned fps_;

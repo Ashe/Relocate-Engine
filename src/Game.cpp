@@ -17,6 +17,8 @@ Scene* Game::currentScene_ = nullptr;
 sol::state Game::lua;
 sf::Vector2f Game::mousePosition_ = sf::Vector2f();
 sf::Vector2f Game::displaySize_ = sf::Vector2f();
+Console Game::console_;
+bool Game::showConsole_ = false;
 unsigned Game::fps_ = 0;
 bool Game::isImguiReady_ = false;
 std::queue<ImWchar> Game::queuedChars_ = std::queue<ImWchar>();
@@ -403,6 +405,7 @@ Game::handleImgui() {
   if (ImGui::BeginMenuBar()) {
     if (ImGui::BeginMenu("View")) {
       ImGui::MenuItem("Demo imgui", NULL, &showImguiDemo);
+      ImGui::MenuItem("Console", NULL, &showConsole_);
 
       // Allow the scene to make entries to the view tab
       if (currentScene_ != nullptr) {
@@ -415,6 +418,9 @@ Game::handleImgui() {
 
   // Show ImGui demo on request
   if (showImguiDemo) { ImGui::ShowDemoWindow(&showImguiDemo); }
+
+  // Show console
+  if (showConsole_) { console_.Draw("Console", &showConsole_); }
 
   // Info
   ImGui::Spacing();
@@ -451,20 +457,21 @@ Game::handleImgui() {
 // Open the dev console in the terminal
 void
 Game::openDevConsole() {
-  printf("---------------~DEV CONSOLE~---------------\n");
-  printf("Please enter a command: ");
-  std::string str;
-  std::cin >> str;
-  
-  // If we have a command to process
-  if (str != "") {
-    sol::protected_function_result result = Game::lua.script(str, sol::script_pass_on_error);
-    if (!result.valid()) {
-      sol::error err = result;
-      std::cout << "Invalid command '" << str << "'.\nError: " << err.what() << std::endl;
-    }
-  }
-  printf("---------------~END CONSOLE~---------------\n\n");
+  showConsole_ = !showConsole_;
+ //printf("---------------~DEV CONSOLE~---------------\n");
+ //printf("Please enter a command: ");
+ //std::string str;
+ //std::cin >> str;
+ //
+ //// If we have a command to process
+ //if (str != "") {
+ //  sol::protected_function_result result = Game::lua.script(str, sol::script_pass_on_error);
+ //  if (!result.valid()) {
+ //    sol::error err = result;
+ //    std::cout << "Invalid command '" << str << "'.\nError: " << err.what() << std::endl;
+ //  }
+ //}
+ //printf("---------------~END CONSOLE~---------------\n\n");
 }
 
 // Get a pointer to the game's window
