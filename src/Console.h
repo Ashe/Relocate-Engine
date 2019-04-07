@@ -45,13 +45,13 @@ class Console {
   private:
 
     char InputBuf[256];
-    ImVector<char*> Items;
-    ImVector<const char*> Commands;
-    ImVector<char*> History;
-    int HistoryPos;    // -1: new line, 0..History.Size-1 browsing history.
-    ImGuiTextFilter Filter;
-    bool AutoScroll;
-    bool ScrollToBottom;
+    ImVector<char*> items_;
+    ImVector<const char*> commands_;
+    ImVector<char*> history_;
+    int historyPos_;    // -1: new line, 0..History.Size-1 browsing history.
+    ImGuiTextFilter filter_;
+    bool autoScroll_;
+    bool scrollToBottom_;
 
     // Remove all items from the console
     void clearLog();
