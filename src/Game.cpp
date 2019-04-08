@@ -27,29 +27,32 @@ std::queue<ImWchar> Game::queuedChars_ = std::queue<ImWchar>();
 void
 Game::initialise(const sf::VideoMode& mode, const std::string& title, bool multiThread) {
 
+  // Enable console debugging
+  Console::initialise(true);
+
   // Check that we haven't already initialised
   if (status_ != Game::Status::Uninitialised) {
-    printf("Error: Cannot initialise application - already running.\n"); 
+    Console::log("[Error] Cannot initialise application - already running.\n"); 
     return;
   }
 
   // Print opening message
-  printf("Launching Application %d.%d.%d..\n", 
+  Console::log("Launching Application %d.%d.%d..\n", 
     Build_VERSION_MAJOR, 
     Build_VERSION_MINOR, 
     Build_VERSION_TWEAK);
 
   // Flag whether we are in multithreaded mode
   multiThread_ = multiThread;
-  printf("Running in %s mode.\n", multiThread_ ? "multithreaded" : "standard");
+  Console::log("Running in %s mode.\n", multiThread_ ? "multithreaded" : "standard");
 
   // Initialise Lua and ensure it works
   bool success = initialiseLua("Assets/Scripts/GameConfig.lua");
   if (success) { 
-    printf("Lua successfully initialised.\n"); 
+    Console::log("Lua successfully initialised.\n"); 
   }
   else {
-    printf("Error: Cannot initialise Lua correctly.\n"); 
+    Console::log("[Error] Cannot initialise Lua correctly.\n"); 
     return;
   }
 
@@ -74,7 +77,7 @@ Game::start() {
 
   // Check that the game is ready to start
   if (status_ != Game::Status::Ready) {
-    printf("Error: Cannot start application.\n"); 
+    Console::log("[Error] Cannot start application.\n"); 
     return;
   }
 
@@ -173,7 +176,7 @@ Game::start() {
 
   // Quit the game and exit program
   shutdown();
-  printf("Exiting..\n");
+  Console::log("Exiting..\n");
 }
 
 // Initialise lua
@@ -200,6 +203,21 @@ Game::initialiseLua(const std::string& fp) {
     "status", sol::property(&Game::getStatus),
     "mousePosition", sol::property(&Game::getMousePosition)
   );
+
+  // Allow use of the console
+  Game::lua.set("Console", Console());
+  Game::lua.new_usertype<Console>("Console",
+    "log", &Console::log,
+    "clear", &Console::clear,
+    "outputToTerminal", sol::property(
+      &Console::getOutputToTerminal,
+      &Console::setOutputToTerminal)
+  );
+
+  // Convenience functions
+  Game::lua.set_function("print", &Console::log);
+  Game::lua.set_function("log", &Console::log);
+  Game::lua.set_function("clear", &Console::clear);
 
   // Tries to call the global config script
   // If this fails, lua is not working and cannot read files
@@ -331,7 +349,7 @@ Game::handleEvent(const sf::Event& event) {
 // Release resources before the game closes
 void
 Game::quit() {
-  printf("Quitting game..\n");
+  Console::log("Quitting game..\n");
 
   // Signal that we're quitting the game
   status_ = Game::Status::Quitting;
@@ -355,6 +373,9 @@ Game::terminate() {
   // Shut down IMGUI debug interface
   ImGui::SFML::Shutdown();
 
+  // Shut down console debugging
+  Console::shutdown();
+
   // Close the window, exiting the game loop
   if (window_ != nullptr) {
     window_->close();
@@ -367,7 +388,7 @@ Game::terminate() {
 void
 Game::shutdown() {
   status_ = Game::Status::Uninitialised;
-  printf("Releasing resources..\n");
+  Console::log("Releasing resources..\n");
   delete currentScene_;
 }
 
@@ -458,8 +479,8 @@ Game::handleImgui() {
 void
 Game::openDevConsole() {
   showConsole_ = !showConsole_;
- //printf("---------------~DEV CONSOLE~---------------\n");
- //printf("Please enter a command: ");
+ //Console::log("---------------~DEV CONSOLE~---------------\n");
+ //Console::log("Please enter a command: ");
  //std::string str;
  //std::cin >> str;
  //
@@ -468,10 +489,10 @@ Game::openDevConsole() {
  //  sol::protected_function_result result = Game::lua.script(str, sol::script_pass_on_error);
  //  if (!result.valid()) {
  //    sol::error err = result;
- //    std::cout << "Invalid command '" << str << "'.\nError: " << err.what() << std::endl;
+ //    std::cout << "Invalid command '" << str << "'.\n[Error]  " << err.what() << std::endl;
  //  }
  //}
- //printf("---------------~END CONSOLE~---------------\n\n");
+ //Console::log("---------------~END CONSOLE~---------------\n\n");
 }
 
 // Get a pointer to the game's window
@@ -508,7 +529,7 @@ Game::getDisplaySize() {
 void
 Game::setDebugMode(bool enable) {
   debug_ = enable;
-  printf("Debug mode %s.\n", enable ? "enabled" : "disabled");
+  Console::log("Debug mode %s.\n", enable ? "enabled" : "disabled");
 }
 
 // Get debug mode

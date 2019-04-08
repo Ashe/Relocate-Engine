@@ -6,23 +6,37 @@
 // Avoid cyclic dependencies
 #include "Game.h"
 
-// Constructor
-Console::Console() {
-  clearLog();
+// Initialise static variables
+char Console::InputBuf[256];
+ImVector<char*> Console::items_;
+ImVector<const char*> Console::commands_;
+ImVector<char*> Console::history_;
+int Console::historyPos_;    // -1: new line, 0..History.Size-1 browsing history.
+ImGuiTextFilter Console::filter_;
+bool Console::autoScroll_;
+bool Console::scrollToBottom_;
+bool Console::outputToTerminal_ = false;
+
+// Start the console
+void
+Console::initialise(bool outputToTerminal) {
+  clear();
   memset(InputBuf, 0, sizeof(InputBuf));
   historyPos_ = -1;
   commands_.push_back("HELP");
   commands_.push_back("HISTORY");
   commands_.push_back("CLEAR");
-  commands_.push_back("CLASSIFY");  // "classify" is only here to provide an example of "C"+[tab] completing to "CL" and displaying matches.
   autoScroll_ = true;
   scrollToBottom_ = true;
-  addLog("Welcome to Dear ImGui!");
+
+  // Set whether we should output to terminal
+  setOutputToTerminal(outputToTerminal);
 }
 
-// Destructor
-Console::~Console() {
-  clearLog();
+// Shut the console down
+void
+Console::shutdown() {
+  clear();
   for (int i = 0; i < history_.Size; i++)
   free(history_[i]);
 }
@@ -40,54 +54,49 @@ Console::create(const char* title, bool* p_open) {
   // the last Item represent the title bar. So e.g. IsItemHovered() will return true when hovering the title bar.
   // Here we create a context menu only available from the title bar.
   if (ImGui::BeginPopupContextItem()) {
-    if (ImGui::MenuItem("Close Console"))
-      *p_open = false;
+    if (ImGui::MenuItem("Close Console")) { *p_open = false; }
     ImGui::EndPopup();
   }
 
-  ImGui::TextWrapped("This example implements a console with basic coloring, completion and history. A more elaborate implementation may want to store entries along with extra data such as timestamp, emitter, etc.");
-  ImGui::TextWrapped("Enter 'HELP' for help, press TAB to use text completion.");
+  // Text at the top
+  ImGui::TextWrapped("This console allows you to interact with the application's Lua environment.");
 
-  // TODO: display items starting from the bottom
-  if (ImGui::SmallButton("Add Dummy Text"))  { 
-    addLog("%d some text", items_.Size); 
-    addLog("some more text"); 
-    addLog("display very important message here!"); 
-  } 
+  // Clear the log on click
+  if (ImGui::SmallButton("Clear")) { clear(); } 
   ImGui::SameLine();
-  if (ImGui::SmallButton("Add Dummy Error")) { 
-    addLog("[error] something went wrong"); } 
-  ImGui::SameLine();
-  if (ImGui::SmallButton("Clear")) { 
-    clearLog(); 
-  } 
-  ImGui::SameLine();
+
+  // Copy to clipboard button
   bool copy_to_clipboard = ImGui::SmallButton("Copy"); 
   ImGui::SameLine();
-  if (ImGui::SmallButton("Scroll to bottom")) scrollToBottom_ = true;
-  //static float t = 0.0f; if (ImGui::GetTime() - t > 0.02f) { t = ImGui::GetTime(); AddLog("Spam %f", t); }
 
+  // Scroll to bottom button
+  if (ImGui::SmallButton("Scroll to bottom")) { scrollToBottom_ = true; }
   ImGui::Separator();
 
   // Options menu
   if (ImGui::BeginPopup("Options")) {
-    if (ImGui::Checkbox("Auto-scroll", &autoScroll_))
-      if (autoScroll_)
-        scrollToBottom_ = true;
+    if (ImGui::Checkbox("Auto-scroll", &autoScroll_)) {
+      if (autoScroll_) scrollToBottom_ = true;
+    }
     ImGui::EndPopup();
   }
 
   // Options, filter_
-  if (ImGui::Button("Options"))
-    ImGui::OpenPopup("Options");
+  if (ImGui::Button("Options")) { ImGui::OpenPopup("Options"); }
   ImGui::SameLine();
+
+  // Allow filtering of text
   filter_.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
   ImGui::Separator();
 
-  const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing(); // 1 separator, 1 input text
-  ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar); // Leave room for 1 separator + 1 InputText
+  // Reserve space for scrolling area
+  // 1 separator, 1 input text
+  const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing(); 
+  ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar);
+
+  // Allow the user to clear the log by right clicking the scrollable area
   if (ImGui::BeginPopupContextWindow()) {
-    if (ImGui::Selectable("Clear")) clearLog();
+    if (ImGui::Selectable("Clear")) { clear(); }
     ImGui::EndPopup();
   }
 
@@ -127,9 +136,9 @@ Console::create(const char* title, bool* p_open) {
   ImGui::EndChild();
   ImGui::Separator();
 
-  // Command-line
+  // Text input area
   bool reclaim_focus = false;
-  if (ImGui::InputText("Input", InputBuf, IM_ARRAYSIZE(InputBuf), ImGuiInputTextFlags_EnterReturnsTrue|ImGuiInputTextFlags_CallbackCompletion|ImGuiInputTextFlags_CallbackHistory, &TextEditCallbackStub, (void*)this)) {
+  if (ImGui::InputText("Command", InputBuf, IM_ARRAYSIZE(InputBuf), ImGuiInputTextFlags_EnterReturnsTrue|ImGuiInputTextFlags_CallbackCompletion|ImGuiInputTextFlags_CallbackHistory, &TextEditCallbackStub)) {
     char* s = InputBuf;
     Strtrim(s);
     if (s[0])
@@ -143,13 +152,14 @@ Console::create(const char* title, bool* p_open) {
   if (reclaim_focus)
     ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
 
+  // End window
   ImGui::End();
 }
 
 
 // Remove all items from the console
 void 
-Console::clearLog() {
+Console::clear() {
   for (int i = 0; i < items_.Size; i++)
     free(items_[i]);
   items_.clear();
@@ -158,8 +168,9 @@ Console::clearLog() {
 
 // Add something to the console
 void 
-Console::addLog(const char* fmt, ...) {
-  // FIXME-OPT
+Console::log(const char* fmt, ...) {
+
+  // Add log entry
   char buf[1024];
   va_list args;
   va_start(args, fmt);
@@ -167,16 +178,25 @@ Console::addLog(const char* fmt, ...) {
   buf[IM_ARRAYSIZE(buf)-1] = 0;
   va_end(args);
   items_.push_back(Strdup(buf));
-  if (autoScroll_)
+
+  // Print to terminal
+  if (outputToTerminal_) {
+    printf(Strdup(buf));
+  }
+
+  // Scroll to the bottom if desired
+  if (autoScroll_) {
     scrollToBottom_ = true;
+  }
 }
 
 // Execute the entered command
 void 
 Console::execCommand(const char* command_line) {
-  addLog("# %s\n", command_line);
+  log("# %s\n", command_line);
 
-  // Insert into history. First find match and delete it so it can be pushed to the back. This isn't trying to be smart or optimal.
+  // Insert into history
+  // First find match and delete it so it can be pushed to the back
   historyPos_ = -1;
   for (int i = history_.Size-1; i >= 0; i--)
     if (Stricmp(history_[i], command_line) == 0)
@@ -187,26 +207,31 @@ Console::execCommand(const char* command_line) {
     }
   history_.push_back(Strdup(command_line));
 
-  // Process command
-  if (Stricmp(command_line, "CLEAR") == 0) {
-    clearLog();
-  }
-  else if (Stricmp(command_line, "HELP") == 0) {
-    addLog("commands_:");
-    for (int i = 0; i < commands_.Size; i++)
-      addLog("- %s", commands_[i]);
-  }
-  else if (Stricmp(command_line, "HISTORY") == 0) {
+  // If the command was 'History', show history
+  if (Stricmp(command_line, "HISTORY") == 0) {
     int first = history_.Size - 10;
     for (int i = first > 0 ? first : 0; i < history_.Size; i++)
-      addLog("%3d: %s\n", i, history_[i]);
+      log("%3d: %s\n", i, history_[i]);
   }
   else {
-    addLog("Unknown command: '%s'\n", command_line);
+    log("Unknown command: '%s'\n", command_line);
   }
 
   // On commad input, we scroll to bottom even if autoScroll_==false
   scrollToBottom_ = true;
+}
+
+// Get whether we should output to terminal
+bool
+Console::getOutputToTerminal() {
+  return outputToTerminal_;
+}
+
+// Set whether we should output to terminal
+void
+Console::setOutputToTerminal(bool enable) {
+  Console::log("Output to terminal: %s\n", enable ? "enabled" : "disabled");
+  outputToTerminal_ = enable;
 }
 
 // Calculates possible matches
@@ -235,7 +260,7 @@ Console::textEditCallback(ImGuiInputTextCallbackData* data) {
 
      if (candidates.Size == 0) {
        // No match
-       addLog("No match for \"%.*s\"!\n", (int)(word_end-word_start), word_start);
+       log("No match for \"%.*s\"!\n", (int)(word_end-word_start), word_start);
      }
      else if (candidates.Size == 1) {
        // Single match. Delete the beginning of the word and replace it entirely so we've got nice casing
@@ -265,9 +290,9 @@ Console::textEditCallback(ImGuiInputTextCallbackData* data) {
        }
 
        // List matches
-       addLog("Possible matches:\n");
+       log("Possible matches:\n");
        for (int i = 0; i < candidates.Size; i++)
-         addLog("- %s\n", candidates[i]);
+         log("- %s\n", candidates[i]);
      }
 
      break;

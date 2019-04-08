@@ -28,7 +28,7 @@ Scene::begin() {
 	if (!attempt.valid()) {
 		sol::error err = attempt;
     if (Game::getDebugMode()) {
-      printf("Error has occured: %s\n", err.what());
+      Console::log("Error has occured: %s\n", err.what());
     }
   }
 
@@ -70,7 +70,7 @@ Scene::showScene() {
     if (!attempt.valid()) {
       sol::error err = attempt;
       if (Game::getDebugMode()) {
-        printf("Error has occured: %s\n", err.what());
+        Console::log("Error has occured: %s\n", err.what());
       }
     }
   }
@@ -84,7 +84,7 @@ Scene::hideScene() {
     if (!attempt.valid()) {
       sol::error err = attempt;
       if (Game::getDebugMode()) {
-        printf("Error has occured: %s\n", err.what());
+        Console::log("Error has occured: %s\n", err.what());
       }
     }
   }
@@ -100,7 +100,7 @@ Scene::update(const sf::Time& dt) {
     if (!attempt.valid()) {
       sol::error err = attempt;
       if (Game::getDebugMode()) {
-        printf("Error has occured: %s\n", err.what());
+        Console::log("Error has occured: %s\n", err.what());
       }
     }
   }
@@ -142,7 +142,7 @@ Scene::handleEvent(const sf::Event& event) {
     if (!attempt.valid()) {
       sol::error err = attempt;
       if (Game::getDebugMode()) {
-        printf("Error has occured: %s\n", err.what());
+        Console::log("Error has occured: %s\n", err.what());
       }
     }
   }
@@ -157,12 +157,12 @@ Scene::quit() {
     if (!attempt.valid()) {
       quitAnyway = true;
       sol::error err = attempt;
-      if (Game::getDebugMode()) { printf("Error has occured: %s\n", err.what()); }
+      if (Game::getDebugMode()) { Console::log("Error has occured: %s\n", err.what()); }
     }
   }
   if (quitAnyway) {
     quitAnyway = false;
-    if (Game::getDebugMode()) { printf("Terminating program.\n"); }
+    if (Game::getDebugMode()) { Console::log("Terminating program.\n"); }
     Game::terminate();
   }
 }

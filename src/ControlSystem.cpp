@@ -17,7 +17,7 @@ ControlSystem::registerControlSystemFunctions(sol::environment& env, ECS::World*
 
     // Debug message
     if (Game::getDebugMode()) {
-      printf("Initialising Control system..\n");
+      Console::log("Initialising Control system..\n");
     }
 
     // Create the control system to return to the world

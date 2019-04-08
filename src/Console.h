@@ -33,37 +33,44 @@ class Console {
       return console->textEditCallback(data);
     }
 
-    // Constructor
-    Console();
+    // Prepare the console for use
+    static void initialise(bool outputToTerminal = false);
 
-    // Destructor
-    ~Console();
+    // Shut the console down
+    static void shutdown();
     
     // Prepare the console for drawing to the screen
-    void create(const char* title, bool* p_open);
+    static void create(const char* title, bool* p_open);
+
+    // Add something to the console
+    static void log(const char* fmt, ...) IM_FMTARGS(1);
+
+    // Remove all items from the console
+    static void clear();
+
+    // Get/set whether we output to terminal
+    static bool getOutputToTerminal();
+    static void setOutputToTerminal(bool enable);
 
   private:
 
-    char InputBuf[256];
-    ImVector<char*> items_;
-    ImVector<const char*> commands_;
-    ImVector<char*> history_;
-    int historyPos_;    // -1: new line, 0..History.Size-1 browsing history.
-    ImGuiTextFilter filter_;
-    bool autoScroll_;
-    bool scrollToBottom_;
+    static char InputBuf[256];
+    static ImVector<char*> items_;
+    static ImVector<const char*> commands_;
+    static ImVector<char*> history_;
+    static int historyPos_;    // -1: new line, 0..History.Size-1 browsing history.
+    static ImGuiTextFilter filter_;
+    static bool autoScroll_;
+    static bool scrollToBottom_;
 
-    // Remove all items from the console
-    void clearLog();
-
-    // Add something to the console
-    void addLog(const char* fmt, ...) IM_FMTARGS(2);
+    // Should input also be placed into the terminal
+    static bool outputToTerminal_;
 
     // Execute the entered command
-    void execCommand(const char* command_line);
-    
+    static void execCommand(const char* command_line);
+
     // Calculates possible matches
-    int textEditCallback(ImGuiInputTextCallbackData* data);
+    static int textEditCallback(ImGuiInputTextCallbackData* data);
 };
 
 #endif

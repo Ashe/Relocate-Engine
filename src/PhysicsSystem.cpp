@@ -15,7 +15,7 @@ PhysicsSystem::registerPhysicsSystemFunctions(sol::environment& env, ECS::World*
 
     // Debug message
     if (Game::getDebugMode()) {
-      printf("Initialising Physics system..\n");
+      Console::log("Initialising Physics system..\n");
     }
 
     // Create the physics system to return to the world
