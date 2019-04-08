@@ -12,7 +12,7 @@ CameraSystem::registerCameraSystemFunctions(sol::environment& env, ECS::World* w
 
     // Debug message
     if (Game::getDebugMode()) {
-      Console::log("Initialising Camera system..\n");
+      Console::log("Initialising Camera system..");
     }
 
     // Create the camera system to return to the world

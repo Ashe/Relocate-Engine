@@ -32,7 +32,7 @@ Game::lua.new_usertype<TYPE>(NAME, \
 // Handle the initialisation of lua
 void
 Script::startLua() {
-  Console::log("Initialising Lua..\n");
+  Console::log("Initialising Lua..");
   Game::lua.open_libraries(sol::lib::base);
 
   // SFML FUNCTIONS
@@ -106,7 +106,7 @@ void Script::Funcs::registerVectors() {
 void Script::Funcs::registerEvents() {
 
   // Register main event type
-  Console::log("Registering Event type\n");
+  Console::log("Registering Event type");
   Game::lua.new_usertype<sf::Event>("Event",
     sol::constructors<sf::Event()>(),
     "type", &sf::Event::type,
@@ -125,7 +125,7 @@ void Script::Funcs::registerEvents() {
   );
 
   // Register the MouseMove type for mouse movement
-  Console::log("Registering MouseMove type\n");
+  Console::log("Registering MouseMove type");
   Game::lua.new_usertype<sf::Event::MouseMoveEvent>("MouseMoveEvent",
     sol::constructors<sf::Event::MouseMoveEvent()>(),
     "x", &sf::Event::MouseMoveEvent::x,
@@ -133,7 +133,7 @@ void Script::Funcs::registerEvents() {
   );
 
   // Register the MouseButton type for mouse input
-  Console::log("Registering MouseButton type\n");
+  Console::log("Registering MouseButton type");
   Game::lua.new_usertype<sf::Event::MouseButtonEvent>("MouseButtonEvent",
     sol::constructors<sf::Event::MouseButtonEvent()>(),
     "button", &sf::Event::MouseButtonEvent::button,
@@ -142,7 +142,7 @@ void Script::Funcs::registerEvents() {
   );
 
   // Register mouse buttons
-  Console::log("Registering MouseButton values\n");
+  Console::log("Registering MouseButton values");
   Game::lua.set("MouseButton_Left", sf::Mouse::Button::Left);
   Game::lua.set("MouseButton_Right", sf::Mouse::Button::Right);
   Game::lua.set("MouseButton_Middle", sf::Mouse::Button::Middle);
@@ -150,7 +150,7 @@ void Script::Funcs::registerEvents() {
   Game::lua.set("MouseButton_XButton2", sf::Mouse::Button::XButton2);
 
   // Register the MouseWheel SCROLL type for mousewheel event
-  Console::log("Registering MouseWheelScrollEvent type\n");
+  Console::log("Registering MouseWheelScrollEvent type");
   Game::lua.new_usertype<sf::Event::MouseWheelScrollEvent>("MouseWheelScrollEvent",
     sol::constructors<sf::Event::MouseWheelScrollEvent()>(),
     "wheel", &sf::Event::MouseWheelScrollEvent::wheel,
@@ -160,12 +160,12 @@ void Script::Funcs::registerEvents() {
   );
 
   // Register mouse wheels
-  Console::log("Registering MouseWheel values\n");
+  Console::log("Registering MouseWheel values");
   Game::lua.set("MouseWheel_VerticalWheel", sf::Mouse::Wheel::VerticalWheel);
   Game::lua.set("MouseWheel_HorizontalWheel", sf::Mouse::Wheel::HorizontalWheel);
 
   // Register the KeyEvent type for keyboard input
-  Console::log("Registering KeyEvent type\n");
+  Console::log("Registering KeyEvent type");
   Game::lua.new_usertype<sf::Event::KeyEvent>("KeyEvent",
     sol::constructors<sf::Event::KeyEvent()>(),
     "code", &sf::Event::KeyEvent::code,
@@ -182,10 +182,10 @@ void Script::Funcs::registerEvents() {
 "SensorChanged"};
 
   // Pass through all event enums
-  Console::log("Registering EventType values\n");
+  Console::log("Registering EventType values");
   for (int i = 0; i < sf::Event::EventType::Count; ++i) {
     const std::string& str = eventLs[i];
-    if (Game::getDebugMode()) Console::log("%d - Registering event: EventType_%s\n", i, str.c_str());
+    if (Game::getDebugMode()) Console::log("%d - Registering event: EventType_%s", i, str.c_str());
     Game::lua.set("EventType_" + str, (sf::Event::EventType) i);
   }
 
@@ -195,10 +195,10 @@ void Script::Funcs::registerEvents() {
   { "Unknown", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","Num0","Num1","Num2","Num3","Num4","Num5","Num6","Num7","Num8","Num9","Escape","LControl","LShift","LAlt","LSystem","RControl","RShift","RAlt","RSystem","Menu","LBracket","RBracket","Semicolon","Comma","Period","Quote","Slash","Backslash","Tilde","Equal","Hyphen","Space","Enter","Backspace","Tab","PageUp","PageDown","End","Home","Insert","Delete","Add","Subtract","Multiply","Divide","Left","Right","Up","Down","Numpad0","Numpad1","Numpad2","Numpad3","Numpad4","Numpad5","Numpad6","Numpad7","Numpad8","Numpad9","F1","F2","F3","F4","F5","F6","F7","F8","F9","F10","F11","F12","F13","F14","F15","Pause"};
 
   // Pass through all keys
-  Console::log("Registering KeyButton values\n");
+  Console::log("Registering KeyButton values");
   for (int i = -1; i < sf::Keyboard::Key::KeyCount; ++i) {
     const std::string& str = keyLs[i + 1];
-    if (Game::getDebugMode()) Console::log("%d - Registering character: Key_%s\n", i, str.c_str());
+    if (Game::getDebugMode()) Console::log("%d - Registering character: Key_%s", i, str.c_str());
     Game::lua.set("Key_" + str, (sf::Keyboard::Key) i);
   }
 }

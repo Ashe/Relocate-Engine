@@ -45,7 +45,7 @@ RigidBody::registerFunctions(sol::environment& env, b2World* world) {
 
   // Debug message
   if (Game::getDebugMode()) {
-    Console::log("Enabling usage of RigidBody components..\n");
+    Console::log("Enabling usage of RigidBody components..");
   }
 
   // Set all future rigidbodies to use this world

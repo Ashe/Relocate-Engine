@@ -32,27 +32,27 @@ Game::initialise(const sf::VideoMode& mode, const std::string& title, bool multi
 
   // Check that we haven't already initialised
   if (status_ != Game::Status::Uninitialised) {
-    Console::log("[Error] Cannot initialise application - already running.\n"); 
+    Console::log("[Error] Cannot initialise application - already running."); 
     return;
   }
 
   // Print opening message
-  Console::log("Launching Application %d.%d.%d..\n", 
+  Console::log("Launching Application %d.%d.%d..", 
     Build_VERSION_MAJOR, 
     Build_VERSION_MINOR, 
     Build_VERSION_TWEAK);
 
   // Flag whether we are in multithreaded mode
   multiThread_ = multiThread;
-  Console::log("Running in %s mode.\n", multiThread_ ? "multithreaded" : "standard");
+  Console::log("Running in %s mode.", multiThread_ ? "multithreaded" : "standard");
 
   // Initialise Lua and ensure it works
   bool success = initialiseLua("Assets/Scripts/GameConfig.lua");
   if (success) { 
-    Console::log("Lua successfully initialised.\n"); 
+    Console::log("Lua successfully initialised."); 
   }
   else {
-    Console::log("[Error] Cannot initialise Lua correctly.\n"); 
+    Console::log("[Error] Cannot initialise Lua correctly."); 
     return;
   }
 
@@ -77,7 +77,7 @@ Game::start() {
 
   // Check that the game is ready to start
   if (status_ != Game::Status::Ready) {
-    Console::log("[Error] Cannot start application.\n"); 
+    Console::log("[Error] Cannot start application."); 
     return;
   }
 
@@ -176,7 +176,7 @@ Game::start() {
 
   // Quit the game and exit program
   shutdown();
-  Console::log("Exiting..\n");
+  Console::log("Exiting..");
 }
 
 // Initialise lua
@@ -349,7 +349,7 @@ Game::handleEvent(const sf::Event& event) {
 // Release resources before the game closes
 void
 Game::quit() {
-  Console::log("Quitting game..\n");
+  Console::log("Quitting game..");
 
   // Signal that we're quitting the game
   status_ = Game::Status::Quitting;
@@ -388,7 +388,7 @@ Game::terminate() {
 void
 Game::shutdown() {
   status_ = Game::Status::Uninitialised;
-  Console::log("Releasing resources..\n");
+  Console::log("Releasing resources..");
   delete currentScene_;
 }
 
@@ -529,7 +529,7 @@ Game::getDisplaySize() {
 void
 Game::setDebugMode(bool enable) {
   debug_ = enable;
-  Console::log("Debug mode %s.\n", enable ? "enabled" : "disabled");
+  Console::log("Debug mode %s.", enable ? "enabled" : "disabled");
 }
 
 // Get debug mode

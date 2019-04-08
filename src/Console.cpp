@@ -23,7 +23,6 @@ Console::initialise(bool outputToTerminal) {
   clear();
   memset(InputBuf, 0, sizeof(InputBuf));
   historyPos_ = -1;
-  commands_.push_back("HELP");
   commands_.push_back("HISTORY");
   commands_.push_back("CLEAR");
   autoScroll_ = true;
@@ -181,7 +180,7 @@ Console::log(const char* fmt, ...) {
 
   // Print to terminal
   if (outputToTerminal_) {
-    printf(Strdup(buf));
+    printf("%s\n", Strdup(buf));
   }
 
   // Scroll to the bottom if desired
@@ -212,6 +211,10 @@ Console::execCommand(const char* command_line) {
     int first = history_.Size - 10;
     for (int i = first > 0 ? first : 0; i < history_.Size; i++)
       log("%3d: %s\n", i, history_[i]);
+  }
+  // Clear the log with the CLEAR command
+  if (Stricmp(command_line, "CLEAR") == 0) {
+    clear();
   }
   else {
     log("Unknown command: '%s'\n", command_line);
