@@ -23,8 +23,9 @@ Console::initialise(bool outputToTerminal) {
   clear();
   memset(InputBuf, 0, sizeof(InputBuf));
   historyPos_ = -1;
-  commands_.push_back("HISTORY");
-  commands_.push_back("CLEAR");
+  addCommand("help");
+  addCommand("clear");
+  addCommand("history");
   autoScroll_ = true;
   scrollToBottom_ = true;
 
@@ -36,8 +37,14 @@ Console::initialise(bool outputToTerminal) {
 void
 Console::shutdown() {
   clear();
-  for (int i = 0; i < history_.Size; i++)
+  for (int i = 0; i < history_.Size; ++i)
   free(history_[i]);
+}
+
+// Add commands to the auto completion
+void
+Console::addCommand(const char* command) {
+  commands_.push_back(command);
 }
 
 // Prepare the console for drawing to the screen
@@ -59,6 +66,7 @@ Console::create(const char* title, bool* p_open) {
 
   // Text at the top
   ImGui::TextWrapped("This console allows you to interact with the application's Lua environment.");
+  ImGui::TextWrapped("For a list of basic commands, type 'HELP'.");
 
   // Clear the log on click
   if (ImGui::SmallButton("Clear")) { clear(); } 
@@ -113,15 +121,17 @@ Console::create(const char* title, bool* p_open) {
   ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,1)); // Tighten spacing
   if (copy_to_clipboard)
     ImGui::LogToClipboard();
-  for (int i = 0; i < items_.Size; i++) {
+  for (int i = 0; i < items_.Size; ++i) {
     const char* item = items_[i];
     if (!filter_.PassFilter(item))
       continue;
 
     // Normally you would store more information in your item (e.g. make items_[] an array of structure, store color/type etc.)
     bool pop_color = false;
-    if (strstr(item, "[error]"))            { ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f)); pop_color = true; }
-    else if (strncmp(item, "# ", 2) == 0)   { ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.8f, 0.6f, 1.0f)); pop_color = true; }
+    if (strstr(item, "[Error]"))            { ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f)); pop_color = true; }
+    else if (strstr(item, "[Warning]"))            { ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f)); pop_color = true; }
+    else if (strstr(item, "[Note]"))            { ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 1.0f, 1.0f)); pop_color = true; }
+    else if (strncmp(item, "$ ", 2) == 0)   { ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.8f, 0.6f, 1.0f)); pop_color = true; }
     ImGui::TextUnformatted(item);
     if (pop_color)
       ImGui::PopStyleColor();
@@ -137,7 +147,7 @@ Console::create(const char* title, bool* p_open) {
 
   // Text input area
   bool reclaim_focus = false;
-  if (ImGui::InputText("Command", InputBuf, IM_ARRAYSIZE(InputBuf), ImGuiInputTextFlags_EnterReturnsTrue|ImGuiInputTextFlags_CallbackCompletion|ImGuiInputTextFlags_CallbackHistory, &TextEditCallbackStub)) {
+  if (ImGui::InputText("Input", InputBuf, IM_ARRAYSIZE(InputBuf), ImGuiInputTextFlags_EnterReturnsTrue|ImGuiInputTextFlags_CallbackCompletion|ImGuiInputTextFlags_CallbackHistory, &TextEditCallbackStub)) {
     char* s = InputBuf;
     Strtrim(s);
     if (s[0])
@@ -159,7 +169,7 @@ Console::create(const char* title, bool* p_open) {
 // Remove all items from the console
 void 
 Console::clear() {
-  for (int i = 0; i < items_.Size; i++)
+  for (int i = 0; i < items_.Size; ++i)
     free(items_[i]);
   items_.clear();
   scrollToBottom_ = true;
@@ -192,32 +202,53 @@ Console::log(const char* fmt, ...) {
 // Execute the entered command
 void 
 Console::execCommand(const char* command_line) {
-  log("# %s\n", command_line);
+
+  // Get a string from the command
+  const std::string command = command_line;
+
+  // Log the entered command
+  log("$ %s\n", command.c_str());
 
   // Insert into history
   // First find match and delete it so it can be pushed to the back
   historyPos_ = -1;
-  for (int i = history_.Size-1; i >= 0; i--)
-    if (Stricmp(history_[i], command_line) == 0)
-    {
+  for (int i = history_.Size-1; i >= 0; --i) {
+    if (Stricmp(history_[i], command_line) == 0) {
       free(history_[i]);
       history_.erase(history_.begin() + i);
       break;
     }
+  }
   history_.push_back(Strdup(command_line));
 
-  // If the command was 'History', show history
-  if (Stricmp(command_line, "HISTORY") == 0) {
-    int first = history_.Size - 10;
-    for (int i = first > 0 ? first : 0; i < history_.Size; i++)
-      log("%3d: %s\n", i, history_[i]);
+  // If the command was 'Help' print basic commands
+  if (Stricmp(command_line, "HELP") == 0) {
+    log("Commands:");
+    for (int i = 0; i < commands_.Size; ++i) {
+      log("- %s", commands_[i]);
+    }
   }
+
+  // If the command was 'History', show history
+  else if (Stricmp(command_line, "HISTORY") == 0) {
+    int first = history_.Size - 10;
+    for (int i = first > 0 ? first : 0; i < history_.Size; ++i) {
+      log("%3d: %s", i, history_[i]);
+    }
+  }
+
   // Clear the log with the CLEAR command
   if (Stricmp(command_line, "CLEAR") == 0) {
     clear();
   }
+
+  // Otherwise, run the command
   else {
-    log("Unknown command: '%s'\n", command_line);
+    sol::protected_function_result result = Game::lua.script(command, sol::script_pass_on_error);
+    if (!result.valid()) {
+      sol::error err = result;
+      log("[Error] Unknown command: %s\n> %s", command.c_str(), err.what());
+    }
   }
 
   // On commad input, we scroll to bottom even if autoScroll_==false
@@ -233,7 +264,7 @@ Console::getOutputToTerminal() {
 // Set whether we should output to terminal
 void
 Console::setOutputToTerminal(bool enable) {
-  Console::log("Output to terminal: %s\n", enable ? "enabled" : "disabled");
+  Console::log("Output to terminal: %s", enable ? "enabled" : "disabled");
   outputToTerminal_ = enable;
 }
 
@@ -257,13 +288,14 @@ Console::textEditCallback(ImGuiInputTextCallbackData* data) {
 
      // Build a list of candidates
      ImVector<const char*> candidates;
-     for (int i = 0; i < commands_.Size; i++)
-       if (Strnicmp(commands_[i], word_start, (int)(word_end-word_start)) == 0)
+     for (int i = 0; i < commands_.Size; ++i)
+       if (Strnicmp(commands_[i], word_start, (int)(word_end-word_start)) == 0) {
          candidates.push_back(commands_[i]);
+        }
 
      if (candidates.Size == 0) {
        // No match
-       log("No match for \"%.*s\"!\n", (int)(word_end-word_start), word_start);
+       log("No match for \"%.*s\"!", (int)(word_end-word_start), word_start);
      }
      else if (candidates.Size == 1) {
        // Single match. Delete the beginning of the word and replace it entirely so we've got nice casing
@@ -277,7 +309,7 @@ Console::textEditCallback(ImGuiInputTextCallbackData* data) {
        for (;;) {
          int c = 0;
          bool all_candidates_matches = true;
-         for (int i = 0; i < candidates.Size && all_candidates_matches; i++)
+         for (int i = 0; i < candidates.Size && all_candidates_matches; ++i)
            if (i == 0)
              c = toupper(candidates[i][match_len]);
            else if (c == 0 || c != toupper(candidates[i][match_len]))
@@ -293,9 +325,10 @@ Console::textEditCallback(ImGuiInputTextCallbackData* data) {
        }
 
        // List matches
-       log("Possible matches:\n");
-       for (int i = 0; i < candidates.Size; i++)
-         log("- %s\n", candidates[i]);
+       log("Possible matches:");
+       for (int i = 0; i < candidates.Size; ++i) {
+         log("- %s", candidates[i]);
+       }
      }
 
      break;

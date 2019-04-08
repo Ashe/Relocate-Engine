@@ -31,6 +31,12 @@ PhysicsSystem::registerPhysicsSystemFunctions(sol::environment& env, ECS::World*
     env.set_function("setGravityMult", &PhysicsSystem::setGravityMult, newPS);
     env.set_function("physicsBodyCount", &b2World::GetBodyCount, physicsWorld);
 
+    // Add global commands to auto complete
+    Console::addCommand("getGravity");
+    Console::addCommand("setGravity");
+    Console::addCommand("setGravityMult");
+    Console::addCommand("physicsBodyCount");
+
     // Allow the use of RigidBodies
     RigidBody::registerFunctions(env, physicsWorld);
   });

@@ -38,6 +38,9 @@ class Console {
 
     // Shut the console down
     static void shutdown();
+
+    // Add commands to the auto completion
+    static void addCommand(const char* command);
     
     // Prepare the console for drawing to the screen
     static void create(const char* title, bool* p_open);

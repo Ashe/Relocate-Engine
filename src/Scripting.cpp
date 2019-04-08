@@ -82,6 +82,9 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
   CameraSystem::registerCameraSystemFunctions(env, world);
   PhysicsSystem::registerPhysicsSystemFunctions(env, world);
   ControlSystem::registerControlSystemFunctions(env, world);
+
+  // Add to autocomplete
+  Console::addCommand("createEntity");
 }
 
 ///////////////////////

@@ -204,6 +204,9 @@ Game::initialiseLua(const std::string& fp) {
     "mousePosition", sol::property(&Game::getMousePosition)
   );
 
+  // Console Convenience functions
+  Game::lua.set_function("quit", &Game::quit);
+
   // Allow use of the console
   Game::lua.set("Console", Console());
   Game::lua.new_usertype<Console>("Console",
@@ -214,10 +217,14 @@ Game::initialiseLua(const std::string& fp) {
       &Console::setOutputToTerminal)
   );
 
-  // Convenience functions
+  // Console Convenience functions
   Game::lua.set_function("print", &Console::log);
   Game::lua.set_function("log", &Console::log);
   Game::lua.set_function("clear", &Console::clear);
+
+  // Add some basic commands to auto complete
+  Console::addCommand("quit");
+  Console::addCommand("Console.outputToTerminal");
 
   // Tries to call the global config script
   // If this fails, lua is not working and cannot read files
@@ -479,20 +486,6 @@ Game::handleImgui() {
 void
 Game::openDevConsole() {
   showConsole_ = !showConsole_;
- //Console::log("---------------~DEV CONSOLE~---------------\n");
- //Console::log("Please enter a command: ");
- //std::string str;
- //std::cin >> str;
- //
- //// If we have a command to process
- //if (str != "") {
- //  sol::protected_function_result result = Game::lua.script(str, sol::script_pass_on_error);
- //  if (!result.valid()) {
- //    sol::error err = result;
- //    std::cout << "Invalid command '" << str << "'.\n[Error]  " << err.what() << std::endl;
- //  }
- //}
- //Console::log("---------------~END CONSOLE~---------------\n\n");
 }
 
 // Get a pointer to the game's window
