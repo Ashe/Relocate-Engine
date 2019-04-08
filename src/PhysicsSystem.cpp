@@ -5,6 +5,8 @@
 
 // Define statics
 const float PhysicsSystem::scale = 100.f;
+bool PhysicsSystem::showPhysicsWindow_ = false;
+bool PhysicsSystem::showRigidBodies_ = true;
 
 // Register a physics system in this world
 void
@@ -25,17 +27,26 @@ PhysicsSystem::registerPhysicsSystemFunctions(sol::environment& env, ECS::World*
     // Get the new physics world
     b2World* physicsWorld = newPS->getWorld();
 
-    // Register functions to address this system
-    env.set_function("getGravity", &PhysicsSystem::getGravity, newPS);
-    env.set_function("setGravity", &PhysicsSystem::setGravity, newPS);
-    env.set_function("setGravityMult", &PhysicsSystem::setGravityMult, newPS);
-    env.set_function("physicsBodyCount", &b2World::GetBodyCount, physicsWorld);
+    // Allow the system's manipulation through lua
+    env.set("Physics", newPS);
+    env.new_usertype<PhysicsSystem>("PhysicsSystem",
+      "gravity", sol::property(
+        &PhysicsSystem::getGravity,
+        &PhysicsSystem::setGravityVec),
+      "setGravityMult", &PhysicsSystem::setGravityMult,
+      "bodyCount", sol::property(
+        [](const PhysicsSystem& self) { return self.world_.GetBodyCount(); }),
+      "showHitboxes", sol::property(
+        [](const PhysicsSystem& self) { return PhysicsSystem::showRigidBodies_; },
+        [](bool enable) { PhysicsSystem::showRigidBodies_ = enable; })
+    );
 
     // Add global commands to auto complete
-    Console::addCommand("getGravity");
-    Console::addCommand("setGravity");
-    Console::addCommand("setGravityMult");
-    Console::addCommand("physicsBodyCount");
+    Console::addCommand("[Class] Physics");
+    Console::addCommand("Physics.gravity");
+    Console::addCommand("Physics.setGravityMult");
+    Console::addCommand("Physics.bodyCount");
+    Console::addCommand("Physics.showHitboxes");
 
     // Allow the use of RigidBodies
     RigidBody::registerFunctions(env, physicsWorld);
@@ -77,8 +88,17 @@ PhysicsSystem::update(ECS::World* world, const sf::Time& dt) {
   fixedTimeStepRatio_ = timeStepAccumilator_ / fixedTimeStep_;
   const int stepsClamped = std::min(steps, maxSteps_);
 
-  // Check if any b2Body's are out of sync
+  // Give rigidbodies access to their entities
+  // Also check if any b2Body's are out of sync
   world->each<Transform, RigidBody>([&](ECS::Entity* e, ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r) {
+
+    // Give the RigidBody it's entity
+    // @TODO: Implement this in the constructor for RigidBody
+    if (r->entity_ == nullptr) {
+      r->entity_ = e;
+    }
+
+    // Check for out of sync
     b2Body* const body = r->body_;
     if (r->isOutOfSync_ && body != nullptr) {
       const b2Vec2 newPos = convertToB2(t->position);
@@ -189,7 +209,11 @@ PhysicsSystem::setGravityMult(float m) {
 // Set gravity
 void
 PhysicsSystem::setGravity(float gx, float gy) {
-  world_.SetGravity(convertToB2(sf::Vector2f(gx, gy)));
+  setGravityVec(sf::Vector2f(gx, gy));
+}
+void
+PhysicsSystem::setGravityVec(const sf::Vector2f& g) {
+  world_.SetGravity(convertToB2(g));
 }
 
 // Convert to SFML vectors
@@ -215,12 +239,10 @@ PhysicsSystem::receive(ECS::World* w, const DebugRenderPhysicsEvent& e) {
   world_.DrawDebugData();
 }
 
-static bool showPhysics = false;
-
 // Add physics entry to the main menu
 void
 PhysicsSystem::receive(ECS::World* w, const addDebugMenuEntryEvent& e) {
-  ImGui::MenuItem("PhysicsSystem", NULL, &showPhysics);
+  ImGui::MenuItem("PhysicsSystem", NULL, &showPhysicsWindow_);
 }
 
 // Add information to debug window
@@ -233,10 +255,10 @@ PhysicsSystem::receive(ECS::World* w, const addDebugInfoEvent& e) {
   ImGui::End();
 
   // Make a physics window
-  if (showPhysics) {
+  if (showPhysicsWindow_) {
     const auto gravityVec = getGravity();
     float gravity = gravityVec.y / 10.f;
-    ImGui::Begin("Physics System", &showPhysics);
+    ImGui::Begin("Physics System", &showPhysicsWindow_);
     ImGui::SliderFloat("Gravity", &gravity, -300.f, 300.f);
     ImGui::End();
     if (gravity * 10.f != gravityVec.y) {

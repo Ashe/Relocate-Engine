@@ -51,9 +51,10 @@ class PhysicsSystem
     b2World* getWorld();
 
     // Change the gravity
-    void setGravity(float gx, float gy);
     void setGravityMult(float multiplier);
     sf::Vector2f getGravity() const;
+    void setGravity(float gx, float gy);
+    void setGravityVec(const sf::Vector2f& g);
 
   private:
 
@@ -85,6 +86,10 @@ class PhysicsSystem
 
     int32 velocityIterations_ = 8;
     int32 positionIterations_ = 3;
+
+    // Imgui flags
+    static bool showPhysicsWindow_;
+    static bool showRigidBodies_;
 
     // Step through physics once
     void singleStep(float timeStep);

@@ -26,6 +26,7 @@ Console::initialise(bool outputToTerminal) {
   addCommand("help");
   addCommand("clear");
   addCommand("history");
+  addCommand("print");
   autoScroll_ = true;
   scrollToBottom_ = true;
 
@@ -130,6 +131,7 @@ Console::create(const char* title, bool* p_open) {
     bool pop_color = false;
     if (strstr(item, "[Error]"))            { ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f)); pop_color = true; }
     else if (strstr(item, "[Warning]"))            { ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f)); pop_color = true; }
+    else if (strstr(item, "[Class]"))            { ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 1.0f, 1.0f)); pop_color = true; }
     else if (strstr(item, "[Note]"))            { ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 1.0f, 1.0f)); pop_color = true; }
     else if (strncmp(item, "$ ", 2) == 0)   { ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.8f, 0.6f, 1.0f)); pop_color = true; }
     ImGui::TextUnformatted(item);

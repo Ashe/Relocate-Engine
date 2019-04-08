@@ -55,7 +55,7 @@ Scene::registerFunctions() {
   onQuit = lua_["onQuit"];
 
   // Add to autocomplete
-  Console::addCommand("Scene");
+  Console::addCommand("[Class] Scene");
 }
 
 // When the screen is shown

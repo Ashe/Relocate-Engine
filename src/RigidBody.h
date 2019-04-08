@@ -26,8 +26,13 @@ class RigidBody {
     static void registerFunctions(sol::environment& env, b2World* world);
     static void registerNonDependantFunctions();
 
-    // Constructors
+    // Constructor
     RigidBody();
+
+    // Ensure that every RigidBody has its own b2Body during copy
+    RigidBody(const RigidBody& other);
+
+    // Delete this RigidBody's b2Body
     ~RigidBody();
 
     // Create the b2Body out of a b2BodyDef
@@ -87,6 +92,7 @@ class RigidBody {
        previousPosition_ = other.previousPosition_;
        previousAngle_ = other.previousAngle_;
        isOutOfSync_ = other.isOutOfSync_;
+       underfootContacts_ = other.underfootContacts_;
     }
 
   private:
@@ -100,6 +106,13 @@ class RigidBody {
 
     // The encapsulated body of this object
     b2Body* body_;
+
+    // The entity this body refers to
+    // NOTE: It's unusual for components to contain functionality
+    // However, since the RigidBody is the gateway to the physics system,
+    // the RigidBody needs the entity reference so that things can be done
+    // on contact
+    ECS::Entity* entity_;
 
     // Manipulated by physics system
     b2Vec2 previousPosition_;

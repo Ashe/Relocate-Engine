@@ -206,6 +206,20 @@ Game::initialiseLua(const std::string& fp) {
 
   // Console Convenience functions
   Game::lua.set_function("quit", &Game::quit);
+  Console::addCommand("quit");
+
+  Console::addCommand("createEntity");
+  Console::addCommand("[Class] Entity");
+  Console::addCommand("Entity.assignTYPE");
+  Console::addCommand("Entity.hasTYPE");
+  Console::addCommand("Entity.getTYPE");
+  Console::addCommand("Entity.removeTYPE");
+
+  Console::addCommand("[Class] Game");
+  Console::addCommand("Game.quit");
+  Console::addCommand("Game.debug");
+  Console::addCommand("Game.fps");
+  Console::addCommand("Game.mousePosition");
 
   // Allow use of the console
   Game::lua.set("Console", Console());
@@ -223,7 +237,7 @@ Game::initialiseLua(const std::string& fp) {
   Game::lua.set_function("clear", &Console::clear);
 
   // Add some basic commands to auto complete
-  Console::addCommand("quit");
+  Console::addCommand("[Class] Console");
   Console::addCommand("Console.outputToTerminal");
 
   // Tries to call the global config script
@@ -486,6 +500,9 @@ Game::handleImgui() {
 void
 Game::openDevConsole() {
   showConsole_ = !showConsole_;
+  if (showConsole_ && !debug_) {
+    debug_ = true;
+  }
 }
 
 // Get a pointer to the game's window
@@ -521,8 +538,9 @@ Game::getDisplaySize() {
 // Set debug mode
 void
 Game::setDebugMode(bool enable) {
+  if (debug_) { Console::log("Debug mode %s.", enable ? "enabled" : "disabled"); }
   debug_ = enable;
-  Console::log("Debug mode %s.", enable ? "enabled" : "disabled");
+  if (debug_) { Console::log("Debug mode %s.", enable ? "enabled" : "disabled"); }
 }
 
 // Get debug mode

@@ -24,6 +24,10 @@ PhysicsDebugDraw::B2VecToSFVec(const b2Vec2 &vector, bool scaleToPixels) {
 }
 
 void PhysicsDebugDraw::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {
+
+  // Easy out
+  if (!PhysicsSystem::showRigidBodies_) { return; }
+
 	sf::ConvexShape polygon(vertexCount);
 	sf::Vector2f center;
 	for(int i = 0; i < vertexCount; i++) {
@@ -40,6 +44,10 @@ void PhysicsDebugDraw::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, co
 }
 
 void PhysicsDebugDraw::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {
+
+  // Easy out
+  if (!PhysicsSystem::showRigidBodies_) { return; }
+
 	sf::ConvexShape polygon(vertexCount);
 	for(int i = 0; i < vertexCount; i++) {
 		//polygon.setPoint(i, SFMLDraw::B2VecToSFVec(vertices[i]));
@@ -55,6 +63,10 @@ void PhysicsDebugDraw::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCoun
 }
 
 void PhysicsDebugDraw::DrawCircle(const b2Vec2& center, float32 radius, const b2Color& color) {
+
+  // Easy out
+  if (!PhysicsSystem::showRigidBodies_) { return; }
+
 	sf::CircleShape circle(radius * PhysicsSystem::scale);
 	circle.setOrigin(radius * PhysicsSystem::scale, radius * PhysicsSystem::scale);
 	circle.setPosition(PhysicsDebugDraw::B2VecToSFVec(center));
@@ -66,6 +78,10 @@ void PhysicsDebugDraw::DrawCircle(const b2Vec2& center, float32 radius, const b2
 }
 
 void PhysicsDebugDraw::DrawSolidCircle(const b2Vec2& center, float32 radius, const b2Vec2& axis, const b2Color& color) {
+
+  // Easy out
+  if (!PhysicsSystem::showRigidBodies_) { return; }
+
 	sf::CircleShape circle(radius * PhysicsSystem::scale);
 	circle.setOrigin(radius * PhysicsSystem::scale, radius * PhysicsSystem::scale);
 	circle.setPosition(PhysicsDebugDraw::B2VecToSFVec(center));
@@ -84,6 +100,10 @@ void PhysicsDebugDraw::DrawSolidCircle(const b2Vec2& center, float32 radius, con
 }
 
 void PhysicsDebugDraw::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) {
+
+  // Easy out
+  if (!PhysicsSystem::showRigidBodies_) { return; }
+
 	sf::Vertex line[] = {
 		sf::Vertex(PhysicsDebugDraw::B2VecToSFVec(p1), PhysicsDebugDraw::GLColorToSFML(color)),
 		sf::Vertex(PhysicsDebugDraw::B2VecToSFVec(p2), PhysicsDebugDraw::GLColorToSFML(color))
@@ -93,6 +113,10 @@ void PhysicsDebugDraw::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2C
 }
 
 void PhysicsDebugDraw::DrawTransform(const b2Transform& xf) {
+
+  // Easy out
+  if (!PhysicsSystem::showRigidBodies_) { return; }
+
 	float lineLength = 0.4f;
 
 	/*b2Vec2 xAxis(b2Vec2(xf.p.x + (lineLength * xf.q.c), xf.p.y + (lineLength * xf.q.s)));*/
@@ -116,5 +140,9 @@ void PhysicsDebugDraw::DrawTransform(const b2Transform& xf) {
 }
 
 void PhysicsDebugDraw::DrawPoint(const b2Vec2 & p, float32 size, const b2Color & color) {
+
+  // Easy out
+  if (!PhysicsSystem::showRigidBodies_) { return; }
+
   // Draw point (not implemented yet)
 }

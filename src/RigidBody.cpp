@@ -61,8 +61,14 @@ RigidBody::registerFunctions(sol::environment& env, b2World* world) {
   // Register the RigidBody only if there's a 'world'
   if (worldToSpawnIn_ != nullptr) {
 
-    // Register default methods
-    Script::registerComponentToEntity<RigidBody>(env, "RigidBody");
+    // We cannot register default methods due to RigidBody being special case
+     Script::registerComponentToEntity<RigidBody>(env, "RigidBody");
+   //env.new_usertype<ECS::Entity>("Entity",
+   //  "assignRigidBody", [](ECS::Entity& self) { return (self.assign<RigidBody>(&self)).get(); },
+   //  "hasRigidBody", &Script::Funcs::has<RigidBody>,
+   //  "getRigidBody", &Script::Funcs::get<RigidBody>,
+   //  "removeRigidBody", &Script::Funcs::remove<RigidBody>
+   //);
 
     // Create the RigidBody type
     env.new_usertype<RigidBody>("RigidBody",
@@ -166,6 +172,7 @@ RigidBody::registerNonDependantFunctions() {
 RigidBody::RigidBody()
   : physics_(worldToSpawnIn_)
   , body_(physics_->CreateBody(&defaultBodyDefinition_))
+  , entity_(nullptr)
   , previousPosition_(b2Vec2(0.0f, 0.0f))
   , previousAngle_(0.0f) 
   , isOutOfSync_(true) 
@@ -175,8 +182,31 @@ RigidBody::RigidBody()
   body_->SetUserData(this);
 }
 
-// Destructor
-RigidBody::~RigidBody() {}
+// Ensure that every RigidBody has its own b2Body during copy
+RigidBody::RigidBody(const RigidBody& other)
+  : physics_(other.worldToSpawnIn_)
+  , body_(physics_->CreateBody(&defaultBodyDefinition_))
+  , entity_(nullptr)
+  , previousPosition_(other.previousPosition_)
+  , previousAngle_(other.previousAngle_)
+  , isOutOfSync_(other.isOutOfSync_)
+  , underfootContacts_(other.underfootContacts_) {
+
+  // Ensure this body contains the RigidBody
+  body_->SetUserData(this);
+}
+
+// Delete this RigidBody's b2Body
+RigidBody::~RigidBody() {
+  if (body_ != nullptr) {
+    body_->SetUserData(nullptr);
+    b2World* world = body_->GetWorld();
+    if (world != nullptr) {
+      world->DestroyBody(body_);
+    }
+    body_ = nullptr;
+  }
+}
 
 // Recreate the b2Body out of a b2BodyDef
 void
