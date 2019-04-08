@@ -27,9 +27,7 @@ Scene::begin() {
 	auto attempt = onBegin();
 	if (!attempt.valid()) {
 		sol::error err = attempt;
-    if (Game::getDebugMode()) {
-      Console::log("[Error] in Scene.begin():\n> %s", err.what());
-    }
+    Console::log("[Error] in Scene.begin():\n> %s", err.what());
   }
 
   // Flag that the scene has started
@@ -72,9 +70,7 @@ Scene::showScene() {
     auto attempt = onShow();
     if (!attempt.valid()) {
       sol::error err = attempt;
-      if (Game::getDebugMode()) {
-        Console::log("[Error] in Scene.showScene():\n> %s", err.what());
-      }
+      Console::log("[Error] in Scene.showScene():\n> %s", err.what());
     }
   }
 }
@@ -86,9 +82,7 @@ Scene::hideScene() {
     auto attempt = onHide();
     if (!attempt.valid()) {
       sol::error err = attempt;
-      if (Game::getDebugMode()) {
-        Console::log("[Error] in Scene.hideScene():\n> %s", err.what());
-      }
+      Console::log("[Error] in Scene.hideScene():\n> %s", err.what());
     }
   }
 }
@@ -102,9 +96,7 @@ Scene::update(const sf::Time& dt) {
     auto attempt = onUpdate(dt);
     if (!attempt.valid()) {
       sol::error err = attempt;
-      if (Game::getDebugMode()) {
-        Console::log("[Error] in Scene.update():\n> %s", err.what());
-      }
+      Console::log("[Error] in Scene.update():\n> %s", err.what());
     }
   }
 
@@ -144,9 +136,7 @@ Scene::handleEvent(const sf::Event& event) {
     auto attempt = onWindowEvent(event);
     if (!attempt.valid()) {
       sol::error err = attempt;
-      if (Game::getDebugMode()) {
-        Console::log("[Error] in Scene.handleEvent():\n> %s", err.what());
-      }
+      Console::log("[Error] in Scene.handleEvent():\n> %s", err.what());
     }
   }
 }
@@ -160,14 +150,12 @@ Scene::quit() {
     if (!attempt.valid()) {
       quitAnyway = true;
       sol::error err = attempt;
-      if (Game::getDebugMode()) { 
-        Console::log("[Error] in Scene.quit():\n> %s", err.what());
-      }
+      Console::log("[Error] in Scene.quit():\n> %s", err.what());
     }
   }
   if (quitAnyway) {
     quitAnyway = false;
-    if (Game::getDebugMode()) { Console::log("Terminating program."); }
+    Console::log("Terminating program.");
     Game::terminate();
   }
 }

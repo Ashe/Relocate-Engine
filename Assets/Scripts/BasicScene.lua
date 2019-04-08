@@ -115,11 +115,15 @@ function onWindowEvent(ev)
 
     -- Spawn box on left click
     if ev.mouseButton.button == MouseButton_Left then
+      spellToCast:castMajor()
+
       boxToThrow = spawnBox(Game.mousePosition.x, Game.mousePosition.y, 50)
       holdLeftMouse = true
 
     -- Drag the last box on right click
     elseif ev.mouseButton.button == MouseButton_Right then
+      spellToCast:castMinor()
+
       if lastSpawnedBox then
         def = MouseJointDef.new()
         r = lastSpawnedBox:getRigidBody();
@@ -137,6 +141,8 @@ function onWindowEvent(ev)
 
     -- On left release, 'fire' the object
     if ev.mouseButton.button == MouseButton_Left then
+      spellToCast:releaseMajor()
+
       holdLeftMouse = false
       local r = boxToThrow:getRigidBody()
       local throwScale = 25
@@ -146,6 +152,8 @@ function onWindowEvent(ev)
 
     -- On right release, delete the joint
     elseif ev.mouseButton.button == MouseButton_Right then
+      spellToCast:releaseMinor()
+
       if joint then
         joint:destroy()
         joint = nil

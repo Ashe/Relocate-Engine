@@ -52,7 +52,7 @@ Game::initialise(const sf::VideoMode& mode, const std::string& title, bool multi
     Console::log("Lua successfully initialised."); 
   }
   else {
-    Console::log("[Error] Cannot initialise Lua correctly."); 
+    Console::log("[Error] Cannot initialise Lua correctly - closing application."); 
     return;
   }
 
@@ -210,13 +210,13 @@ Game::initialiseLua(const std::string& fp) {
 
   Console::addCommand("createEntity");
   Console::addCommand("[Class] Entity");
-  Console::addCommand("Entity.assignTYPE");
-  Console::addCommand("Entity.hasTYPE");
-  Console::addCommand("Entity.getTYPE");
-  Console::addCommand("Entity.removeTYPE");
+  Console::addCommand("Entity:assignTYPE");
+  Console::addCommand("Entity:hasTYPE");
+  Console::addCommand("Entity:getTYPE");
+  Console::addCommand("Entity:removeTYPE");
 
   Console::addCommand("[Class] Game");
-  Console::addCommand("Game.quit");
+  Console::addCommand("Game:quit");
   Console::addCommand("Game.debug");
   Console::addCommand("Game.fps");
   Console::addCommand("Game.mousePosition");
@@ -243,7 +243,12 @@ Game::initialiseLua(const std::string& fp) {
   // Tries to call the global config script
   // If this fails, lua is not working and cannot read files
 	auto functional = Game::lua.script_file(fp, &sol::script_pass_on_error);
-  return functional.valid();
+  if (!functional.valid()) {
+    sol::error err = functional;
+    Console::log("[Error] in %s:\n> %s", fp.c_str(), err.what());
+    return false;
+  }
+  return true;
 }
 
 // Called every frame, returns true when game should end

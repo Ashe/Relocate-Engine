@@ -44,7 +44,7 @@ PhysicsSystem::registerPhysicsSystemFunctions(sol::environment& env, ECS::World*
     // Add global commands to auto complete
     Console::addCommand("[Class] Physics");
     Console::addCommand("Physics.gravity");
-    Console::addCommand("Physics.setGravityMult");
+    Console::addCommand("Physics:setGravityMult");
     Console::addCommand("Physics.bodyCount");
     Console::addCommand("Physics.showHitboxes");
 

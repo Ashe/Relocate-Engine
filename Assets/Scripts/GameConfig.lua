@@ -6,3 +6,6 @@ print("Running GameConfig.lua")
 
 -- Simply enable debug from the very beginning
 Game.debug = true
+
+-- Load some other lua scripts
+spellToCast = dofile("Assets/Scripts/FirstSpell.lua")
