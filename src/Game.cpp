@@ -208,7 +208,6 @@ Game::initialiseLua(const std::string& fp) {
   Game::lua.set_function("quit", &Game::quit);
   Console::addCommand("quit");
 
-  Console::addCommand("createEntity");
   Console::addCommand("[Class] Entity");
   Console::addCommand("Entity:assignTYPE");
   Console::addCommand("Entity:hasTYPE");

@@ -22,12 +22,14 @@ class Spell {
         "castMinor", &Spell::castMinor,
         "releaseMajor", &Spell::releaseMajor,
         "releaseMinor", &Spell::releaseMinor,
+        "passiveCast", &Spell::passiveCast,
         // Variables
         "name", &Spell::name_,
         "onCastMajor", &Spell::onCastMajor_,
         "onCastMinor", &Spell::onCastMinor_,
         "onReleaseMajor", &Spell::onReleaseMajor_,
-        "onReleaseMinor", &Spell::onReleaseMinor_
+        "onReleaseMinor", &Spell::onReleaseMinor_,
+        "onPassiveCast", &Spell::onPassiveCast_
       );
     }
 
@@ -42,6 +44,18 @@ class Spell {
     // Minor component
     void castMinor() { cast(onCastMinor_); }
     void releaseMinor() { cast(onReleaseMinor_); }
+
+    // Casts every frame
+    void passiveCast(const sf::Time& dt) { 
+      if (onPassiveCast_.valid()) {
+        auto attempt = onPassiveCast_(this, dt);
+        if (!attempt.valid()) {
+          sol::error err = attempt;
+          Console::log("[Error] in Spell '%s':\n> %s", 
+            name_.c_str(), err.what());
+        }
+      }
+    }
 
   private:
 
@@ -63,6 +77,7 @@ class Spell {
     const std::string name_;
 
     // Main spell cast and release functions
+    sol::protected_function onPassiveCast_;
     sol::protected_function onCastMajor_;
     sol::protected_function onCastMinor_;
     sol::protected_function onReleaseMajor_;

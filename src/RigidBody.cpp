@@ -53,22 +53,11 @@ RigidBody::registerFunctions(sol::environment& env, b2World* world) {
   // pass the world around
   worldToSpawnIn_ = world;
 
-  // Register additional functions
-  env.set_function("BoxShape", &BoxShape);
-  env.set_function("CircleShape", &CircleShape);
-  env.set_function("LineShape", &LineShape);
-
   // Register the RigidBody only if there's a 'world'
   if (worldToSpawnIn_ != nullptr) {
 
     // We cannot register default methods due to RigidBody being special case
      Script::registerComponentToEntity<RigidBody>(env, "RigidBody");
-   //env.new_usertype<ECS::Entity>("Entity",
-   //  "assignRigidBody", [](ECS::Entity& self) { return (self.assign<RigidBody>(&self)).get(); },
-   //  "hasRigidBody", &Script::Funcs::has<RigidBody>,
-   //  "getRigidBody", &Script::Funcs::get<RigidBody>,
-   //  "removeRigidBody", &Script::Funcs::remove<RigidBody>
-   //);
 
     // Create the RigidBody type
     env.new_usertype<RigidBody>("RigidBody",
@@ -107,18 +96,6 @@ RigidBody::registerFunctions(sol::environment& env, b2World* world) {
   // Define mouse joint creation
   env.set_function("createMouseJoint", 
       [world](const b2MouseJointDef& def){return (b2MouseJoint*) world->CreateJoint(&def);});
-  env.new_usertype<b2MouseJointDef>("MouseJointDef",
-    sol::constructors<b2MouseJointDef()>(),
-    "dampingRatio", &b2MouseJointDef::dampingRatio,
-    "frequency", &b2MouseJointDef::frequencyHz,
-    "maxForce", &b2MouseJointDef::maxForce,
-    "foo", &b2MouseJointDef::bodyA,
-    "setBodyA", [](b2MouseJointDef& self, RigidBody& body){self.bodyA = body.body_;},
-    "setBodyB", [](b2MouseJointDef& self, RigidBody& body){self.bodyB = body.body_;},
-    "target", sol::property(
-      [](const b2MouseJointDef& self) {return PhysicsSystem::convertToSF(self.target);},
-      [](b2MouseJointDef& self, const sf::Vector2f& target) {self.target = PhysicsSystem::convertToB2(target);})
-  );
   env.new_usertype<b2MouseJoint>("MouseJoint",
    "destroy", [world](b2MouseJoint& self){world->DestroyJoint(&self);},
    "getAnchorA", &b2MouseJoint::GetAnchorA,
@@ -163,9 +140,28 @@ RigidBody::registerNonDependantFunctions() {
     "setType", [](b2FixtureDef& self, const FixtureType& type) {self.userData = (void*)type;}
     );
 
+  // Convenience functions for making shapes
+  Game::lua.set_function("BoxShape", &RigidBody::BoxShape);
+  Game::lua.set_function("CircleShape", &RigidBody::CircleShape);
+  Game::lua.set_function("LineShape", &RigidBody::LineShape);
+
   // Specify FixtureTypes to lua
   Game::lua.set("FixtureType_Unknown", FixtureType::Unknown);
   Game::lua.set("FixtureType_GroundSensor", FixtureType::GroundSensor);
+
+  // Mouse joint definition
+  Game::lua.new_usertype<b2MouseJointDef>("MouseJointDef",
+    sol::constructors<b2MouseJointDef()>(),
+    "dampingRatio", &b2MouseJointDef::dampingRatio,
+    "frequency", &b2MouseJointDef::frequencyHz,
+    "maxForce", &b2MouseJointDef::maxForce,
+    "foo", &b2MouseJointDef::bodyA,
+    "setBodyA", [](b2MouseJointDef& self, RigidBody& body){self.bodyA = body.body_;},
+    "setBodyB", [](b2MouseJointDef& self, RigidBody& body){self.bodyB = body.body_;},
+    "target", sol::property(
+      [](const b2MouseJointDef& self) {return PhysicsSystem::convertToSF(self.target);},
+      [](b2MouseJointDef& self, const sf::Vector2f& target) {self.target = PhysicsSystem::convertToB2(target);})
+  );
 }
 
 // Constructor

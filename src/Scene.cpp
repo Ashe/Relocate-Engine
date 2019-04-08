@@ -54,6 +54,7 @@ Scene::registerFunctions() {
 
   // Add to autocomplete
   Console::addCommand("[Class] Scene");
+  Console::addCommand("Scene.createEntity");
 }
 
 // When the screen is shown

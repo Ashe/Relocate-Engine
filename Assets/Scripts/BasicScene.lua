@@ -1,19 +1,6 @@
 -- BasicScene.lua
 -- Lua file for the default scene
 
-local function spawnBox(x, y, size)
-  local box = createEntity()
-  lastSpawnedBox = box
-  local boxTrans = box:assignTransform()
-  local boxBody = box:assignRigidBody()
-  spawnPos = Vector2f.new(x, y)
-  boxTrans.position = spawnPos
-  boxBody:instantiate(bodyDef)
-  boxFixture.shape = BoxShape(size, size)
-  boxBody:addFixture(boxFixture)
-  return box
-end
-
 -- When the scene is shown for the first time
 function onBegin()
 
@@ -26,22 +13,6 @@ function onBegin()
 
   -- Get window size
   size = Game.displaySize
-
-  -- Spawn a 'dead' RigidBody
-  deadBody = createEntity():assignRigidBody()
-
-  -- Create global vars
-  bodyDef = BodyDef.new()
-  bodyDef.type = Physics_DynamicBody
-  boxFixture = FixtureDef.new()
-  boxFixture.density = 500
-  boxFixture.friction = 100
-
-  -- Holding down mousekeys
-  holdLeftMouse = false
-
-  -- The joint used for right clicking
-  joint = nil
 
   -- Spawn bottom of map
   print("Spawning ground")
@@ -85,14 +56,9 @@ end
 function onUpdate(dt)
 
   -- Hold the current box
-  if holdLeftMouse and boxToThrow then
-    boxToThrow:getRigidBody():warpTo(spawnPos)
-  end
+  leftSpell:passiveCast(dt)
+  rightSpell:passiveCast(dt)
 
-  -- Pull the last spawned box
-  if joint then
-    joint.target = Vector2f.new(Game.mousePosition.x, Game.mousePosition.y)
-  end
 end
 
 -- On Window events
@@ -115,25 +81,11 @@ function onWindowEvent(ev)
 
     -- Spawn box on left click
     if ev.mouseButton.button == MouseButton_Left then
-      spellToCast:castMajor()
-
-      boxToThrow = spawnBox(Game.mousePosition.x, Game.mousePosition.y, 50)
-      holdLeftMouse = true
+      leftSpell:castMajor()
 
     -- Drag the last box on right click
     elseif ev.mouseButton.button == MouseButton_Right then
-      spellToCast:castMinor()
-
-      if lastSpawnedBox then
-        def = MouseJointDef.new()
-        r = lastSpawnedBox:getRigidBody();
-        def.target = r.location
-        def:setBodyA(deadBody)
-        def:setBodyB(r)
-        def.maxForce = 500
-        def.dampingRatio = 1
-        joint = createMouseJoint(def)
-      end
+      rightSpell:castMajor()
     end
 
   -- Mouse release
@@ -141,23 +93,11 @@ function onWindowEvent(ev)
 
     -- On left release, 'fire' the object
     if ev.mouseButton.button == MouseButton_Left then
-      spellToCast:releaseMajor()
-
-      holdLeftMouse = false
-      local r = boxToThrow:getRigidBody()
-      local throwScale = 25
-      local impulse = Vector2f.new((Game.mousePosition.x - spawnPos.x) * throwScale, (Game.mousePosition.y - spawnPos.y) * throwScale)
-      r:applyImpulseToCentre(impulse)
-      boxToThrow = nil
+      leftSpell:releaseMajor()
 
     -- On right release, delete the joint
     elseif ev.mouseButton.button == MouseButton_Right then
-      spellToCast:releaseMinor()
-
-      if joint then
-        joint:destroy()
-        joint = nil
-      end
+      rightSpell:releaseMajor()
     end
   end
 end
