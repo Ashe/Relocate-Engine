@@ -11,7 +11,7 @@ function beginLevitation(self)
 
     -- Make a null body if necessary
     if nullbody == nil then
-      nullbody = Scene:createEntity():assignRigidBody()
+      nullbody = World:createEntity():assignRigidBody()
     end
 
     -- Use null body in creation of joint
@@ -22,7 +22,7 @@ function beginLevitation(self)
     def:setBodyB(r)
     def.maxForce = 500
     def.dampingRatio = 1
-    joint = Scene.createMouseJoint(def)
+    joint = World.createMouseJoint(def)
   end
 end
 

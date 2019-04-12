@@ -394,9 +394,6 @@ Game::terminate() {
   // Set the game's status to break game loop
   status_ = Game::Status::ShuttingDown;
 
-  // Shut down IMGUI debug interface
-  ImGui::SFML::Shutdown();
-
   // Shut down console debugging
   Console::shutdown();
 
@@ -406,13 +403,15 @@ Game::terminate() {
     delete window_;
     window_ = nullptr;
   }
+
+  // Shut down IMGUI debug interface
+  ImGui::SFML::Shutdown();
 }
 
 // Free resources before program closes
 void
 Game::shutdown() {
   status_ = Game::Status::Uninitialised;
-  Console::log("Releasing resources..");
   ResourceManager::releaseResources();
 }
 

@@ -6,6 +6,7 @@
 
 #include <string>
 #include <iostream>
+#include <memory>
 
 #include "Game.h"
 #include "Scripting.h"
@@ -28,6 +29,10 @@ class Scene {
       , sol::protected_function
       );
 
+    // Copy constructor
+    Scene(const Scene& other);
+
+    // Destructor
     ~Scene();
 
     // Handle standard Game functions
@@ -58,12 +63,12 @@ class Scene {
     sol::environment lua_;
 
     // Functions for this scene
-    sol::protected_function onBegin;
-    sol::protected_function onShow;
-    sol::protected_function onHide;
-    sol::protected_function onUpdate;
-    sol::protected_function onWindowEvent;
-    sol::protected_function onQuit;
+    sol::protected_function onBegin_;
+    sol::protected_function onShow_;
+    sol::protected_function onHide_;
+    sol::protected_function onUpdate_;
+    sol::protected_function onWindowEvent_;
+    sol::protected_function onQuit_;
 };
 
 #endif

@@ -31,12 +31,24 @@ Scene::Scene
 
   : hasBegun_(false)
   , world_(ECS::World::createWorld())
-  , onBegin(begin)
-  , onShow(show)
-  , onHide(hide)
-  , onUpdate(update)
-  , onWindowEvent(windowEvent)
-  , onQuit(quit) {
+  , onBegin_(begin)
+  , onShow_(show)
+  , onHide_(hide)
+  , onUpdate_(update)
+  , onWindowEvent_(windowEvent)
+  , onQuit_(quit) {
+}
+
+// Copy constructor
+Scene::Scene(const Scene& other) 
+  : hasBegun_(other.hasBegun_)
+  , world_(ECS::World::createWorld())
+  , onBegin_(other.onBegin_)
+  , onShow_(other.onShow_)
+  , onHide_(other.onHide_)
+  , onUpdate_(other.onUpdate_)
+  , onWindowEvent_(other.onWindowEvent_)
+  , onQuit_(other.onQuit_) {
 }
 
 // Destructor
@@ -49,8 +61,8 @@ void
 Scene::begin() {
 
   // Try to call the begin function from this scene's lua
-  if (onBegin.valid()) {
-    auto attempt = onBegin();
+  if (onBegin_.valid()) {
+    auto attempt = onBegin_();
     if (!attempt.valid()) {
       sol::error err = attempt;
       Console::log("[Error] in Scene.begin():\n> %s", err.what());
@@ -87,8 +99,8 @@ Scene::showScene() {
   }
 
   // Try to call the begin function from this scene's lua
-  if (onShow.valid()) {
-    auto attempt = onShow();
+  if (onShow_.valid()) {
+    auto attempt = onShow_();
     if (!attempt.valid()) {
       sol::error err = attempt;
       Console::log("[Error] in Scene.showScene():\n> %s", err.what());
@@ -99,8 +111,8 @@ Scene::showScene() {
 // When the screen is hidden
 void
 Scene::hideScene() {
-  if (onHide.valid()) {
-    auto attempt = onHide();
+  if (onHide_.valid()) {
+    auto attempt = onHide_();
     if (!attempt.valid()) {
       sol::error err = attempt;
       Console::log("[Error] in Scene.hideScene():\n> %s", err.what());
@@ -113,8 +125,8 @@ void
 Scene::update(const sf::Time& dt) {
 
   // Call scene's update script
-  if (onUpdate.valid()) {
-    auto attempt = onUpdate(dt);
+  if (onUpdate_.valid()) {
+    auto attempt = onUpdate_(dt);
     if (!attempt.valid()) {
       sol::error err = attempt;
       Console::log("[Error] in Scene.update():\n> %s", err.what());
@@ -153,8 +165,8 @@ Scene::handleEvent(const sf::Event& event) {
   ControlSystem::handleInput(event);
 
   // Call scene's input script
-  if (onWindowEvent.valid()) {
-    auto attempt = onWindowEvent(event);
+  if (onWindowEvent_.valid()) {
+    auto attempt = onWindowEvent_(event);
     if (!attempt.valid()) {
       sol::error err = attempt;
       Console::log("[Error] in Scene.handleEvent():\n> %s", err.what());
@@ -165,9 +177,9 @@ Scene::handleEvent(const sf::Event& event) {
 // When the game is quit
 void
 Scene::quit() {
-  bool quitAnyway = !onQuit.valid();
+  bool quitAnyway = !onQuit_.valid();
   if (!quitAnyway) {
-    auto attempt = onQuit();
+    auto attempt = onQuit_();
     if (!attempt.valid()) {
       quitAnyway = true;
       sol::error err = attempt;

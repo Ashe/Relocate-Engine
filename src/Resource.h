@@ -52,9 +52,6 @@ class Resource {
     // The resource within
     void* resource_;
 
-    // Get resource type out of descriptor
-    Type readDescriptor();
-
     // Delete the resource depending on it's type
     void deleteResource();
 };

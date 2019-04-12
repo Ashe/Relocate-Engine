@@ -9,6 +9,7 @@
 
 // Initialise static members
 std::map<std::string, Resource> ResourceManager::resources_;
+Resource ResourceManager::nullResource_;
 
 // Registers resource types to files during initialisation
 void
@@ -22,10 +23,13 @@ ResourceManager::registerResourceTypes() {
 void
 ResourceManager::loadResources(const std::string& dir) {
 
+  // Declare that we're loading resources
+  Console::log("Loading resources recursively from directory: '%s'..", dir.c_str());
+
   // For every file in the directory
   for (const auto& entry : std::filesystem::recursive_directory_iterator(dir)) {
     if (entry.is_regular_file()) {
-      const std::string path = entry.path();
+      const std::string path = entry.path().string();
       Resource resource(path);
       const std::string name = resource.getName();
       if (resource.getType() != Resource::Type::UNKNOWN && name != "") {
@@ -37,19 +41,21 @@ ResourceManager::loadResources(const std::string& dir) {
 }
 
 // Get a resource by name, or a null resource
-Resource
+Resource&
 ResourceManager::getResource(const std::string& name) {
   auto it = resources_.find(name);
   if (it != resources_.end()) {
-    Console::log("Found resource: %s", name.c_str());
     return it->second;
   }
-  return Resource();
+  return nullResource_;
 }
 
 // Delete all resources
 void
 ResourceManager::releaseResources() {
+
+  // Console message
+  Console::log("Releasing resources..");
 
   // Iterate through map
   for (auto i = resources_.begin(); i != resources_.end(); ++i) {

@@ -21,13 +21,18 @@ class ResourceManager {
     static void loadResources(const std::string& dir = "Assets/");
 
     // Get a resource by name
-    static Resource getResource(const std::string& name);
+    static Resource& getResource(const std::string& name);
 
     // Delete all stored resources
     static void releaseResources();
 
   private:
+
+    // Map of all resources
     static std::map<std::string, Resource> resources_;
+
+    // 'NULL' Resource
+    static Resource nullResource_;
 
 };
 

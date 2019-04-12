@@ -102,9 +102,5 @@ function onWindowEvent(ev)
   end
 end
 
-function emptyFunc()
-  print("EMPTY FUNC")
-end
-
-local scene = Scene.new(onBegin, emptyFunc, emptyFunc, onUpdate, onWindowEvent, emptyFunc)
+local scene = Scene.new(onBegin, nil, nil, onUpdate, onWindowEvent, nil)
 return Resource_SCENE, "BasicScene", scene

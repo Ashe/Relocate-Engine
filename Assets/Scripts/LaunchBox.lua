@@ -7,7 +7,7 @@ local boxToThrow = nil
 
 -- Helper function for spawning the box
 local function spawnBox(x, y, size)
-  local box = Scene.createEntity()
+  local box = World.createEntity()
   lastSpawnedBox = box
   local boxTrans = box:assignTransform()
   local boxBody = box:assignRigidBody()
