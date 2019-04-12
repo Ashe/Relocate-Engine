@@ -5,10 +5,11 @@
 
 // Avoid cyclic dependancies
 #include "Game.h"
-#include "Transform.h"
+#include "Scene.h"
 
 #include "Spell.h"
 
+#include "Transform.h"
 #include "Camera.h"
 #include "RigidBody.h"
 #include "Possession.h"
@@ -60,8 +61,12 @@ Script::startLua() {
 
   // REGISTER ENTITY FUNCTIONS
   Game::lua.new_usertype<ECS::Entity>("Entity",
-    "removeAllComponents", [](ECS::Entity& self) {self.removeAll();}
+    "removeAllComponents", &ECS::Entity::removeAll
   );
+
+  // CORE
+  ResourceManager::registerResourceTypes();
+  Scene::registerSceneType();
 
   // GAME MECHANICS
   Spell::registerFunctions();

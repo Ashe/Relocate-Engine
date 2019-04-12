@@ -8,12 +8,26 @@
 #include <iostream>
 
 #include "Game.h"
+#include "Scripting.h"
 #include "PhysicsSystem.h"
 
 // Represents it's own world of objects
 class Scene {
   public:
-    Scene(const std::string& script);
+
+    // Register scene functionality to Lua
+    static void registerSceneType();
+
+    // Constructors
+    Scene
+      ( sol::protected_function
+      , sol::protected_function
+      , sol::protected_function
+      , sol::protected_function
+      , sol::protected_function
+      , sol::protected_function
+      );
+
     ~Scene();
 
     // Handle standard Game functions
@@ -39,9 +53,6 @@ class Scene {
 
     // The ECS for this scene
     ECS::World* world_;
-
-    // Script file
-    const std::string& script_;
 
     // The environment for this scene
     sol::environment lua_;

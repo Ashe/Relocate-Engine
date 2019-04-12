@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "ResourceManager.h"
 #include "Scene.h"
 
 #ifdef linux
@@ -25,7 +26,11 @@ int main(int argc, char* argv[]) {
 
   // Initialise and start the game
   Game::initialise(sf::VideoMode(1920, 1080), "Game", multiThread && multiThreadSuccess);
-  Game::switchScene(new Scene("Assets/Scripts/BasicScene.lua"));
-  Game::start();
+  auto scene = ResourceManager::getResource("BasicScene");
+  if (scene.getType() == Resource::Type::SCENE) {
+    Game::switchScene((Scene*)scene.get());
+    Game::start();
+  }
+  Game::shutdown();
   return 0;
 }

@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 48)
+set (Build_VERSION_TWEAK 49)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
@@ -62,10 +62,14 @@ target_sources(${EXECUTABLE_NAME} PRIVATE
   src/Config.h
   src/ECS.h
   src/Sol.h
-  src/Scripting.h
-  src/Scripting.cpp
   src/Game.h
   src/Game.cpp
+  src/Scripting.h
+  src/Scripting.cpp
+  src/Resource.h
+  src/Resource.cpp
+  src/ResourceManager.h
+  src/ResourceManager.cpp
   src/Scene.h
   src/Scene.cpp
 
@@ -124,8 +128,9 @@ if (WIN32)
   )
 endif()
 if(UNIX)
+
   # Link libraries so that they can be used in the project
-  target_link_libraries(${EXECUTABLE_NAME}
+  target_link_libraries(${EXECUTABLE_NAME} stdc++fs
     GL
     sfml-window
     sfml-system

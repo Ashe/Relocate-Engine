@@ -14,6 +14,7 @@
 
 #include "ECS.h"
 #include "Sol.h"
+#include "ResourceManager.h"
 #include "Console.h"
 
 // Forward declaration
@@ -61,6 +62,10 @@ class Game {
 
     // Signal that the application can now close safely
     static void terminate();
+
+    // Release resources before closing
+    // @NOTE: Call from wherever game is started
+    static void shutdown();
 
     // Get the up to date mouse position
     static sf::Vector2f getMousePosition();
@@ -125,9 +130,6 @@ class Game {
 
     // Handle keypresses etc
     static void handleEvent(const sf::Event& event);
-
-    // Release resources before closing
-    static void shutdown();
 
     // Handle the updating of IMGUI interfaces
     static void handleImgui();

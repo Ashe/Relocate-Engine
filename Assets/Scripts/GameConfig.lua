@@ -8,5 +8,5 @@ print("Running GameConfig.lua")
 Game.debug = true
 
 -- Load some other lua scripts
-leftSpell = dofile("Assets/Scripts/LaunchBox.lua")
-rightSpell = dofile("Assets/Scripts/Levitate.lua")
+_, _, leftSpell = dofile("Assets/Scripts/LaunchBox.lua")
+_, _, rightSpell = dofile("Assets/Scripts/Levitate.lua")

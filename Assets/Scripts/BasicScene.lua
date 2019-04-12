@@ -4,19 +4,20 @@
 -- When the scene is shown for the first time
 function onBegin()
 
+  print("Executing begin")
   -- We define what systems we want to use
   -- These are parsed when the file is read and activated
   -- onBegin() is just a formal function that runs AFTER the file is ready
-  usePhysicsSystem()
-  useControlSystem()
-  useCameraSystem()
+  World.usePhysicsSystem()
+  World.useControlSystem()
+  World.useCameraSystem()
 
   -- Get window size
   size = Game.displaySize
 
   -- Spawn bottom of map
   print("Spawning ground")
-  local ground = createEntity()
+  local ground = World:createEntity()
   local groundTrans = ground:assignTransform()
   local groundBody = ground:assignRigidBody()
   groundTrans.position = Vector2f.new(size.x * 0.5, size.y * 0.9)
@@ -26,7 +27,7 @@ function onBegin()
 
   -- Spawn the player
   print("Spawning player")
-  player = createEntity()
+  player = World:createEntity()
   local possession = player:assignPossession()
   local camera = player:assignCamera()
   local movement = player:assignMovement()
@@ -49,7 +50,6 @@ function onBegin()
   fixture.friction = 10
   playerBody:addFixture(fixture)
   playerBody:makeGroundSensor()
-
 end
 
 -- Every scene tick
@@ -101,3 +101,10 @@ function onWindowEvent(ev)
     end
   end
 end
+
+function emptyFunc()
+  print("EMPTY FUNC")
+end
+
+local scene = Scene.new(onBegin, emptyFunc, emptyFunc, onUpdate, onWindowEvent, emptyFunc)
+return Resource_SCENE, "BasicScene", scene

@@ -6,11 +6,37 @@
 // Avoid cyclic dependencies
 #include "ControlSystem.h"
 
+// Register scene functionality to Lua
+void
+Scene::registerSceneType() {
+  Game::lua.new_usertype<Scene>("Scene",
+    sol::constructors<Scene(
+      sol::protected_function,
+      sol::protected_function,
+      sol::protected_function,
+      sol::protected_function,
+      sol::protected_function,
+      sol::protected_function)>()
+    );
+}
+
 // Constructor
-Scene::Scene(const std::string& script) 
+Scene::Scene
+  ( sol::protected_function begin
+  , sol::protected_function show
+  , sol::protected_function hide
+  , sol::protected_function update
+  , sol::protected_function windowEvent
+  , sol::protected_function quit)
+
   : hasBegun_(false)
   , world_(ECS::World::createWorld())
-  , script_(script) {
+  , onBegin(begin)
+  , onShow(show)
+  , onHide(hide)
+  , onUpdate(update)
+  , onWindowEvent(windowEvent)
+  , onQuit(quit) {
 }
 
 // Destructor
@@ -23,11 +49,12 @@ void
 Scene::begin() {
 
   // Try to call the begin function from this scene's lua
-  sol::protected_function onBegin = lua_["onBegin"];
-	auto attempt = onBegin();
-	if (!attempt.valid()) {
-		sol::error err = attempt;
-    Console::log("[Error] in Scene.begin():\n> %s", err.what());
+  if (onBegin.valid()) {
+    auto attempt = onBegin();
+    if (!attempt.valid()) {
+      sol::error err = attempt;
+      Console::log("[Error] in Scene.begin():\n> %s", err.what());
+    }
   }
 
   // Flag that the scene has started
@@ -40,21 +67,14 @@ Scene::registerFunctions() {
 
   // Set up environment
   lua_ = sol::environment(Game::lua, sol::create, Game::lua.globals());
-  Game::lua.script_file(script_, lua_, sol::script_pass_on_error);
   Script::registerSceneFunctions(lua_, world_);
-  Game::lua["Scene"] = lua_;
 
-  // Save this scene's functions
-  onBegin = lua_["onBegin"];
-  onShow = lua_["onShow"];
-  onHide = lua_["onHide"];
-  onUpdate = lua_["onUpdate"];
-  onWindowEvent = lua_["onWindowEvent"];
-  onQuit = lua_["onQuit"];
+  // Expose the world in the scene
+  Game::lua["World"] = lua_;
 
   // Add to autocomplete
-  Console::addCommand("[Class] Scene");
-  Console::addCommand("Scene.createEntity");
+  Console::addCommand("[Class] World");
+  Console::addCommand("World.createEntity");
 }
 
 // When the screen is shown

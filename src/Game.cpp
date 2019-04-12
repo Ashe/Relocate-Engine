@@ -64,6 +64,9 @@ Game::initialise(const sf::VideoMode& mode, const std::string& title, bool multi
   const auto size = window_->getSize();
   displaySize_ = sf::Vector2f(size.x, size.y);
 
+  // Load assets
+  ResourceManager::loadResources("Assets/");
+
   // Enable debugging functionality
   ImGui::SFML::Init(*window_);
 
@@ -173,10 +176,6 @@ Game::start() {
     renderThread->join();
     delete renderThread;
   }
-
-  // Quit the game and exit program
-  shutdown();
-  Console::log("Exiting..");
 }
 
 // Initialise lua
@@ -414,7 +413,7 @@ void
 Game::shutdown() {
   status_ = Game::Status::Uninitialised;
   Console::log("Releasing resources..");
-  delete currentScene_;
+  ResourceManager::releaseResources();
 }
 
 // Change to the new screen

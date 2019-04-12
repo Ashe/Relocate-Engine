@@ -46,4 +46,4 @@ local spell = Spell.new("Levitate")
 spell.onCastMajor = beginLevitation
 spell.onPassiveCast = updateDestination
 spell.onReleaseMajor = endLevitation
-return spell
+return Resource_SPELL, spell.name, spell

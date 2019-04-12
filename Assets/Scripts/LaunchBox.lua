@@ -56,4 +56,4 @@ local spell = Spell.new("LaunchBox")
 spell.onCastMajor = createBox
 spell.onPassiveCast = holdBox
 spell.onReleaseMajor = launchBox
-return spell
+return Resource_SPELL, spell.name, spell
