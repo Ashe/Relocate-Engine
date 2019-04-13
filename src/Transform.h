@@ -12,7 +12,7 @@ class Transform {
   public:
 
     // Make this component scriptable
-    static void registerFunctions() {
+    static void registerTransformType() {
 
       // Register the usual assign, has, remove functions to Entity
       Script::registerComponentToEntity<Transform>("Transform");

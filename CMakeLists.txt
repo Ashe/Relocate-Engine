@@ -79,6 +79,7 @@ target_sources(${EXECUTABLE_NAME} PRIVATE
 
   # Components
   src/Transform.h
+  src/Sprite.h
   src/Camera.h
   src/RigidBody.h
   src/RigidBody.cpp
@@ -86,6 +87,7 @@ target_sources(${EXECUTABLE_NAME} PRIVATE
   src/Movement.h
 
   # Systems
+  src/SpritePlacementSystem.h
   src/CameraSystem.h
   src/CameraSystem.cpp
   src/PhysicsSystem.h

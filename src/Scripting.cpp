@@ -12,12 +12,14 @@
 
 #include "Transform.h"
 #include "Camera.h"
+#include "Sprite.h"
 #include "RigidBody.h"
 #include "Possession.h"
 
 #include "CameraSystem.h"
 #include "PhysicsSystem.h"
 #include "ControlSystem.h"
+#include "SpritePlacementSystem.h"
 
 ////////////
 // MACROS //
@@ -59,6 +61,26 @@ Script::startLua() {
   Game::lua.new_usertype<sf::RenderWindow>("RenderWindow",
     "size", sol::property(&sf::RenderWindow::getSize)
     );
+  // Colour
+  Game::lua.new_usertype<sf::Color>("Colour",
+    sol::constructors<
+      sf::Color(),
+      sf::Color(int, int, int),
+      sf::Color(int, int, int, int)>(),
+    "r", &sf::Color::r,
+    "g", &sf::Color::g,
+    "b", &sf::Color::b,
+    "a", &sf::Color::a
+  );
+  Game::lua.set("Colour_BLACK", sf::Color::Black);
+  Game::lua.set("Colour_WHITE", sf::Color::White);
+  Game::lua.set("Colour_RED", sf::Color::Red);
+  Game::lua.set("Colour_GREEN", sf::Color::Green);
+  Game::lua.set("Colour_BLUE", sf::Color::Blue);
+  Game::lua.set("Colour_YELLOW", sf::Color::Yellow);
+  Game::lua.set("Colour_MAGENTA", sf::Color::Magenta);
+  Game::lua.set("Colour_CYAN", sf::Color::Cyan);
+  Game::lua.set("Colour_TRANSPARENT", sf::Color::Transparent);
 
   // REGISTER ENTITY FUNCTIONS
   Game::lua.new_usertype<ECS::Entity>("Entity",
@@ -74,11 +96,12 @@ Script::startLua() {
   Spell::registerSpellType();
 
   // COMPONENTS
-  Transform::registerFunctions();
-  Camera::registerFunctions();
-  RigidBody::registerNonDependantFunctions();
-  Possession::registerFunctions();
-  Movement::registerFunctions();
+  Transform::registerTransformType();
+  Camera::registerCameraType();
+  Sprite::registerSpriteType();
+  RigidBody::registerNonDependantTypes();
+  Possession::registerPossessionType();
+  Movement::registerMovementType();
 }
 
 // Register scene specific functions (EG. SYSTEMS FOR THE WORLD)
@@ -95,6 +118,7 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
   CameraSystem::registerCameraSystemFunctions(env, world);
   PhysicsSystem::registerPhysicsSystemFunctions(env, world);
   ControlSystem::registerControlSystemFunctions(env, world);
+  SpritePlacementSystem::registerSpritePlacementSystem(env, world);
 }
 
 ///////////////////////

@@ -10,6 +10,8 @@ local function spawnBox(x, y, size)
   local box = World.createEntity()
   lastSpawnedBox = box
   local boxTrans = box:assignTransform()
+  local sprite = box:assignSprite()
+  sprite:setSpriteFromResources("BoxTexture")
   local boxBody = box:assignRigidBody()
 
   local bodyDef = BodyDef.new()

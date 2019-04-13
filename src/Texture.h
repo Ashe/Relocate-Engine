@@ -1,5 +1,5 @@
 // Texture.h
-// Resource and Component for creation and rendering of sprites
+// Resource used in creation and rendering of sprites
 
 #ifndef TEXTURE_H
 #define TEXTURE_H
@@ -24,6 +24,11 @@ class Texture {
     Texture(const std::string& fp)
       : filepath_(fp) {
       loadFromFilepath();
+    }
+
+    // Get a pointer to the texture
+    sf::Texture& getTexture() {
+      return texture_;
     }
 
   private:

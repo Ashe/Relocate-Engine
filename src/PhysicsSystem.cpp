@@ -49,7 +49,7 @@ PhysicsSystem::registerPhysicsSystemFunctions(sol::environment& env, ECS::World*
     Console::addCommand("Physics.showHitboxes");
 
     // Allow the use of RigidBodies
-    RigidBody::registerFunctions(env, physicsWorld);
+    RigidBody::registerRigidBodyType(env, physicsWorld);
   });
 }
 

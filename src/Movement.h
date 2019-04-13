@@ -12,7 +12,7 @@ class Movement {
   public:
 
     // Make this component scriptable
-    static void registerFunctions() {
+    static void registerMovementType() {
 
       // Register the usual assign, has and remove functions
       Script::registerComponentToEntity<Movement>("Movement");

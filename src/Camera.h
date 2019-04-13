@@ -12,7 +12,7 @@ class Camera {
   public:
 
     // Make this component scriptable
-    static void registerFunctions() {
+    static void registerCameraType() {
 
       // Register the usual functions
       Script::registerComponentToEntity<Camera>("Camera");

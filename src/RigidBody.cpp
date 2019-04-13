@@ -41,7 +41,7 @@ RigidBody::LineShape(float x1, float y1, float x2, float y2) {
 
 // Enable use of this component when physics system is enabled
 void 
-RigidBody::registerFunctions(sol::environment& env, b2World* world) {
+RigidBody::registerRigidBodyType(sol::environment& env, b2World* world) {
 
   // Debug message
   if (Game::getDebugMode()) {
@@ -111,7 +111,7 @@ RigidBody::registerFunctions(sol::environment& env, b2World* world) {
 
 // Register functions that don't need a physics world
 void
-RigidBody::registerNonDependantFunctions() {
+RigidBody::registerNonDependantTypes() {
   // Create the BodyDef type
   Game::lua.new_usertype<b2BodyDef>("BodyDef",
     sol::constructors<b2BodyDef()>(),

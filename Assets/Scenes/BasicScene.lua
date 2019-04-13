@@ -11,6 +11,7 @@ local function onBegin()
   World.usePhysicsSystem()
   World.useControlSystem()
   World.useCameraSystem()
+  World.useSpritePlacementSystem()
 
   -- Get window size
   size = Game.displaySize

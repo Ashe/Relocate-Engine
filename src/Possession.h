@@ -12,7 +12,7 @@ class Possession {
   public:
 
     // Make this component scriptable
-    static void registerFunctions() {
+    static void registerPossessionType() {
 
       // Register the usual assign, has, remove functions to Entity
       Script::registerComponentToEntity<Possession>("Possession");
