@@ -6,7 +6,7 @@ local nullbody = nil
 local joint = nil
 
 -- Pick up an object
-function beginLevitation(self)
+local function beginLevitation(self)
   if lastSpawnedBox ~= nil then
 
     -- Make a null body if necessary
@@ -27,14 +27,14 @@ function beginLevitation(self)
 end
 
 -- Change the destination for levitation
-function updateDestination(self, dt)
+local function updateDestination(self, dt)
   if joint then
     joint.target = Vector2f.new(Game.mousePosition.x, Game.mousePosition.y)
   end
 end
 
 -- Put down an object
-function endLevitation(self)
+local function endLevitation(self)
   if joint then
     joint:destroy()
     joint = nil

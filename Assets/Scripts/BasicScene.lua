@@ -2,7 +2,7 @@
 -- Lua file for the default scene
 
 -- When the scene is shown for the first time
-function onBegin()
+local function onBegin()
 
   print("Executing begin")
   -- We define what systems we want to use
@@ -53,7 +53,7 @@ function onBegin()
 end
 
 -- Every scene tick
-function onUpdate(dt)
+local function onUpdate(dt)
 
   -- Hold the current box
   leftSpell:passiveCast(dt)
@@ -62,7 +62,7 @@ function onUpdate(dt)
 end
 
 -- On Window events
-function onWindowEvent(ev)
+local function onWindowEvent(ev)
 
   -- Key pressed
   if ev.type == EventType_KeyPressed then
@@ -102,5 +102,9 @@ function onWindowEvent(ev)
   end
 end
 
-local scene = Scene.new(onBegin, nil, nil, onUpdate, onWindowEvent, nil)
+-- Make and return the scene
+local scene = Scene.new()
+scene.onBegin = onBegin
+scene.onUpdate = onUpdate
+scene.onWindowEvent = onWindowEvent
 return Resource_SCENE, "BasicScene", scene

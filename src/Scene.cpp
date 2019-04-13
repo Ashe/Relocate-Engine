@@ -10,33 +10,20 @@
 void
 Scene::registerSceneType() {
   Game::lua.new_usertype<Scene>("Scene",
-    sol::constructors<Scene(
-      sol::protected_function,
-      sol::protected_function,
-      sol::protected_function,
-      sol::protected_function,
-      sol::protected_function,
-      sol::protected_function)>()
-    );
+    sol::constructors<Scene()>(),
+    "onBegin", &Scene::onBegin_,
+    "onShow", &Scene::onShow_,
+    "onHide", &Scene::onHide_,
+    "onUpdate", &Scene::onUpdate_,
+    "onWindowEvent", &Scene::onWindowEvent_,
+    "onQuit", &Scene::onQuit_
+  );
 }
 
 // Constructor
-Scene::Scene
-  ( sol::protected_function begin
-  , sol::protected_function show
-  , sol::protected_function hide
-  , sol::protected_function update
-  , sol::protected_function windowEvent
-  , sol::protected_function quit)
-
+Scene::Scene ()
   : hasBegun_(false)
-  , world_(ECS::World::createWorld())
-  , onBegin_(begin)
-  , onShow_(show)
-  , onHide_(hide)
-  , onUpdate_(update)
-  , onWindowEvent_(windowEvent)
-  , onQuit_(quit) {
+  , world_(ECS::World::createWorld()) {
 }
 
 // Copy constructor

@@ -20,14 +20,7 @@ class Scene {
     static void registerSceneType();
 
     // Constructors
-    Scene
-      ( sol::protected_function
-      , sol::protected_function
-      , sol::protected_function
-      , sol::protected_function
-      , sol::protected_function
-      , sol::protected_function
-      );
+    Scene();
 
     // Copy constructor
     Scene(const Scene& other);
