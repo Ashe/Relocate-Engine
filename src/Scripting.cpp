@@ -6,6 +6,7 @@
 // Avoid cyclic dependancies
 #include "Game.h"
 #include "Scene.h"
+#include "Texture.h"
 
 #include "Spell.h"
 
@@ -66,10 +67,11 @@ Script::startLua() {
 
   // CORE
   ResourceManager::registerResourceTypes();
+  Texture::registerTextureType();
   Scene::registerSceneType();
 
   // GAME MECHANICS
-  Spell::registerFunctions();
+  Spell::registerSpellType();
 
   // COMPONENTS
   Transform::registerFunctions();

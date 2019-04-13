@@ -16,6 +16,7 @@ void
 ResourceManager::registerResourceTypes() {
   Game::lua.set("Resource_UNKNOWN", Resource::Type::UNKNOWN);
   Game::lua.set("Resource_SCENE", Resource::Type::SCENE);
+  Game::lua.set("Resource_TEXTURE", Resource::Type::TEXTURE);
   Game::lua.set("Resource_SPELL", Resource::Type::SPELL);
 }
 
@@ -28,9 +29,9 @@ ResourceManager::loadResources(const std::string& dir) {
 
   // For every file in the directory
   for (const auto& entry : std::filesystem::recursive_directory_iterator(dir)) {
-    if (entry.is_regular_file()) {
-      const std::string path = entry.path().string();
-      Resource resource(path);
+    const auto fp = entry.path();
+    if (entry.is_regular_file() && fp.extension().string() == ".lua") {
+      Resource resource(fp.string());
       const std::string name = resource.getName();
       if (resource.getType() != Resource::Type::UNKNOWN && name != "") {
         resources_[name] = resource;

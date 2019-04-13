@@ -12,7 +12,7 @@ class Spell {
   public:
     
     // Register spell functions to lua
-    static void registerFunctions() {
+    static void registerSpellType() {
 
       // Register the spell type
       Game::lua.new_usertype<Spell>("Spell",

@@ -7,6 +7,7 @@
 #include "Game.h"
 #include "Scripting.h"
 #include "Scene.h"
+#include "Texture.h"
 
 // Get resource type from descriptor
 Resource::Resource(const std::string& fp)
@@ -56,6 +57,9 @@ Resource::get() {
     case Type::SCENE:
       resource_ = new Scene(data.as<Scene>());
       break;
+    case Type::TEXTURE:
+      resource_ = new Texture(data.as<Texture>());
+      break;
     default:
       break;
   }
@@ -92,6 +96,8 @@ Resource::deleteResource() {
     case Type::SCENE:
       delete static_cast<Scene*>(resource_);
       break;
+    case Type::TEXTURE:
+      delete static_cast<Texture*>(resource_);
     default:
       break;
   }

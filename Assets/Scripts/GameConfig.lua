@@ -8,5 +8,8 @@ print("Running GameConfig.lua")
 Game.debug = true
 
 -- Load some other lua scripts
-_, _, leftSpell = dofile("Assets/Scripts/LaunchBox.lua")
-_, _, rightSpell = dofile("Assets/Scripts/Levitate.lua")
+-- @NOTE: This is not the way to do this, this is just 
+-- to expose spells to global scope before 
+-- resource manager has the functionality to load spells
+_, _, leftSpell = dofile("Assets/Spells/LaunchBox.lua")
+_, _, rightSpell = dofile("Assets/Spells/Levitate.lua")

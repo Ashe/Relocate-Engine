@@ -14,6 +14,7 @@ class Resource {
     enum Type {
       UNKNOWN,
       SCENE,
+      TEXTURE,
       SPELL
     };
 
