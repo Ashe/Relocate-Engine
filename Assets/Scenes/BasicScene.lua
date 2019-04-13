@@ -46,7 +46,7 @@ local function onBegin()
   bodyDef.isFixedRotation = true
   playerBody:instantiate(bodyDef)
   fixture = FixtureDef.new()
-  fixture.shape = BoxShape(32, 64)
+  fixture.shape = BoxShape(64, 128)
   fixture.density = 100
   fixture.friction = 10
   playerBody:addFixture(fixture)

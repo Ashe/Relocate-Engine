@@ -27,6 +27,13 @@ class Sprite : public sf::Sprite {
         "colour", sol::property(
           &sf::Sprite::getColor,
           &sf::Sprite::setColor),
+        "origin", sol::property(
+          &sf::Sprite::getOrigin,
+          [](Sprite& self, const sf::Vector2f& o) { self.setOrigin(o); }),
+        "scaledOrigin", sol::property(
+          [](Sprite& self) { return self.scaleToWorld(self.getOrigin()); },
+          [](Sprite& self, const sf::Vector2f& o) { self.setOrigin(self.scaleToLocal(o)); }),
+        "textureSize", sol::property(&Sprite::getTextureSize),
         "setSpriteFromResources", &Sprite::setSpriteFromResources
       );
     }
@@ -44,7 +51,30 @@ class Sprite : public sf::Sprite {
 
       // Set this sprite's texture
       sf::Sprite::setTexture(tex->getTexture());
+
+      // By default set origin to centre
+      Sprite::setOrigin(scaleToLocal(sf::Vector2f(0.5f, 0.5f)));
       return true;
+    }
+
+    // Get the width and height of texture
+    sf::Vector2f getTextureSize() const {
+      const auto rect = getTextureRect();
+      return sf::Vector2f(rect.width, rect.height);
+    }
+
+  private:
+
+    // Make world coords (such as origin coords) relative to texture size
+    sf::Vector2f scaleToLocal(const sf::Vector2f& c) const {
+      const auto rect = Sprite::getTextureRect();
+      return sf::Vector2f(c.x * rect.width, c.y * rect.height);
+    }
+
+    // Make local coords (such as scaled origin coords) relative to the world
+    sf::Vector2f scaleToWorld(const sf::Vector2f& c) const {
+      const auto rect = Sprite::getTextureRect();
+      return sf::Vector2f(c.x / rect.width, c.y / rect.height);
     }
 };
 

@@ -4,26 +4,27 @@
 -- Variables for this spell
 local spawnPos = nil
 local boxToThrow = nil
+boxSize = 1
 
 -- Helper function for spawning the box
-local function spawnBox(x, y, size)
+local function spawnBox(x, y, scale)
   local box = World.createEntity()
   lastSpawnedBox = box
   local boxTrans = box:assignTransform()
   local sprite = box:assignSprite()
   sprite:setSpriteFromResources("BoxTexture")
+  sprite.scale = Vector2f.new(scale, scale)
+  local texSize = sprite.textureSize
   local boxBody = box:assignRigidBody()
-
   local bodyDef = BodyDef.new()
   bodyDef.type = Physics_DynamicBody
   local boxFixture = FixtureDef.new()
   boxFixture.density = 500
   boxFixture.friction = 100
-
   spawnPos = Vector2f.new(x, y)
   boxTrans.position = spawnPos
   boxBody:instantiate(bodyDef)
-  boxFixture.shape = BoxShape(size, size)
+  boxFixture.shape = BoxShape(texSize.x * scale, texSize.y * scale)
   boxBody:addFixture(boxFixture)
   return box
 end
@@ -32,7 +33,7 @@ end
 -- Spawn a box on spell cast
 local function createBox(self)
   if boxToThrow == nil then
-    boxToThrow = spawnBox(Game.mousePosition.x, Game.mousePosition.y, 50)
+    boxToThrow = spawnBox(Game.mousePosition.x, Game.mousePosition.y, boxSize)
   end
 end
 

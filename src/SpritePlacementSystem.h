@@ -4,6 +4,8 @@
 #ifndef SPRITEPLACEMENTSYSTEM_H
 #define SPRITEPLACEMENTSYSTEM_H
 
+#include <math.h>
+
 #include "Game.h"
 #include "Scripting.h"
 

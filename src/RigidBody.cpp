@@ -14,8 +14,8 @@ b2BodyDef RigidBody::defaultBodyDefinition_ = b2BodyDef();
 b2Shape* 
 RigidBody::BoxShape(float w, float h) {
   b2PolygonShape polygon;
-  const auto pos = PhysicsSystem::convertToB2(sf::Vector2f(w, h));
-  polygon.SetAsBox(pos.x, pos.y);
+  const auto size = PhysicsSystem::convertToB2(sf::Vector2f(w * 0.5, h * 0.5));
+  polygon.SetAsBox(size.x, size.y);
   return new b2PolygonShape(polygon);
 }
 

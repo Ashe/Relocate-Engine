@@ -98,11 +98,14 @@ PhysicsSystem::update(ECS::World* world, const sf::Time& dt) {
       r->entity_ = e;
     }
 
+    // Precalculate conversion to radians
+    constexpr float convertToRadians = M_PI / 180.f;
+
     // Check for out of sync
     b2Body* const body = r->body_;
     if (r->isOutOfSync_ && body != nullptr) {
       const b2Vec2 newPos = convertToB2(t->position);
-      const float newRot = t->rotation;
+      const float newRot = convertToRadians * t->rotation;
       body->SetTransform(newPos, newRot);
       body->SetAwake(true);
       r->previousPosition_ = newPos;
@@ -163,12 +166,15 @@ PhysicsSystem::smoothState(ECS::ComponentHandle<Transform> t, ECS::ComponentHand
         fixedTimeStepRatio_ * body->GetPosition() +
         oneMinusRatio * rb->previousPosition_);
 
+      // Precalculate conversion to degrees
+      constexpr float convertToDegrees = 180.f / M_PI;
+
       // Tween rotation
-      t->rotation = body->GetAngle();
+      t->rotation = convertToDegrees * body->GetAngle();
       // @TODO: This code sets t->rotation to infinity and breaks the game
       // it must be fixed in order to tween rotation
-      //  t->rotation = body->GetAngle() +
-      //  oneMinusRatio * rb->previousAngle_;
+      //t->rotation = convertToDegrees * (body->GetAngle() +
+        //oneMinusRatio * rb->previousAngle_);
     }
   }
 }

@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 52)
+set (Build_VERSION_TWEAK 53)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
