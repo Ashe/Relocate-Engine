@@ -46,8 +46,9 @@ ControlSystem::update(ECS::World* world, const sf::Time& dt) {
       // Calculate max speeds
       const sf::Vector2f currentSpeed = r->getLinearVelocity();
       sf::Vector2f maxSpeed;
-      maxSpeed.x = (m->canSprint && isSprinting_ ? m->sprintSpeedMult : 1.f) * m->movementSpeed;
-      maxSpeed.y = (m->canSprint && m->canSprintWhileFlying && isSprinting_ ? m->sprintSpeedMult : 1.f) * 
+      m->isSprinting = m->canSprint && isSprinting_;
+      maxSpeed.x = (m->isSprinting ? m->sprintSpeedMult : 1.f) * m->movementSpeed;
+      maxSpeed.y = (m->isSprinting && m->canSprintWhileFlying ? m->sprintSpeedMult : 1.f) * 
         (m->canFly ? m->flightSpeed : 0.f);
       sf::Vector2f impulse;
 

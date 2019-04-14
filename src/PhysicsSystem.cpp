@@ -265,7 +265,7 @@ PhysicsSystem::receive(ECS::World* w, const addDebugInfoEvent& e) {
     const auto gravityVec = getGravity();
     float gravity = gravityVec.y / 10.f;
     ImGui::Begin("Physics System", &showPhysicsWindow_);
-    ImGui::SliderFloat("Gravity", &gravity, -300.f, 300.f);
+    ImGui::DragFloat("Gravity", &gravity, 2.f);
     ImGui::End();
     if (gravity * 10.f != gravityVec.y) {
       setGravity(gravityVec.x, gravity * 10.f);
