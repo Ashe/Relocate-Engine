@@ -248,7 +248,7 @@ PhysicsSystem::receive(ECS::World* w, const DebugRenderPhysicsEvent& e) {
 // Add physics entry to the main menu
 void
 PhysicsSystem::receive(ECS::World* w, const addDebugMenuEntryEvent& e) {
-  ImGui::MenuItem("PhysicsSystem", NULL, &showPhysicsWindow_);
+  ImGui::MenuItem("Physics System", NULL, &showPhysicsWindow_);
 }
 
 // Add information to debug window
@@ -257,7 +257,7 @@ PhysicsSystem::receive(ECS::World* w, const addDebugInfoEvent& e) {
 
   // Add to default window
   ImGui::Begin("Debug");
-  ImGui::Text(std::string("Physics bodies: " + std::to_string(world_.GetBodyCount())).c_str());
+  ImGui::Text("Physics bodies: %d", world_.GetBodyCount());
   ImGui::End();
 
   // Make a physics window

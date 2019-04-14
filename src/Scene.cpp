@@ -5,7 +5,12 @@
 
 // Avoid cyclic dependencies
 #include "ControlSystem.h"
+#include "Transform.h"
 #include "Sprite.h"
+#include "RigidBody.h"
+#include "Possession.h"
+#include "Camera.h"
+#include "Movement.h"
 
 // Register scene functionality to Lua
 void
@@ -188,13 +193,121 @@ Scene::quit() {
 }
 
 // Add entries to debug menu
+static bool showEntityViewer_ = false;
 void
 Scene::addDebugMenuEntries() {
+
+  // Add entity viewer
+  ImGui::MenuItem("Entity Viewer", NULL, &showEntityViewer_);
+
+  // Allow systems to add entries
   world_->emit<addDebugMenuEntryEvent>({});
 }
 
 // Add information to the main IMGUI debug window
 void
 Scene::addDebugInfoToDefault() {
+
+  // Add to default window
+  ImGui::Begin("Debug");
+  ImGui::Text("Entities in system: %lu", world_->getCount());
+  ImGui::End();
+
+  // Show the entity viewer
+  if (showEntityViewer_) {
+    ImGui::Begin("Entity Viewer", &showEntityViewer_);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2,2));
+    ImGui::Columns(2);
+    ImGui::Separator();
+
+    // For every entity show data
+    bool isFirst = true;
+    for (ECS::Entity* e : world_->all()) {
+      auto id = e->getEntityId();
+
+      ImGui::PushID(id);
+      ImGui::AlignTextToFramePadding();
+
+      bool node_open = ImGui::TreeNode("Entity", "%s_%lu", "Entity", id);
+      if (node_open) {
+
+        ImGui::NextColumn();
+        if (!isFirst) { ImGui::Spacing(); }
+        isFirst = false;
+        ImGui::Text("Entity %lu:", id);
+        ImGui::NextColumn();
+
+        // Represent Every component
+        // @TODO: Clean this up
+        auto t = e->get<Transform>();
+        if (t.isValid()) {
+          ImGui::PushID(0);
+          if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None , "Transform")) {
+            t->showDebugInformation();
+            ImGui::TreePop();
+          }
+          ImGui::PopID();
+        }
+        auto s = e->get<Sprite>();
+        if (s.isValid()) {
+          ImGui::PushID(1);
+          if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None , "Sprite")) {
+            s->showDebugInformation();
+            ImGui::TreePop();
+          }
+          ImGui::PopID();
+        }
+        auto r = e->get<RigidBody>();
+        if (r.isValid()) {
+          ImGui::PushID(2);
+          if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "RigidBody")) {
+            r->showDebugInformation();
+            ImGui::TreePop();
+          }
+          ImGui::PopID();
+        }
+        auto m = e->get<Movement>();
+        if (m.isValid()) {
+          ImGui::PushID(3);
+          if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Movement")) {
+            m->showDebugInformation();
+            ImGui::TreePop();
+          }
+          ImGui::PopID();
+        }
+        auto c = e->get<Camera>();
+        if (c.isValid()) {
+          ImGui::PushID(4);
+          if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Camera")) {
+            c->showDebugInformation();
+            ImGui::TreePop();
+          }
+          ImGui::PopID();
+        }
+        auto p = e->get<Possession>();
+        if (p.isValid()) {
+          ImGui::PushID(5);
+          if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Possession")) {
+            p->showDebugInformation();
+            ImGui::TreePop();
+          }
+          ImGui::PopID();
+        }
+
+        // After all components end the tree
+        ImGui::TreePop();
+      }
+
+      // End the current entity
+      ImGui::PopID();
+    }
+
+    ImGui::Columns(1);
+    ImGui::Separator();
+    ImGui::PopStyleVar();
+    ImGui::End();
+  }
+
+  // Allow systems to add more info
   world_->emit<addDebugInfoEvent>({});
 }

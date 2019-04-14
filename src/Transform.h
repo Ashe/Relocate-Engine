@@ -37,6 +37,16 @@ class Transform {
 
     // Rotation of the entity to render
     float rotation;
+
+    // Shows the debug information to ImGui
+    void showDebugInformation() {
+      ImGui::NextColumn();
+      ImGui::Text("Position: %f, %f", position.x, position.y);
+      ImGui::Text("Rotation: %f", rotation);
+      ImGui::PushItemWidth(-1);
+      ImGui::PopItemWidth();
+      ImGui::NextColumn();
+    }
 };
 
 #endif

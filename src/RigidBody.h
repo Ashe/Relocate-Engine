@@ -95,6 +95,17 @@ class RigidBody {
        underfootContacts_ = other.underfootContacts_;
     }
 
+    // Shows the debug information to ImGui
+    void showDebugInformation() {
+      ImGui::NextColumn();
+      const auto& vel = getLinearVelocity();
+      ImGui::Text("Velocity: %f, %f", vel.x, vel.y);
+      ImGui::Text("Mass: %f", body_->GetMass());
+      ImGui::PushItemWidth(-1);
+      ImGui::PopItemWidth();
+      ImGui::NextColumn();
+    }
+
   private:
 
     // Default body definition to use

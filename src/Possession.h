@@ -27,6 +27,15 @@ class Possession {
 
     // Whether this component should respond to input
     bool isActive;
+
+    // Shows the debug information to ImGui
+    void showDebugInformation() {
+      ImGui::NextColumn();
+      ImGui::Text("Possessed: %s", isActive ? "true": "false");
+      ImGui::PushItemWidth(-1);
+      ImGui::PopItemWidth();
+      ImGui::NextColumn();
+    }
 };
 
 #endif

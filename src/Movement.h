@@ -56,6 +56,16 @@ class Movement {
     float flightSpeed;
     bool canFly;
     bool canSprintWhileFlying;
+
+    // Shows the debug information to ImGui
+    void showDebugInformation() {
+      ImGui::NextColumn();
+      ImGui::Text("Movement speed: %f", movementSpeed);
+      ImGui::Text("Is Sprinting: %s", isSprinting ? "true": "false");
+      ImGui::PushItemWidth(-1);
+      ImGui::PopItemWidth();
+      ImGui::NextColumn();
+    }
 };
 
 #endif

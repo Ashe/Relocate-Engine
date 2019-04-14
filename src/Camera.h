@@ -31,6 +31,9 @@ class Camera {
 
     // Offset for adjustment
     sf::Vector2f offset;
+
+    // Shows the debug information to ImGui
+    void showDebugInformation() {}
 };
 
 #endif

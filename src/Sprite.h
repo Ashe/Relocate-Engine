@@ -63,6 +63,18 @@ class Sprite : public sf::Sprite {
       return sf::Vector2f(rect.width, rect.height);
     }
 
+    // Shows the debug information to ImGui
+    void showDebugInformation() {
+      ImGui::NextColumn();
+      const auto& size = getTextureSize();
+      const auto& col = Sprite::getColor();
+      ImGui::Text("Sprite size: %f, %f", size.x, size.y);
+      ImGui::Text("Sprite colour: (%d, %d, %d, %d)", col.r, col.g, col.b, col.a);
+      ImGui::PushItemWidth(-1);
+      ImGui::PopItemWidth();
+      ImGui::NextColumn();
+    }
+
   private:
 
     // Make world coords (such as origin coords) relative to texture size
