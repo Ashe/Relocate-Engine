@@ -12,9 +12,10 @@ local function spawnBox(x, y, scale)
   lastSpawnedBox = box
   local boxTrans = box:assignTransform()
   local sprite = box:assignSprite()
-  sprite:setSpriteFromResources("BoxTexture")
+  sprite.size = Vector2f.new(60, 60)
   sprite.scale = Vector2f.new(scale, scale)
-  local texSize = sprite.textureSize
+  sprite:setSprite("BoxTexture")
+  local spriteSize = sprite.size
   local boxBody = box:assignRigidBody()
   local bodyDef = BodyDef.new()
   bodyDef.type = Physics_DynamicBody
@@ -24,7 +25,7 @@ local function spawnBox(x, y, scale)
   spawnPos = Vector2f.new(x, y)
   boxTrans.position = spawnPos
   boxBody:instantiate(bodyDef)
-  boxFixture.shape = BoxShape(texSize.x * scale, texSize.y * scale)
+  boxFixture.shape = BoxShape(60 * scale, 60 * scale)
   boxBody:addFixture(boxFixture)
   return box
 end

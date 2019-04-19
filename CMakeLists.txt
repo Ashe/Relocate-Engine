@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 54)
+set (Build_VERSION_TWEAK 55)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
@@ -73,6 +73,8 @@ target_sources(${EXECUTABLE_NAME} PRIVATE
   src/Scene.h
   src/Scene.cpp
   src/Texture.h
+  src/Animation.h
+  src/Animation.cpp
 
   # Gameplay
   src/Spell.h
@@ -80,6 +82,7 @@ target_sources(${EXECUTABLE_NAME} PRIVATE
   # Components
   src/Transform.h
   src/Sprite.h
+  src/Sprite.cpp
   src/Camera.h
   src/RigidBody.h
   src/RigidBody.cpp

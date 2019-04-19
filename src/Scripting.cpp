@@ -7,6 +7,7 @@
 #include "Game.h"
 #include "Scene.h"
 #include "Texture.h"
+#include "Animation.h"
 
 #include "Spell.h"
 
@@ -90,6 +91,7 @@ Script::startLua() {
   // CORE
   ResourceManager::registerResourceTypes();
   Texture::registerTextureType();
+  Animation::registerAnimationType();
   Scene::registerSceneType();
 
   // GAME MECHANICS

@@ -8,6 +8,7 @@
 #include "Scripting.h"
 #include "Scene.h"
 #include "Texture.h"
+#include "Animation.h"
 
 // Get resource type from descriptor
 Resource::Resource(const std::string& fp)
@@ -55,11 +56,11 @@ Resource::get() {
   sol::object data = std::get<2>(result);
   switch (type_) {
     case Type::SCENE:
-      resource_ = new Scene(data.as<Scene>());
-      break;
+      resource_ = new Scene(data.as<Scene>()); break;
     case Type::TEXTURE:
-      resource_ = new Texture(data.as<Texture>());
-      break;
+      resource_ = new Texture(data.as<Texture>()); break;
+    case Type::ANIMATION:
+      resource_ = new Animation(data.as<Animation>()); break;
     default:
       break;
   }
@@ -94,10 +95,11 @@ void
 Resource::deleteResource() {
   switch (type_) {
     case Type::SCENE:
-      delete static_cast<Scene*>(resource_);
-      break;
+      delete static_cast<Scene*>(resource_); break;
     case Type::TEXTURE:
-      delete static_cast<Texture*>(resource_);
+      delete static_cast<Texture*>(resource_); break;
+    case Type::ANIMATION:
+      delete static_cast<Animation*>(resource_); break;
     default:
       break;
   }
