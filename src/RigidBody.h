@@ -24,7 +24,7 @@ class RigidBody {
 
     // Make this component scriptable
     static void registerRigidBodyType(sol::environment& env, b2World* world);
-    static void registerNonDependantTypes();
+    static void registerNonDependantTypes(sol::environment& env);
 
     // Constructor
     RigidBody();

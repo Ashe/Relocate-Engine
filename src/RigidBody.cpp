@@ -54,11 +54,8 @@ RigidBody::registerRigidBodyType(sol::environment& env, b2World* world) {
   // Register the RigidBody only if there's a 'world'
   if (worldToSpawnIn_ != nullptr) {
 
-    // @TODO: FIX THIS FROM SEGFAULTING
-    // We cannot register default methods due to RigidBody being special case
-    Console::log("ATTEMPTING TO REGISTER THE RIGIDBODY TYPE");
+    // Make this component scriptable
     Script::registerComponentToEntity<RigidBody>(env, "RigidBody");
-    Console::log("REGISTRATION SUCCESS");
 
     // Create the RigidBody type
     env.new_usertype<RigidBody>("RigidBody",
@@ -112,7 +109,8 @@ RigidBody::registerRigidBodyType(sol::environment& env, b2World* world) {
 
 // Register functions that don't need a physics world
 void
-RigidBody::registerNonDependantTypes() {
+RigidBody::registerNonDependantTypes(sol::environment& env) {
+
   // Create the BodyDef type
   Game::lua.new_usertype<b2BodyDef>("BodyDef",
     sol::constructors<b2BodyDef()>(),

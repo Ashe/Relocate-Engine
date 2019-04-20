@@ -12,13 +12,13 @@ class Movement {
   public:
 
     // Make this component scriptable
-    static void registerMovementType() {
+    static void registerMovementType(sol::environment& env) {
 
       // Register the usual assign, has and remove functions
-      Script::registerComponentToEntity<Movement>("Movement");
+      Script::registerComponentToEntity<Movement>(env, "Movement");
 
       // Create the Movement user type
-      Game::lua.new_usertype<Movement>("Movement",
+      env.new_usertype<Movement>("Movement",
         "movementSpeed", &Movement::movementSpeed,
         "canJump", &Movement::canJump,
         "sprintSpeedMult", &Movement::sprintSpeedMult,

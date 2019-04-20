@@ -118,13 +118,6 @@ Script::startLua() {
   // GAME MECHANICS
   Spell::registerSpellType();
 
-  // COMPONENTS
-  Transform::registerTransformType();
-  Camera::registerCameraType();
-  Sprite::registerSpriteType();
-  RigidBody::registerNonDependantTypes();
-  Possession::registerPossessionType();
-  Movement::registerMovementType();
 }
 
 // Register scene specific functions (EG. SYSTEMS FOR THE WORLD)
@@ -136,6 +129,14 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
   env.new_usertype<ECS::Entity>("Entity",
     "destroy", [world](ECS::Entity& self) { world->destroy(&self);}
   );
+
+  // Register components that are not reliant on anything
+  Transform::registerTransformType(env);
+  Camera::registerCameraType(env);
+  Sprite::registerSpriteType(env);
+  RigidBody::registerNonDependantTypes(env);
+  Possession::registerPossessionType(env);
+  Movement::registerMovementType(env);
 
   // Register functions that 'turn on' systems in the world
   CameraSystem::registerCameraSystemFunctions(env, world);

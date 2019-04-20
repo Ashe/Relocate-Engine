@@ -17,13 +17,13 @@ class Sprite : public sf::Drawable, public sf::Transformable {
   public:
 
     // Make this component scriptable
-    static void registerSpriteType() {
+    static void registerSpriteType(sol::environment& env) {
       
       // Register the usual assign, has, remove functions to Entity
-      Script::registerComponentToEntity<Sprite>("Sprite");
+      Script::registerComponentToEntity<Sprite>(env, "Sprite");
 
       // Add extra sprite functionality
-      Game::lua.new_usertype<Sprite>("Sprite",
+      env.new_usertype<Sprite>("Sprite",
         "flipX", &Sprite::flipX,
         "flipY", &Sprite::flipY,
         "size", &Sprite::size_,

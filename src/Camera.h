@@ -12,13 +12,13 @@ class Camera {
   public:
 
     // Make this component scriptable
-    static void registerCameraType() {
+    static void registerCameraType(sol::environment& env) {
 
       // Register the usual functions
-      Script::registerComponentToEntity<Camera>("Camera");
+      Script::registerComponentToEntity<Camera>(env, "Camera");
 
       // Create the Camera usertype
-      Game::lua.new_usertype<Camera>("Camera",
+      env.new_usertype<Camera>("Camera",
         "offset", &Camera::offset
       );
     }

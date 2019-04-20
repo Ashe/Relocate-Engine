@@ -12,13 +12,13 @@ class Transform {
   public:
 
     // Make this component scriptable
-    static void registerTransformType() {
+    static void registerTransformType(sol::environment& env) {
 
       // Register the usual assign, has, remove functions to Entity
-      Script::registerComponentToEntity<Transform>("Transform");
+      Script::registerComponentToEntity<Transform>(env, "Transform");
 
       // Create the Transform usertype
-      Game::lua.new_usertype<Transform>("Transform",
+      env.new_usertype<Transform>("Transform",
         "position", &Transform::position,
         "rotation", &Transform::rotation
       );

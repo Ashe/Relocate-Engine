@@ -12,13 +12,13 @@ class Possession {
   public:
 
     // Make this component scriptable
-    static void registerPossessionType() {
+    static void registerPossessionType(sol::environment& env) {
 
       // Register the usual assign, has, remove functions to Entity
-      Script::registerComponentToEntity<Possession>("Possession");
+      Script::registerComponentToEntity<Possession>(env, "Possession");
 
       // Create the Possession user type
-      Game::lua.new_usertype<Possession>("Possession");
+      env.new_usertype<Possession>("Possession");
     }
 
     // Constructor

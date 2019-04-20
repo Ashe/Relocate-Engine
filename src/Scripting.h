@@ -51,26 +51,12 @@ namespace Script {
 
   // Convenience function for defining glue code in Lua
   template <typename T> void
-  registerComponentToEntity(const std::string& name) {
-
-    // Create simple functions for use in Lua
-    Game::lua.new_usertype<ECS::Entity>("Entity",
-      "assign" + name, &Funcs::assign<T>,
-      "has" + name, &Funcs::has<T>,
-      "get" + name, &Funcs::get<T>,
-      "remove" + name, &Funcs::remove<T>
-    );
-  }
-  template <typename T> void
   registerComponentToEntity(sol::environment& env, const std::string& name) {
-
-    // Create simple functions for use in Lua
-    env.new_usertype<ECS::Entity>("Entity",
-      "assign" + name, &Funcs::assign<T>,
-      "has" + name, &Funcs::has<T>,
-      "get" + name, &Funcs::get<T>,
-      "remove" + name, &Funcs::remove<T>
-    );
+    sol::usertype<ECS::Entity> entityType = Game::lua["Entity"];
+    entityType.set("assign" + name, &Funcs::assign<T>);
+    entityType.set("has" + name, &Funcs::has<T>);
+    entityType.set("get" + name, &Funcs::get<T>);
+    entityType.set("remove" + name, &Funcs::remove<T>);
   }
 };
 
