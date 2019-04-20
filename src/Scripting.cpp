@@ -20,7 +20,7 @@
 #include "CameraSystem.h"
 #include "PhysicsSystem.h"
 #include "ControlSystem.h"
-#include "SpritePlacementSystem.h"
+#include "SpriteSystem.h"
 
 ////////////
 // MACROS //
@@ -120,7 +120,7 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
   CameraSystem::registerCameraSystemFunctions(env, world);
   PhysicsSystem::registerPhysicsSystemFunctions(env, world);
   ControlSystem::registerControlSystemFunctions(env, world);
-  SpritePlacementSystem::registerSpritePlacementSystem(env, world);
+  SpriteSystem::registerSpriteSystem(env, world);
 }
 
 ///////////////////////

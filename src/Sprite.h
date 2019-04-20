@@ -14,6 +14,9 @@
 class Sprite : public sf::Drawable, public sf::Transformable {
   public:
 
+    // Friend of the placement system
+    friend class SpritePlacementSystem;
+
     // Make this component scriptable
     static void registerSpriteType() {
       
@@ -32,6 +35,7 @@ class Sprite : public sf::Drawable, public sf::Transformable {
           &Sprite::getFrameTime,
           &Sprite::setFrameTime),
         "setSprite", &Sprite::setSpriteFromResources,
+        "updateSprite", &Sprite::updateSprite,
         "setAnimation", &Sprite::setAnimationFromResources,
         "loop", sol::property(
           &Sprite::isLooping,
@@ -101,6 +105,9 @@ class Sprite : public sf::Drawable, public sf::Transformable {
 
     // Update how the sprite will be drawn
     void updateSprite();
+
+    // Update animation
+    void updateAnimation(const sf::Time& dt);
 
     // Get the width and height of texture
     sf::Vector2f getTextureSize() const;

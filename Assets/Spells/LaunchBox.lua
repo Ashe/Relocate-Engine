@@ -15,6 +15,7 @@ local function spawnBox(x, y, scale)
   sprite.size = Vector2f.new(60, 60)
   sprite.scale = Vector2f.new(scale, scale)
   sprite:setSprite("BoxTexture")
+  sprite:updateSprite()
   local spriteSize = sprite.size
   local boxBody = box:assignRigidBody()
   local bodyDef = BodyDef.new()

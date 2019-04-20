@@ -161,7 +161,7 @@ Sprite::updateSprite() {
   const auto rect = getLocalBounds();
 
   // Set up vertices in local space with respect to the origin
-  sf::Vector2f originOffset = sf::Vector2f(origin_.x * size_.x, origin_.y * size_.y);
+  sf::Vector2f originOffset = sf::Vector2f(origin_.x * size_.x * scale_.x, origin_.y * size_.y * scale_.y);
   vertices_[0].position = sf::Vector2f(- originOffset.x, - originOffset.y);
   vertices_[1].position = sf::Vector2f(- originOffset.x, (1.f - originOffset.y) + rect.height * scale_.y);
   vertices_[2].position = sf::Vector2f((1.f - originOffset.x) + rect.width * scale_.x, (1.f - originOffset.y) + rect.height * scale_.y);
@@ -180,6 +180,37 @@ Sprite::updateSprite() {
   vertices_[3].texCoords = sf::Vector2f(right, top);
 }
 
+// Update the animation
+void
+Sprite::updateAnimation(const sf::Time& dt) {
+
+  // if not paused and we have a valid animation
+  if (isPaused_ || animation_ == nullptr) { return; }
+
+  // Add delta time
+  currentTime_ += dt;
+
+  // If current time is bigger then the frame time advance one frame
+  if (currentTime_ >= frameTime_) {
+
+    // Reset time, but keep the remainder
+    currentTime_ = sf::microseconds(currentTime_.asMicroseconds() % frameTime_.asMicroseconds());
+
+    // Get next Frame index
+    if (currentFrame_ + 1 < animation_->getSize()) {
+      ++currentFrame_;
+    }
+    else {
+      currentFrame_ = 0;
+      if (!isLooped_) {
+        isPaused_ = true;
+      }
+    }
+
+    // Update the sprite with the new frame
+    updateSprite();
+  }
+}
 
 // Get the width and height of texture
 sf::Vector2f 

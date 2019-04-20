@@ -11,7 +11,7 @@ local function onBegin()
   World.usePhysicsSystem()
   World.useControlSystem()
   World.useCameraSystem()
-  World.useSpritePlacementSystem()
+  World.useSpriteSystem()
 
   -- Get window size
   size = Game.displaySize
@@ -38,6 +38,11 @@ local function onBegin()
   movement.canJump = true
   movement.canFly = false
   movement.flightSpeed = 100
+  local sprite = player:assignSprite()
+  sprite.size = Vector2f.new(32, 32)
+  sprite.scale = Vector2f.new(4.5, 4.5)
+  sprite:setSprite("MageTexture")
+  sprite:updateSprite()
   local playerTrans = player:assignTransform()
   playerTrans.position = Vector2f.new(size.x * 0.5, size.y * 0.5)
   local playerBody = player:assignRigidBody()
