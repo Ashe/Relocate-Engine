@@ -101,7 +101,7 @@ class PhysicsSystem
     void smoothState(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r);
 
     // Reset interpolation to the actual physics locations
-    void resetSmoothStates(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r);
+    void resetSmoothStates(ECS::ComponentHandle<RigidBody> r);
 
     // Render the physics when debug mode is enabled
     virtual void receive(ECS::World* ecsWorld, const DebugRenderPhysicsEvent& ev) override;

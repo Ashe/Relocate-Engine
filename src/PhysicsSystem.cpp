@@ -35,7 +35,7 @@ PhysicsSystem::registerPhysicsSystemFunctions(sol::environment& env, ECS::World*
       "bodyCount", sol::property(
         [](const PhysicsSystem& self) { return self.world_.GetBodyCount(); }),
       "showHitboxes", sol::property(
-        [](const PhysicsSystem& self) { return PhysicsSystem::showRigidBodies_; },
+        [](const PhysicsSystem& self) { return self.showRigidBodies_; },
         [](bool enable) { PhysicsSystem::showRigidBodies_ = enable; })
     );
 
@@ -117,7 +117,7 @@ PhysicsSystem::update(ECS::World* world, const sf::Time& dt) {
 
     // Reset smoothing states of all entities
     world->each<Transform, RigidBody>([&](ECS::Entity* e, ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r) {
-      resetSmoothStates(t, r);
+      resetSmoothStates(r);
     });
 
     // Simulate
@@ -179,7 +179,7 @@ PhysicsSystem::smoothState(ECS::ComponentHandle<Transform> t, ECS::ComponentHand
 
 // When the step occurs, reset any smoothing
 void
-PhysicsSystem::resetSmoothStates(ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r) {
+PhysicsSystem::resetSmoothStates(ECS::ComponentHandle<RigidBody> r) {
 
   // Set up variables
   b2Body* const body = r->body_;

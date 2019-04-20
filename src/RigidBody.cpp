@@ -11,32 +11,32 @@ b2World* RigidBody::worldToSpawnIn_ = nullptr;
 b2BodyDef RigidBody::defaultBodyDefinition_ = b2BodyDef();
 
 // Make a box shape
-b2Shape* 
+b2PolygonShape 
 RigidBody::BoxShape(float w, float h) {
   b2PolygonShape polygon;
   const auto size = PhysicsSystem::convertToB2(sf::Vector2f(w * 0.5, h * 0.5));
   polygon.SetAsBox(size.x, size.y);
-  return new b2PolygonShape(polygon);
+  return b2PolygonShape(polygon);
 }
 
 // Make a circle shape
-b2Shape* 
+b2CircleShape
 RigidBody::CircleShape(float x, float y, float r) {
   b2CircleShape circle;
   const auto pos = PhysicsSystem::convertToB2(sf::Vector2f(x, y));
   circle.m_p.Set(pos.x, pos.y);
   circle.m_radius = r;
-  return new b2CircleShape(circle);
+  return b2CircleShape(circle);
 }
 
 // Line shape
-b2Shape* 
+b2EdgeShape
 RigidBody::LineShape(float x1, float y1, float x2, float y2) {
   b2EdgeShape line;
   const auto begin = PhysicsSystem::convertToB2(sf::Vector2f(x1, y1));
   const auto end = PhysicsSystem::convertToB2(sf::Vector2f(x2, y2));
   line.Set(begin, end);
-  return new b2EdgeShape(line);
+  return b2EdgeShape(line);
 }
 
 // Enable use of this component when physics system is enabled
@@ -128,7 +128,11 @@ RigidBody::registerNonDependantTypes() {
   // Create the FixtureDef type
   Game::lua.new_usertype<b2FixtureDef>("FixtureDef",
     sol::constructors<b2FixtureDef()>(),
-    "shape", &b2FixtureDef::shape,
+    "getshape", [](const b2FixtureDef& self) {return self.shape; },
+    "setShape", sol::overload(
+        [](b2FixtureDef& self, b2PolygonShape& s) {self.shape = &s; },
+        [](b2FixtureDef& self, b2EdgeShape& s) {self.shape = &s; },
+        [](b2FixtureDef& self, b2CircleShape& s) {self.shape = &s; }),
     "density", sol::property(
       [](const b2FixtureDef& self) {return self.density * PhysicsSystem::scale;},
       [](b2FixtureDef& self, float d) {self.density = d / PhysicsSystem::scale;}),

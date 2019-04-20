@@ -18,9 +18,9 @@ class RigidBody {
     friend class PhysicsSystem;
 
     // Make different shapes
-    static b2Shape* BoxShape(float w, float h);
-    static b2Shape* CircleShape(float x, float y, float r);
-    static b2Shape* LineShape(float x1, float y1, float x2, float y2);
+    static b2PolygonShape BoxShape(float w, float h);
+    static b2CircleShape CircleShape(float x, float y, float r);
+    static b2EdgeShape LineShape(float x1, float y1, float x2, float y2);
 
     // Make this component scriptable
     static void registerRigidBodyType(sol::environment& env, b2World* world);

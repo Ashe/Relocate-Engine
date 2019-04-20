@@ -27,7 +27,7 @@ local function onBegin()
   sprite.origin = Vector2f.new(0.5, 0)
   sprite:setSprite("BoxTexture")
   local fixture = FixtureDef.new()
-  fixture.shape = LineShape(- size.x * 0.4, 0, size.x * 0.4, 0)
+  fixture:setShape(LineShape(- size.x * 0.4, 0, size.x * 0.4, 0))
   groundBody:addFixture(fixture)
 
   -- Spawn the player
@@ -56,7 +56,7 @@ local function onBegin()
   bodyDef.isFixedRotation = true
   playerBody:instantiate(bodyDef)
   fixture = FixtureDef.new()
-  fixture.shape = BoxShape(64, 128)
+  fixture:setShape(BoxShape(64, 128))
   fixture.density = 100
   fixture.friction = 10
   playerBody:addFixture(fixture)

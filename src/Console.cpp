@@ -188,11 +188,14 @@ Console::log(const char* fmt, ...) {
   vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
   buf[IM_ARRAYSIZE(buf)-1] = 0;
   va_end(args);
-  items_.push_back(Strdup(buf));
+
+  // Duplicate the string into a message
+  auto msg = Strdup(buf);
+  items_.push_back(msg);
 
   // Print to terminal
   if (outputToTerminal_) {
-    printf("%s\n", Strdup(buf));
+    printf("%s\n", buf);
   }
 
   // Scroll to the bottom if desired

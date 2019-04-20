@@ -174,8 +174,8 @@ Game::start() {
   }
 
   // Wait for render thread to finish
-  if (multiThread_ && renderThread->joinable()) {
-    renderThread->join();
+  if (multiThread_) {
+    if (renderThread->joinable()) { renderThread->join(); }
     delete renderThread;
   }
 }
@@ -401,9 +401,6 @@ Game::terminate() {
   // Set the game's status to break game loop
   status_ = Game::Status::ShuttingDown;
 
-  // Shut down console debugging
-  Console::shutdown();
-
   // Close the window, exiting the game loop
   if (window_ != nullptr) {
     window_->close();
@@ -420,6 +417,9 @@ void
 Game::shutdown() {
   status_ = Game::Status::Uninitialised;
   ResourceManager::releaseResources();
+
+  // Shut down console debugging
+  Console::shutdown();
 }
 
 // Change to the new screen

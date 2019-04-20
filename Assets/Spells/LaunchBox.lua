@@ -26,7 +26,7 @@ local function spawnBox(x, y, scale)
   spawnPos = Vector2f.new(x, y)
   boxTrans.position = spawnPos
   boxBody:instantiate(bodyDef)
-  boxFixture.shape = BoxShape(60 * scale, 60 * scale)
+  boxFixture:setShape(BoxShape(60 * scale, 60 * scale))
   boxBody:addFixture(boxFixture)
   return box
 end
