@@ -4,6 +4,9 @@
 #ifndef PHYSICSSYSTEM_H
 #define PHYSICSSYSTEM_H
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include <Box2D/Box2D.h>
 
 #include "Game.h"

@@ -5,7 +5,8 @@
 
 // Constructor
 Sprite::Sprite(float frameInterval, bool paused, bool looped)
-  : animation_(nullptr)
+  : texture_(nullptr)
+  , animation_(nullptr)
   , currentTime_(sf::Time::Zero)
   , frameTime_(sf::seconds(frameInterval))
   , isPaused_(paused)
@@ -253,13 +254,12 @@ Sprite::scaleToWorld(const sf::Vector2f& c) const {
 // Render this sprite
 void 
 Sprite::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-  if (texture_) {
+  if (texture_ != nullptr) {
     states.transform *= getTransform();
     states.texture = texture_;
     target.draw(vertices_, 4, sf::Quads, states);
   }
 }
-
 
 ///////////////////
 // DEBUG SECTION //
