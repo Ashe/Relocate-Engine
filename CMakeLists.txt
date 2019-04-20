@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 59)
+set (Build_VERSION_TWEAK 60)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
@@ -150,5 +150,6 @@ if(UNIX)
   )
 endif()
 
-# Copy assets
+# Copy game config and assets
+file(COPY ${CMAKE_SOURCE_DIR}/GameConfig.lua DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY ${CMAKE_SOURCE_DIR}/Assets DESTINATION ${CMAKE_BINARY_DIR})

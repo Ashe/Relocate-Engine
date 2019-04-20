@@ -24,6 +24,8 @@ class Sprite : public sf::Drawable, public sf::Transformable {
 
       // Add extra sprite functionality
       Game::lua.new_usertype<Sprite>("Sprite",
+        "flipX", &Sprite::flipX,
+        "flipY", &Sprite::flipY,
         "size", &Sprite::size_,
         "origin", &Sprite::origin_,
         "scale", &Sprite::scale_,
@@ -50,6 +52,12 @@ class Sprite : public sf::Drawable, public sf::Transformable {
 
     // Constructor
     Sprite(float interval = 0.1f, bool paused = false, bool looped = true);
+
+    // Whether we should flip the sprite horizontally
+    bool flipX;
+
+    // Whether we should flip the sprite vertically
+    bool flipY;
 
     // Allow the sprite to be constructed from the resource manager
     bool setSpriteFromResources(const std::string& texName);
@@ -125,10 +133,10 @@ class Sprite : public sf::Drawable, public sf::Transformable {
     // The animation to play
     const Animation* animation_;
 
-    // @TODO: Write this comment
+    // Delay between each frame (CANNOT BE ZERO)
     sf::Time frameTime_;
 
-    // @TODO: Write this comment
+    // Time accumilator
     sf::Time currentTime_;
 
     // The current frame the animation is on

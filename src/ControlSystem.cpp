@@ -60,6 +60,7 @@ ControlSystem::update(ECS::World* world, const sf::Time& dt) {
         // Set the animation of the sprite to walk
         auto s = e->get<Sprite>();
         if (s.isValid()) {
+          s->flipX = inputAxis_.x < 0;
           s->playAnimation("walk");
         }
       }

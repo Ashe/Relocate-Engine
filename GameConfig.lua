@@ -5,7 +5,7 @@
 print("Running GameConfig.lua")
 
 -- Simply enable debug from the very beginning
-Game.debug = true
+Game.debug = false
 
 -- Load some other lua scripts
 -- @NOTE: This is not the way to do this, this is just

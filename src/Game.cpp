@@ -46,7 +46,7 @@ Game::initialise(const sf::VideoMode& mode, const std::string& title, bool multi
   multiThread_ = multiThread;
 
   // Initialise Lua and ensure it works
-  bool success = initialiseLua("Assets/Scripts/GameConfig.lua");
+  bool success = initialiseLua("GameConfig.lua");
   if (success) { 
     Console::log("Lua successfully initialised."); 
   }

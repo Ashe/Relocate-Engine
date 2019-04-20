@@ -5,7 +5,9 @@
 
 // Constructor
 Sprite::Sprite(float frameInterval, bool paused, bool looped)
-  : texture_(nullptr)
+  : flipX(false)
+  , flipY(false)
+  , texture_(nullptr)
   , animation_(nullptr)
   , frameTime_(sf::seconds(frameInterval))
   , currentTime_(sf::Time::Zero)
@@ -192,7 +194,11 @@ Sprite::updateSprite() {
   float top = rect.top;
   float bottom = top + rect.height;
 
-  // Set the texture coordinates for each rertex
+  // Flip the texture if needed
+  if (flipX) { std::swap(left, right); }
+  if (flipY) { std::swap(top, bottom); }
+
+  // Apply texture coordinates
   vertices_[0].texCoords = sf::Vector2f(left, top);
   vertices_[1].texCoords = sf::Vector2f(left, bottom);
   vertices_[2].texCoords = sf::Vector2f(right, bottom);
