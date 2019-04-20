@@ -16,9 +16,6 @@
 class Sprite : public sf::Drawable, public sf::Transformable {
   public:
 
-    // Friend of the placement system
-    friend class SpritePlacementSystem;
-
     // Make this component scriptable
     static void registerSpriteType() {
       
@@ -33,7 +30,7 @@ class Sprite : public sf::Drawable, public sf::Transformable {
         "colour", sol::property(
           &Sprite::getColour,
           &Sprite::setColour),
-        "frameTime", sol::property(
+        "frameInterval", sol::property(
           &Sprite::getFrameTime,
           &Sprite::setFrameTime),
         "setSprite", &Sprite::setSpriteFromResources,
@@ -42,9 +39,6 @@ class Sprite : public sf::Drawable, public sf::Transformable {
         "loop", sol::property(
           &Sprite::isLooping,
           &Sprite::setLooped),
-        "frameInterval", sol::property(
-          [&](const Sprite& self) { return self.frameTime_; },
-          [&](Sprite& self, sf::Time delay) { self.frameTime_ = delay; }),
         "isPlaying", sol::property(&Sprite::isPlaying),
         "updateSprite", &Sprite::updateSprite,
         "setAnimation", &Sprite::setAnimation,
@@ -125,6 +119,9 @@ class Sprite : public sf::Drawable, public sf::Transformable {
     // Collection of animations
     std::map<std::string, const Animation*> animationMap_;
 
+    // The texture used by this sprite
+    const sf::Texture* texture_;
+
     // The animation to play
     const Animation* animation_;
 
@@ -142,9 +139,6 @@ class Sprite : public sf::Drawable, public sf::Transformable {
 
     // Whether the animation should loop on completion
     bool isLooped_;
-
-    // The texture used by this sprite
-    const sf::Texture* texture_;
 
     // Colour of the sprite
     sf::Color colour_;

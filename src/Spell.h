@@ -64,7 +64,7 @@ class Spell {
 
       // If the script is valid, try to run it
       if (spell.valid()) {
-        auto attempt = spell(this);
+        auto attempt = spell();
         if (!attempt.valid()) {
           sol::error err = attempt;
           Console::log("[Error] in Spell '%s':\n> %s", 

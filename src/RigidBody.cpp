@@ -54,8 +54,11 @@ RigidBody::registerRigidBodyType(sol::environment& env, b2World* world) {
   // Register the RigidBody only if there's a 'world'
   if (worldToSpawnIn_ != nullptr) {
 
+    // @TODO: FIX THIS FROM SEGFAULTING
     // We cannot register default methods due to RigidBody being special case
+    Console::log("ATTEMPTING TO REGISTER THE RIGIDBODY TYPE");
     Script::registerComponentToEntity<RigidBody>(env, "RigidBody");
+    Console::log("REGISTRATION SUCCESS");
 
     // Create the RigidBody type
     env.new_usertype<RigidBody>("RigidBody",

@@ -31,7 +31,6 @@ local function spawnBox(x, y, scale)
   return box
 end
 
-
 -- Spawn a box on spell cast
 local function createBox(self)
   if boxToThrow == nil then
