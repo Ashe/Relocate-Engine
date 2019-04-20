@@ -4,6 +4,8 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
+#include <map>
+
 #include "Game.h"
 #include "Scripting.h"
 #include "ResourceManager.h"
@@ -36,10 +38,13 @@ class Sprite : public sf::Drawable, public sf::Transformable {
           &Sprite::setFrameTime),
         "setSprite", &Sprite::setSpriteFromResources,
         "updateSprite", &Sprite::updateSprite,
-        "setAnimation", &Sprite::setAnimationFromResources,
+        "addAnimation", &Sprite::addAnimationFromResources,
         "loop", sol::property(
           &Sprite::isLooping,
           &Sprite::setLooped),
+        "frameInterval", sol::property(
+          [&](const Sprite& self) { return self.frameTime_; },
+          [&](Sprite& self, sf::Time delay) { self.frameTime_ = delay; }),
         "isPlaying", sol::property(&Sprite::isPlaying),
         "updateSprite", &Sprite::updateSprite,
         "setAnimation", &Sprite::setAnimation,
@@ -50,24 +55,24 @@ class Sprite : public sf::Drawable, public sf::Transformable {
     }
 
     // Constructor
-    Sprite(sf::Time time = sf::Time(), bool paused = true, bool looped = true);
+    Sprite(float interval = 0.1f, bool paused = false, bool looped = true);
 
     // Allow the sprite to be constructed from the resource manager
     bool setSpriteFromResources(const std::string& texName);
 
     // Allow the animation to be retrieved from the resource manager
-    bool setAnimationFromResources(const std::string& animationName);
+    bool addAnimationFromResources(const std::string& actionName, const std::string& animationName);
 
     // Get the animation that is currently playing
     const Animation* getAnimation() const;
 
     // Set this sprite to play an animation
-    void setAnimation(const Animation& animation);
+    void setAnimation(const Animation* animation);
 
-    // @TODO: Write this comment
+    // Get delay between frames
     sf::Time getFrameTime() const;
 
-    // @TODO: Write this comment
+    // Set delay between frames
     void setFrameTime(const sf::Time& time);
 
     // Check if the animation is playing
@@ -77,7 +82,7 @@ class Sprite : public sf::Drawable, public sf::Transformable {
     void play();
 
     // Play the given animation
-    void playAnimation(const Animation& animation);
+    void playAnimation(const std::string& name);
 
     // Pause the current animation
     void pause();
@@ -116,6 +121,9 @@ class Sprite : public sf::Drawable, public sf::Transformable {
     void showDebugInformation();
 
   private:
+
+    // Collection of animations
+    std::map<std::string, const Animation*> animationMap_;
 
     // The animation to play
     const Animation* animation_;

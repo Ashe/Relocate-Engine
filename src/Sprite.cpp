@@ -4,9 +4,10 @@
 #include "Sprite.h"
 
 // Constructor
-Sprite::Sprite(sf::Time time, bool paused, bool looped)
+Sprite::Sprite(float frameInterval, bool paused, bool looped)
   : animation_(nullptr)
-  , frameTime_(time)
+  , currentTime_(sf::Time::Zero)
+  , frameTime_(sf::seconds(frameInterval))
   , isPaused_(paused)
   , isLooped_(looped) 
   , colour_(sf::Color::White) 
@@ -37,21 +38,23 @@ Sprite::setSpriteFromResources(const std::string& texName) {
 
 // Allow the animation to be retrieved from the resource manager
 bool
-Sprite::setAnimationFromResources(const std::string& animationName) {
+Sprite::addAnimationFromResources(const std::string& name, const std::string& animationName) {
+
+  // Easy outs
+  if (name == "" && animationName == "") { return false; }
 
   // Attempts to get the resource
   Resource& resource = ResourceManager::getResource(animationName);
   if (resource.getType() != Resource::Type::ANIMATION) { return false; }
 
   // Get texture from resource
-  Animation* animation = (Animation*)resource.get();
+  const Animation* animation = (Animation*)resource.get();
   if (animation == nullptr) { return false; }
 
-  // Save the animation
-  animation_ = animation;
+  // Add the animation to the animation map
+  animationMap_[name] = animation;
   return true;
 }
-
 
 // Get the animation that is currently playing
 const Animation* 
@@ -61,19 +64,19 @@ Sprite::getAnimation() const {
 
 // Set this sprite to play an animation
 void 
-Sprite::setAnimation(const Animation& animation) {
-  animation_ = &animation;
+Sprite::setAnimation(const Animation* animation) {
+  animation_ = animation;
   currentFrame_ = 0;
   updateSprite();
 }
 
-// @TODO: Write this comment
+// Get delay between frames
 sf::Time 
 Sprite::getFrameTime() const {
   return frameTime_;
 }
 
-// @TODO: Write this comment
+// Set delay between frames
 void 
 Sprite::setFrameTime(const sf::Time& time) {
   frameTime_ = time;
@@ -93,9 +96,13 @@ Sprite::play() {
 
 // Play the given animation
 void 
-Sprite::playAnimation(const Animation& animation) {
-  if (getAnimation() != &animation) {
-    setAnimation(animation);
+Sprite::playAnimation(const std::string& name) {
+  auto it = animationMap_.find(name);
+  if (it != animationMap_.end()) {
+    const Animation* animation = it->second;
+    if (animation != nullptr && animation_ != animation) {
+      setAnimation(animation);
+    }
   }
   play();
 }
@@ -144,7 +151,17 @@ Sprite::setColour(const sf::Color& colour) {
 // Get the local bounds of the sprite
 sf::FloatRect 
 Sprite::getLocalBounds() const {
-  return sf::FloatRect(0.f, 0.f, size_.x, size_.y);
+
+  // If there's an animation use the bounds provided
+  float x = 0.f, y = 0.f;
+  if (animation_ != nullptr) {
+    const sf::IntRect frame = animation_->getFrame(currentFrame_);
+    x = frame.left;
+    y = frame.top;
+  }
+
+  // Otherwise, use the size of the sprite
+  return sf::FloatRect(x, y, size_.x, size_.y);
 }
 
 // Get the bounds of the sprite in world space
@@ -157,15 +174,15 @@ Sprite::getGlobalBounds() const {
 void 
 Sprite::updateSprite() {
 
-  // Get the local bounds
-  const auto rect = getLocalBounds();
-
   // Set up vertices in local space with respect to the origin
   sf::Vector2f originOffset = sf::Vector2f(origin_.x * size_.x * scale_.x, origin_.y * size_.y * scale_.y);
   vertices_[0].position = sf::Vector2f(- originOffset.x, - originOffset.y);
-  vertices_[1].position = sf::Vector2f(- originOffset.x, (1.f - originOffset.y) + rect.height * scale_.y);
-  vertices_[2].position = sf::Vector2f((1.f - originOffset.x) + rect.width * scale_.x, (1.f - originOffset.y) + rect.height * scale_.y);
-  vertices_[3].position = sf::Vector2f((1.f - originOffset.x) + rect.width * scale_.x, - originOffset.y);
+  vertices_[1].position = sf::Vector2f(- originOffset.x, (1.f - originOffset.y) + size_.y * scale_.y);
+  vertices_[2].position = sf::Vector2f((1.f - originOffset.x) + size_.x * scale_.x, (1.f - originOffset.y) + size_.y * scale_.y);
+  vertices_[3].position = sf::Vector2f((1.f - originOffset.x) + size_.x * scale_.x, - originOffset.y);
+
+  // Get the local bounds for the texture
+  const auto rect = getLocalBounds();
 
   // Prepare texture coordinate values
   float left = rect.left + 0.0001f;
@@ -185,7 +202,7 @@ void
 Sprite::updateAnimation(const sf::Time& dt) {
 
   // if not paused and we have a valid animation
-  if (isPaused_ || animation_ == nullptr) { return; }
+  if (isPaused_ || animation_ == nullptr || frameTime_ == sf::Time::Zero) { return; }
 
   // Add delta time
   currentTime_ += dt;

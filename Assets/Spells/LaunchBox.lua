@@ -19,7 +19,7 @@ local function spawnBox(x, y, scale)
   local spriteSize = sprite.size
   local boxBody = box:assignRigidBody()
   local bodyDef = BodyDef.new()
-  bodyDef.type = Physics_DynamicBody
+  bodyDef.type = Physics_DYNAMICBODY
   local boxFixture = FixtureDef.new()
   boxFixture.density = 500
   boxFixture.friction = 100

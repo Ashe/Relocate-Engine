@@ -56,9 +56,21 @@ ControlSystem::update(ECS::World* world, const sf::Time& dt) {
       int dir = (inputAxis_.x > 0) * 2 - 1;
       if (inputAxis_.x != 0.f) {
         impulse.x = ((dir * maxSpeed.x) - currentSpeed.x) * abs(inputAxis_.x);
+
+        // Set the animation of the sprite to walk
+        auto s = e->get<Sprite>();
+        if (s.isValid()) {
+          s->playAnimation("walk");
+        }
       }
       else {
         impulse.x = -currentSpeed.x * 0.1f;
+
+        // Set the animation of the sprite to idle
+        auto s = e->get<Sprite>();
+        if (s.isValid()) {
+          s->playAnimation("idle");
+        }
       }
 
       // Do same for Y, taking flight into account

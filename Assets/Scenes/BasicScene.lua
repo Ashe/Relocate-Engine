@@ -42,12 +42,13 @@ local function onBegin()
   sprite.size = Vector2f.new(32, 32)
   sprite.scale = Vector2f.new(4.5, 4.5)
   sprite:setSprite("MageTexture")
-  sprite:updateSprite()
+  sprite:addAnimation("idle", "GenericIdle")
+  sprite:addAnimation("walk", "GenericWalk")
   local playerTrans = player:assignTransform()
   playerTrans.position = Vector2f.new(size.x * 0.5, size.y * 0.5)
   local playerBody = player:assignRigidBody()
   local bodyDef = BodyDef.new()
-  bodyDef.type = Physics_DynamicBody
+  bodyDef.type = Physics_DYNAMICBODY
   bodyDef.isFixedRotation = true
   playerBody:instantiate(bodyDef)
   fixture = FixtureDef.new()

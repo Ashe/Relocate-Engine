@@ -7,6 +7,7 @@
 #include "Game.h"
 #include "Scripting.h"
 
+#include "Sprite.h"
 #include "Possession.h"
 #include "RigidBody.h"
 #include "Movement.h"

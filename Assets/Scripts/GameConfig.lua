@@ -13,3 +13,6 @@ Game.debug = true
 -- resource manager has the functionality to load spells
 _, _, leftSpell = dofile("Assets/Spells/LaunchBox.lua")
 _, _, rightSpell = dofile("Assets/Spells/Levitate.lua")
+
+local attemptMultiThread = false
+return attemptMultiThread

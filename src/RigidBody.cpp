@@ -44,9 +44,7 @@ void
 RigidBody::registerRigidBodyType(sol::environment& env, b2World* world) {
 
   // Debug message
-  if (Game::getDebugMode()) {
-    Console::log("Enabling usage of RigidBody components..");
-  }
+  Console::log("Enabling usage of RigidBody components..");
 
   // Set all future rigidbodies to use this world
   // This takes away the responsibility of the programmer to
@@ -57,7 +55,7 @@ RigidBody::registerRigidBodyType(sol::environment& env, b2World* world) {
   if (worldToSpawnIn_ != nullptr) {
 
     // We cannot register default methods due to RigidBody being special case
-     Script::registerComponentToEntity<RigidBody>(env, "RigidBody");
+    Script::registerComponentToEntity<RigidBody>(env, "RigidBody");
 
     // Create the RigidBody type
     env.new_usertype<RigidBody>("RigidBody",
@@ -120,9 +118,9 @@ RigidBody::registerNonDependantTypes() {
   );
 
   // Different body types
-  Game::lua.set("Physics_DynamicBody", b2_dynamicBody);
-  Game::lua.set("Physics_KinematicBody", b2_kinematicBody);
-  Game::lua.set("Physics_StaticBody", b2_staticBody);
+  Game::lua.set("Physics_DYNAMICBODY", b2_dynamicBody);
+  Game::lua.set("Physics_KINEMATICBODY", b2_kinematicBody);
+  Game::lua.set("Physics_STATICBODY", b2_staticBody);
 
   // Create the FixtureDef type
   Game::lua.new_usertype<b2FixtureDef>("FixtureDef",

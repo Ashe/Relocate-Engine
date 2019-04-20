@@ -44,7 +44,6 @@ Game::initialise(const sf::VideoMode& mode, const std::string& title, bool multi
 
   // Flag whether we are in multithreaded mode
   multiThread_ = multiThread;
-  Console::log("Running in %s mode.", multiThread_ ? "multithreaded" : "standard");
 
   // Initialise Lua and ensure it works
   bool success = initialiseLua("Assets/Scripts/GameConfig.lua");
@@ -55,6 +54,9 @@ Game::initialise(const sf::VideoMode& mode, const std::string& title, bool multi
     Console::log("[Error] Cannot initialise Lua correctly - closing application."); 
     return;
   }
+
+  // Print if we are in multithreaded mode or not
+  Console::log("Running in %s mode.", multiThread_ ? "multithreaded" : "standard");
 
   // Create window and prepare view
   window_ = new sf::RenderWindow(mode, title);
@@ -240,12 +242,17 @@ Game::initialiseLua(const std::string& fp) {
 
   // Tries to call the global config script
   // If this fails, lua is not working and cannot read files
-	auto functional = Game::lua.script_file(fp, &sol::script_pass_on_error);
-  if (!functional.valid()) {
-    sol::error err = functional;
+	auto attempt = Game::lua.script_file(fp, &sol::script_pass_on_error);
+  if (!attempt.valid()) {
+    sol::error err = attempt;
     Console::log("[Error] in %s:\n> %s", fp.c_str(), err.what());
     return false;
   }
+  
+  // Allow the game config to specify whether we should run in lua
+  bool attemptMultiThread = attempt;
+  multiThread_ &= attemptMultiThread;
+
   return true;
 }
 

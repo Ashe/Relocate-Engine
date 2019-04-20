@@ -134,16 +134,6 @@ Scene::update(const sf::Time& dt) {
 void
 Scene::render(sf::RenderWindow& window) {
 
-  // Render a simple circle for testing
- //float rad = 100.0f;
- //sf::CircleShape shape(rad);
- //const sf::Vector2u size = Game::getWindow()->getSize();
- //auto pos = sf::Vector2f((size.x * 0.5f) - rad, (size.y * 0.5f) - rad);
- //shape.setPosition(pos);
-
- //shape.setFillColor(sf::Color::Green);
- //window.draw(shape);
-  
   // Get every entity with a sprite
   world_->each<Sprite>( [&](ECS::Entity* e, ECS::ComponentHandle<Sprite> s) {
     const Sprite& sprite = s.get();
@@ -191,6 +181,10 @@ Scene::quit() {
     Game::terminate();
   }
 }
+
+/////////////////////
+// DEBUG FUNCTIONS //
+/////////////////////
 
 // Add entries to debug menu
 static bool showEntityViewer_ = false;

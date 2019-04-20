@@ -48,6 +48,27 @@ Script::startLua() {
   Funcs::registerEvents();
   // Vectors
   Funcs::registerVectors();
+  // Rectangles
+  Game::lua.new_usertype<sf::IntRect>("IntRect",
+    sol::constructors<
+      sf::IntRect(), 
+      sf::IntRect(int, int, int, int),
+      sf::IntRect(sf::Vector2i, sf::Vector2i)>(),
+    "left", &sf::IntRect::left,
+    "top", &sf::IntRect::top,
+    "width", &sf::IntRect::width,
+    "height", &sf::IntRect::height
+  );
+  Game::lua.new_usertype<sf::FloatRect>("FloatRect",
+    sol::constructors<
+      sf::FloatRect(), 
+      sf::FloatRect(int, int, int, int),
+      sf::FloatRect(sf::Vector2f, sf::Vector2f)>(),
+    "left", &sf::FloatRect::left,
+    "top", &sf::FloatRect::top,
+    "width", &sf::FloatRect::width,
+    "height", &sf::FloatRect::height
+  );
   // Time
   Game::lua.set_function("microseconds", &sf::microseconds);
   Game::lua.set_function("milliseconds", &sf::milliseconds);
