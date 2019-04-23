@@ -11,7 +11,7 @@
 #include <vector>
 
 // Encapsulate physics interactions
-class RigidBody {
+class RigidBody : Component{
   public:
 
     // Friend of the physics system
@@ -27,7 +27,7 @@ class RigidBody {
     static void registerNonDependantTypes(sol::environment& env);
 
     // Constructor
-    RigidBody();
+    RigidBody(ECS::Entity* e);
 
     // Ensure that every RigidBody has its own b2Body during copy
     RigidBody(const RigidBody& other);
@@ -117,13 +117,6 @@ class RigidBody {
 
     // The encapsulated body of this object
     b2Body* body_;
-
-    // The entity this body refers to
-    // NOTE: It's unusual for components to contain functionality
-    // However, since the RigidBody is the gateway to the physics system,
-    // the RigidBody needs the entity reference so that things can be done
-    // on contact
-    ECS::Entity* entity_;
 
     // Manipulated by physics system
     b2Vec2 previousPosition_;

@@ -34,13 +34,13 @@ class Spell {
     : name_("unnamed_spell") {}
 
     // Major component
-    void cast() { safeCast(onCast_); }
-    void release() { safeCast(onRelease_); }
+    void cast(ECS::Entity* const e) { safeCast(onCast_, e); }
+    void release(ECS::Entity* const e) { safeCast(onRelease_, e); }
 
     // Casts every frame
-    void passive(const sf::Time& dt) { 
+    void passive(ECS::Entity* const e, const sf::Time& dt) { 
       if (onPassive_.valid()) {
-        auto attempt = onPassive_(this, dt);
+        auto attempt = onPassive_(e, dt);
         if (!attempt.valid()) {
           sol::error err = attempt;
           Console::log("[Error] in Spell '%s':\n> %s", 
@@ -49,14 +49,19 @@ class Spell {
       }
     }
 
+    // Get name of spell
+    std::string getName() const { 
+      return name_; 
+    }
+
   private:
 
     // Cast a spell comopnent
-    void safeCast(sol::protected_function& spell) {
+    void safeCast(sol::protected_function& spell, ECS::Entity* const e) {
 
       // If the script is valid, try to run it
       if (spell.valid()) {
-        auto attempt = spell();
+        auto attempt = spell(e);
         if (!attempt.valid()) {
           sol::error err = attempt;
           Console::log("[Error] in Spell '%s':\n> %s", 

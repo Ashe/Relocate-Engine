@@ -6,7 +6,7 @@ local nullbody = nil
 local joint = nil
 
 -- Pick up an object
-local function beginLevitation(self)
+local function beginLevitation()
   if lastSpawnedBox ~= nil then
 
     -- Make a null body if necessary
@@ -34,7 +34,7 @@ local function updateDestination(self, dt)
 end
 
 -- Put down an object
-local function endLevitation(self)
+local function endLevitation()
   if joint then
     joint:destroy()
     joint = nil

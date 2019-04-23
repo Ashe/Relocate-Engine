@@ -8,7 +8,7 @@
 #include "Scripting.h"
 
 // Component to allow possession
-class Possession {
+class Possession : Component {
   public:
 
     // Make this component scriptable
@@ -22,8 +22,9 @@ class Possession {
     }
 
     // Constructor
-    Possession() 
-    : isActive(true){}
+    Possession(ECS::Entity* e) 
+    : Component(e)
+    , isActive(true){}
 
     // Whether this component should respond to input
     bool isActive;

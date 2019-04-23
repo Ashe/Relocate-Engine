@@ -14,7 +14,7 @@
 #include "Animation.h"
 
 // Component used to render an entity
-class Sprite : public sf::Drawable, public sf::Transformable {
+class Sprite : Component, public sf::Drawable, public sf::Transformable {
   public:
 
     // Make this component scriptable
@@ -52,7 +52,7 @@ class Sprite : public sf::Drawable, public sf::Transformable {
     }
 
     // Constructor
-    Sprite(float interval = 0.1f, bool paused = false, bool looped = true);
+    Sprite(ECS::Entity* e, float interval = 0.1f, bool paused = false, bool looped = true);
 
     // Whether we should flip the sprite horizontally
     bool flipX;

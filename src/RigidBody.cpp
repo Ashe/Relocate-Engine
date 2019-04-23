@@ -168,10 +168,10 @@ RigidBody::registerNonDependantTypes(sol::environment& env) {
 }
 
 // Constructor
-RigidBody::RigidBody()
-  : physics_(worldToSpawnIn_)
+RigidBody::RigidBody(ECS::Entity* e)
+  : Component(e)
+  , physics_(worldToSpawnIn_)
   , body_(physics_->CreateBody(&defaultBodyDefinition_))
-  , entity_(nullptr)
   , previousPosition_(b2Vec2(0.0f, 0.0f))
   , previousAngle_(0.0f) 
   , isOutOfSync_(true) 
@@ -183,9 +183,9 @@ RigidBody::RigidBody()
 
 // Ensure that every RigidBody has its own b2Body during copy
 RigidBody::RigidBody(const RigidBody& other)
-  : physics_(other.worldToSpawnIn_)
+  : Component(other)
+  , physics_(other.worldToSpawnIn_)
   , body_(physics_->CreateBody(&defaultBodyDefinition_))
-  , entity_(nullptr)
   , previousPosition_(other.previousPosition_)
   , previousAngle_(other.previousAngle_)
   , isOutOfSync_(other.isOutOfSync_)

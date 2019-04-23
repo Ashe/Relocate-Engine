@@ -8,7 +8,7 @@
 #include "Scripting.h"
 
 // The position of which things should be rendered at
-class Transform {
+class Transform : Component {
   public:
 
     // Make this component scriptable
@@ -25,11 +25,13 @@ class Transform {
     }
 
     // Constructors
-    Transform(float x = 0.f, float y = 0.f, float r = 0.f)
-      : position(sf::Vector2f(x, y))
+    Transform(ECS::Entity* e, float x = 0.f, float y = 0.f, float r = 0.f)
+      : Component(e)
+      , position(sf::Vector2f(x, y))
       , rotation(r) {}
-    Transform(const sf::Vector2f& pos, float r = 0.f)
-      : position(pos)
+    Transform(ECS::Entity* e, const sf::Vector2f& pos, float r = 0.f)
+      : Component(e)
+      , position(pos)
       , rotation(r) {}
 
     // Position of the entity to render

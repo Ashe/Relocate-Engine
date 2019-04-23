@@ -11,6 +11,7 @@
 #include "Possession.h"
 #include "Camera.h"
 #include "Movement.h"
+#include "Abilities.h"
 
 // Register scene functionality to Lua
 void
@@ -283,6 +284,15 @@ Scene::addDebugInfoToDefault() {
           ImGui::PushID(5);
           if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Possession")) {
             p->showDebugInformation();
+            ImGui::TreePop();
+          }
+          ImGui::PopID();
+        }
+        auto a = e->get<Abilities>();
+        if (a.isValid()) {
+          ImGui::PushID(6);
+          if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Abilities")) {
+            a->showDebugInformation();
             ImGui::TreePop();
           }
           ImGui::PopID();

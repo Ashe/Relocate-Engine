@@ -32,19 +32,19 @@ local function spawnBox(x, y, scale)
 end
 
 -- Spawn a box on spell cast
-local function createBox(self)
+local function createBox()
   boxToThrow = spawnBox(Game.mousePosition.x, Game.mousePosition.y, boxSize)
 end
 
 -- Hold it in place
-local function holdBox(self, dt)
+local function holdBox()
   if boxToThrow ~= nil then
     boxToThrow:getRigidBody():warpTo(spawnPos)
   end
 end
 
 -- Fire on spell release
-local function launchBox(self)
+local function launchBox()
   if boxToThrow ~= nil then
     local throwScale = 25
     local impulse = Vector2f.new((Game.mousePosition.x - spawnPos.x) * throwScale, (Game.mousePosition.y - spawnPos.y) * throwScale)

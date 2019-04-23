@@ -13,7 +13,7 @@
 #include "Spell.h"
 
 // Container of abilities and spells
-class Abilities {
+class Abilities : Component {
   public:
 
     // Make this component scriptable
@@ -31,7 +31,7 @@ class Abilities {
     }
 
     // Constructor
-    Abilities() {}
+    Abilities(ECS::Entity* e) : Component(e) {}
 
     // Adds a spell or ability to the map
     bool addAbility(unsigned slot, Spell spell) {
@@ -70,7 +70,7 @@ class Abilities {
     bool castSpell(unsigned slot) {
       auto* spell = getSpell(slot);
       if (spell != nullptr) {
-        spell->cast();
+        spell->cast(owner_);
         return true;
       }
       return false;
@@ -80,7 +80,7 @@ class Abilities {
     bool releaseSpell(unsigned slot) {
       auto* spell = getSpell(slot);
       if (spell != nullptr) {
-        spell->release();
+        spell->release(owner_);
         return true;
       }
       return false;
@@ -89,7 +89,7 @@ class Abilities {
     // Passively casts a given spell in a slot
     void updateAllSpells(const sf::Time& dt) {
       for (auto i = spells_.begin(); i != spells_.end(); ++i) {
-        i->second.passive(dt);
+        i->second.passive(owner_, dt);
       }
     }
 
@@ -104,6 +104,17 @@ class Abilities {
 
       // Otherwise return nullptr
       return nullptr;
+    }
+
+    // Shows the debug information to ImGui
+    void showDebugInformation() {
+      ImGui::NextColumn();
+      for (auto i = spells_.begin(); i != spells_.end(); ++i) {
+        ImGui::Text("Spell: %u, %s", i->first, i->second.getName().c_str());
+      }
+      ImGui::PushItemWidth(-1);
+      ImGui::PopItemWidth();
+      ImGui::NextColumn();
     }
 
   private:

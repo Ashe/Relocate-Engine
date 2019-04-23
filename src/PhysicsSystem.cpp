@@ -90,12 +90,6 @@ PhysicsSystem::update(ECS::World* world, const sf::Time& dt) {
   // Also check if any b2Body's are out of sync
   world->each<Transform, RigidBody>([&](ECS::Entity* e, ECS::ComponentHandle<Transform> t, ECS::ComponentHandle<RigidBody> r) {
 
-    // Give the RigidBody it's entity
-    // @TODO: Implement this in the constructor for RigidBody
-    if (r->entity_ == nullptr) {
-      r->entity_ = e;
-    }
-
     // Precalculate conversion to radians
     constexpr float convertToRadians = M_PI / 180.f;
 

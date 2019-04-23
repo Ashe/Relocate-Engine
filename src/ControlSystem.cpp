@@ -95,6 +95,7 @@ ControlSystem::update(ECS::World* world, const sf::Time& dt) {
       // If on the ground and if desired, jump
       if (m->canJump && isJumping && r->getIsOnGround()) {
         float jump = r->getMass() * -500;
+        Console::log("JUMP: %f", jump);
         r->applyImpulseToCentre(0, jump);
       }
     }

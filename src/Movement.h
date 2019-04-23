@@ -8,7 +8,7 @@
 #include "Scripting.h"
 
 // Component to allow movement
-class Movement {
+class Movement : Component {
   public:
 
     // Make this component scriptable
@@ -31,14 +31,15 @@ class Movement {
     }
 
     // Constructor
-    Movement() 
-    : movementSpeed(0.f)
+    Movement(ECS::Entity* e) 
+    : Component(e)
+    , movementSpeed(0.f)
     , canJump(false)
     , sprintSpeedMult(1.f)
     , canSprint(false)
     , isSprinting(false)
     , flightSpeed(0.f)
-    , canFly(0.f) 
+    , canFly(false) 
     , canSprintWhileFlying(0.f){}
 
     // Movement speed

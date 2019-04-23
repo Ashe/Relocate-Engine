@@ -43,7 +43,7 @@ namespace Script {
     ////////////////////////////////
 
     // Generic component defaults for Lua
-    template <typename T> T& assign(ECS::Entity* e) { return (e->assign<T>()).get(); }
+    template <typename T> T& assign(ECS::Entity* e) { return (e->assign<T>(e)).get(); }
     template <typename T> bool has(ECS::Entity* e) { return e->has<T>(); }
     template <typename T> T& get(ECS::Entity* e) { return (e->get<T>()).get(); }
     template <typename T> void remove(ECS::Entity* e) {e->remove<T>();}

@@ -4,8 +4,9 @@
 #include "Sprite.h"
 
 // Constructor
-Sprite::Sprite(float frameInterval, bool paused, bool looped)
-  : flipX(false)
+Sprite::Sprite(ECS::Entity* e, float frameInterval, bool paused, bool looped)
+  : Component(e)
+  , flipX(false)
   , flipY(false)
   , texture_(nullptr)
   , animation_(nullptr)

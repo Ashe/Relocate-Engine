@@ -8,7 +8,7 @@
 #include "Scripting.h"
 
 // Entities with this component will be centered
-class Camera {
+class Camera : Component {
   public:
 
     // Make this component scriptable
@@ -24,10 +24,10 @@ class Camera {
     }
 
     // Constructors
-    Camera(const sf::Vector2f& offsetVec)
-      : offset(offsetVec) {}
-    Camera(float x = 0.f, float y = 0.f)
-      : offset(sf::Vector2f(x, y)) {}
+    Camera(ECS::Entity* e, const sf::Vector2f& offsetVec)
+      : Component(e), offset(offsetVec) {}
+    Camera(ECS::Entity* e, float x = 0.f, float y = 0.f)
+      : Component(e), offset(sf::Vector2f(x, y)) {}
 
     // Offset for adjustment
     sf::Vector2f offset;

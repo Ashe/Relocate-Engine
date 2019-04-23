@@ -24,6 +24,18 @@ class Scene;
 struct addDebugMenuEntryEvent {};
 struct addDebugInfoEvent {};
 
+// Base class for all components
+class Component {
+  public:
+    Component(ECS::Entity* e)
+      : owner_(e) {}
+    Component(const Component& other) : owner_(other.owner_) {}
+    void operator=(const Component& other) {}
+  protected:
+    ECS::Entity* const owner_;
+};
+
+// Static class containing the game
 class Game {
   public:
 
