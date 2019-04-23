@@ -16,12 +16,15 @@
 #include "Sprite.h"
 #include "RigidBody.h"
 #include "Possession.h"
+#include "Stats.h"
+#include "Movement.h"
 #include "Abilities.h"
 
 #include "CameraSystem.h"
 #include "PhysicsSystem.h"
 #include "ControlSystem.h"
 #include "SpriteSystem.h"
+#include "StatSystem.h"
 #include "SpellSystem.h"
 
 ////////////
@@ -138,6 +141,7 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
   Sprite::registerSpriteType(env);
   RigidBody::registerNonDependantTypes(env);
   Possession::registerPossessionType(env);
+  Stats::registerStatsType(env);
   Movement::registerMovementType(env);
   Abilities::registerAbilitiesType(env);
 
@@ -146,6 +150,7 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
   PhysicsSystem::registerPhysicsSystemFunctions(env, world);
   ControlSystem::registerControlSystemFunctions(env, world);
   SpriteSystem::registerSpriteSystem(env, world);
+  StatSystem::registerStatSystem(env, world);
   SpellSystem::registerSpellSystem(env, world);
 }
 

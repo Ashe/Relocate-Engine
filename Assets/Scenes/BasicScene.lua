@@ -12,6 +12,7 @@ local function onBegin()
   World.useControlSystem()
   World.useCameraSystem()
   World.useSpriteSystem()
+  World.useStatSystem()
   World.useSpellSystem()
 
   -- Get window size
@@ -36,7 +37,8 @@ local function onBegin()
   player = World:createEntity()
   local possession = player:assignPossession()
   local camera = player:assignCamera()
-  local movement = player:assignMovement()
+  local stats = player:assignStats()
+  local movement = stats.movement
   movement.movementSpeed = 300
   movement.canSprint = true
   movement.sprintSpeedMult = 2
@@ -49,6 +51,7 @@ local function onBegin()
   sprite:setSprite("MageTexture")
   sprite:addAnimation("idle", "GenericIdle")
   sprite:addAnimation("walk", "GenericWalk")
+  sprite:playAnimation("idle")
   local abilities = player:assignAbilities()
   abilities:addAbility(0, "LaunchBox")
   abilities:addAbility(1, "Levitate")

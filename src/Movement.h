@@ -7,6 +7,27 @@
 #include "Game.h"
 #include "Scripting.h"
 
+// Easy container for related stats
+struct MovementStats {
+  float movementSpeed = 0.f;
+  float sprintSpeedMult = 2.f;
+  float flightSpeed = 0.f;
+  bool canSprint = false;
+  bool canJump = false;
+  bool canFly = false;
+  bool canSprintWhileFlying = false;
+
+  void showDebugInformation() {
+    ImGui::Text("Movement speed: %f", movementSpeed);
+    ImGui::Text("Sprint multiplier: %f", sprintSpeedMult);
+    ImGui::Text("Flight speed: %f", flightSpeed);
+    ImGui::Text("Can Sprint: %s", canSprint ? "true": "false");
+    ImGui::Text("Can Jump: %s", canJump ? "true": "false");
+    ImGui::Text("Can Fly: %s", canFly ? "true": "false");
+    ImGui::Text("Can Sprint in air: %s", canSprintWhileFlying ? "true": "false");
+  }
+};
+
 // Component to allow movement
 class Movement : Component {
   public:
@@ -18,51 +39,40 @@ class Movement : Component {
       Script::registerComponentToEntity<Movement>(env, "Movement");
 
       // Create the Movement user type
+      env.new_usertype<MovementStats>("MovementStats",
+        sol::constructors<MovementStats()>(),
+        "movementSpeed", &MovementStats::movementSpeed,
+        "canJump", &MovementStats::canJump,
+        "sprintSpeedMult", &MovementStats::sprintSpeedMult,
+        "canSprint", &MovementStats::canSprint,
+        "flightSpeed", &MovementStats::flightSpeed,
+        "canFly", &MovementStats::canFly,
+        "canSprintWhileFlying", &MovementStats::canSprintWhileFlying
+      );
+
+      // Create the Movement user type
       env.new_usertype<Movement>("Movement",
-        "movementSpeed", &Movement::movementSpeed,
-        "canJump", &Movement::canJump,
-        "sprintSpeedMult", &Movement::sprintSpeedMult,
-        "canSprint", &Movement::canSprint,
-        "isSprinting", &Movement::isSprinting,
-        "flightSpeed", &Movement::flightSpeed,
-        "canFly", &Movement::canFly,
-        "canSprintWhileFlying", &Movement::canSprintWhileFlying
+        "stats", &Movement::stats,
+        "isSprinting", &Movement::isSprinting
       );
     }
 
     // Constructor
     Movement(ECS::Entity* e) 
-    : Component(e)
-    , movementSpeed(0.f)
-    , canJump(false)
-    , sprintSpeedMult(1.f)
-    , canSprint(false)
-    , isSprinting(false)
-    , flightSpeed(0.f)
-    , canFly(false) 
-    , canSprintWhileFlying(0.f){}
+      : Component(e)
+      , stats(MovementStats())
+      , isSprinting(false) {
+    }
 
-    // Movement speed
-    float movementSpeed;
-
-    // Jump mechanics
-    bool canJump;
-
-    // Whether the entity can sprint on the ground
-    float sprintSpeedMult;
-    bool canSprint;
+    // Movement stats
+    MovementStats stats;
     bool isSprinting;
-
-    // Whether the entity can fly
-    float flightSpeed;
-    bool canFly;
-    bool canSprintWhileFlying;
 
     // Shows the debug information to ImGui
     void showDebugInformation() {
       ImGui::NextColumn();
-      ImGui::Text("Movement speed: %f", movementSpeed);
       ImGui::Text("Is Sprinting: %s", isSprinting ? "true": "false");
+      stats.showDebugInformation();
       ImGui::PushItemWidth(-1);
       ImGui::PopItemWidth();
       ImGui::NextColumn();

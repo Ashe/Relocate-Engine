@@ -3,14 +3,14 @@
 
 local function toggleFlight(self)
   if self:hasMovement() then
-    local m = self:getMovement()
-    m.canFly = not m.canFly
-    if m.canFly then 
+    local s = self:getStats()
+    s.movement.canFly = not s.movement.canFly
+    if s.movement.canFly then 
       print("FLIGHT ENABLED")
     else 
       print("FLIGHT DISABLED") 
     end
-    m.flightSpeed = 500
+    s.movement.flightSpeed = 1000
   end
 end
 

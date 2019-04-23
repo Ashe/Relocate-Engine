@@ -48,10 +48,10 @@ ControlSystem::update(ECS::World* world, const sf::Time& dt) {
       // Calculate max speeds
       const sf::Vector2f currentSpeed = r->getLinearVelocity();
       sf::Vector2f maxSpeed;
-      m->isSprinting = m->canSprint && isSprinting;
-      maxSpeed.x = (m->isSprinting ? m->sprintSpeedMult : 1.f) * m->movementSpeed;
-      maxSpeed.y = (m->isSprinting && m->canSprintWhileFlying ? m->sprintSpeedMult : 1.f) * 
-        (m->canFly ? m->flightSpeed : 0.f);
+      m->isSprinting = m->stats.canSprint && isSprinting;
+      maxSpeed.x = (m->isSprinting ? m->stats.sprintSpeedMult : 1.f) * m->stats.movementSpeed;
+      maxSpeed.y = (m->isSprinting && m->stats.canSprintWhileFlying ? m->stats.sprintSpeedMult : 1.f) * 
+        (m->stats.canFly ? m->stats.flightSpeed : 0.f);
       sf::Vector2f impulse;
 
       // Calculate the input axis
@@ -69,7 +69,7 @@ ControlSystem::update(ECS::World* world, const sf::Time& dt) {
           s->playAnimation("walk");
         }
       }
-      else {
+      else if (r->getIsOnGround()) {
         impulse.x = -currentSpeed.x * 0.1f;
 
         // Set the animation of the sprite to idle
@@ -81,7 +81,7 @@ ControlSystem::update(ECS::World* world, const sf::Time& dt) {
 
       // Do same for Y, taking flight into account
       dir = (inputAxis.y > 0) * 2 - 1;
-      if (inputAxis.y != 0.f && m->canFly) {
+      if (inputAxis.y != 0.f && m->stats.canFly) {
         impulse.y = ((dir * maxSpeed.y) - currentSpeed.y) * abs(inputAxis.y);
       }
 
@@ -93,7 +93,7 @@ ControlSystem::update(ECS::World* world, const sf::Time& dt) {
       bool isJumping = wasPressed(sf::Keyboard::Space);
 
       // If on the ground and if desired, jump
-      if (m->canJump && isJumping && r->getIsOnGround()) {
+      if (m->stats.canJump && isJumping && r->getIsOnGround()) {
         float jump = r->getMass() * -500;
         r->applyImpulseToCentre(0, jump);
       }

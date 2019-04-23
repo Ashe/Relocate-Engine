@@ -10,6 +10,7 @@
 #include "RigidBody.h"
 #include "Possession.h"
 #include "Camera.h"
+#include "Stats.h"
 #include "Movement.h"
 #include "Abilities.h"
 
@@ -261,18 +262,9 @@ Scene::addDebugInfoToDefault() {
           }
           ImGui::PopID();
         }
-        auto m = e->get<Movement>();
-        if (m.isValid()) {
-          ImGui::PushID(3);
-          if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Movement")) {
-            m->showDebugInformation();
-            ImGui::TreePop();
-          }
-          ImGui::PopID();
-        }
         auto c = e->get<Camera>();
         if (c.isValid()) {
-          ImGui::PushID(4);
+          ImGui::PushID(3);
           if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Camera")) {
             c->showDebugInformation();
             ImGui::TreePop();
@@ -281,16 +273,34 @@ Scene::addDebugInfoToDefault() {
         }
         auto p = e->get<Possession>();
         if (p.isValid()) {
-          ImGui::PushID(5);
+          ImGui::PushID(4);
           if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Possession")) {
             p->showDebugInformation();
             ImGui::TreePop();
           }
           ImGui::PopID();
         }
+        auto stats = e->get<Stats>();
+        if (p.isValid()) {
+          ImGui::PushID(5);
+          if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Stats")) {
+            stats->showDebugInformation();
+            ImGui::TreePop();
+          }
+          ImGui::PopID();
+        }
+        auto m = e->get<Movement>();
+        if (m.isValid()) {
+          ImGui::PushID(6);
+          if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Movement")) {
+            m->showDebugInformation();
+            ImGui::TreePop();
+          }
+          ImGui::PopID();
+        }
         auto a = e->get<Abilities>();
         if (a.isValid()) {
-          ImGui::PushID(6);
+          ImGui::PushID(7);
           if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Abilities")) {
             a->showDebugInformation();
             ImGui::TreePop();

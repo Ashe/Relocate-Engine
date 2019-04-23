@@ -14,7 +14,7 @@ class SpellSystem : public ECS::EntitySystem {
     // Register this system in the world
     static void registerSpellSystem(sol::environment& env, ECS::World* world) {
 
-      // Create and install camera system
+      // Create and install spell system
       env.set_function("useSpellSystem", [&env, world]() { 
 
         // Debug message
