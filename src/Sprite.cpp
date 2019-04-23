@@ -24,13 +24,22 @@ Sprite::Sprite(float frameInterval, bool paused, bool looped)
 bool 
 Sprite::setSpriteFromResources(const std::string& texName) {
 
+  // Easy outs
+  if (texName == "") { return false; }
+
   // Attempts to get the resource
   Resource& resource = ResourceManager::getResource(texName);
-  if (resource.getType() != Resource::Type::TEXTURE) { return false; }
+  if (resource.getType() != Resource::Type::TEXTURE) { 
+    Console::log("[Error] Could not apply sprite: %s\nNonexistant or incorrect resource type.", texName.c_str());
+    return false; 
+  }
 
   // Get texture from resource
   Texture* tex = (Texture*)resource.get();
-  if (tex == nullptr) { return false; }
+  if (tex == nullptr) { 
+    Console::log("[Error] Could not apply sprite: %s\nResource is NULL..", texName.c_str());
+    return false; 
+  }
 
   // Set this sprite's texture
   texture_ = &tex->getTexture();
@@ -49,11 +58,17 @@ Sprite::addAnimationFromResources(const std::string& name, const std::string& an
 
   // Attempts to get the resource
   Resource& resource = ResourceManager::getResource(animationName);
-  if (resource.getType() != Resource::Type::ANIMATION) { return false; }
+  if (resource.getType() != Resource::Type::ANIMATION) { 
+    Console::log("[Error] Could not add animation: %s\nNonexistant or incorrect resource type.", animationName.c_str());
+    return false; 
+  }
 
   // Get texture from resource
   const Animation* animation = (Animation*)resource.get();
-  if (animation == nullptr) { return false; }
+  if (animation == nullptr) { 
+    Console::log("[Error] Could not add animation: %s\nResource is NULL..", animationName.c_str());
+    return false; 
+  }
 
   // Add the animation to the animation map
   animationMap_[name] = animation;

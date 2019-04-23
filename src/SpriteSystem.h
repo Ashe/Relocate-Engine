@@ -23,9 +23,7 @@ class SpriteSystem : public ECS::EntitySystem {
       env.set_function("useSpriteSystem", [&env, world]() { 
 
         // Debug message
-        if (Game::getDebugMode()) {
-          Console::log("Initialising Sprite System..");
-        }
+        Console::log("Initialising Sprite System..");
 
         // Create the camera system to return to the world
         auto* newSPS = new SpriteSystem();

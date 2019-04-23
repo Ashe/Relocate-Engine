@@ -16,11 +16,13 @@
 #include "Sprite.h"
 #include "RigidBody.h"
 #include "Possession.h"
+#include "Abilities.h"
 
 #include "CameraSystem.h"
 #include "PhysicsSystem.h"
 #include "ControlSystem.h"
 #include "SpriteSystem.h"
+#include "SpellSystem.h"
 
 ////////////
 // MACROS //
@@ -137,12 +139,14 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
   RigidBody::registerNonDependantTypes(env);
   Possession::registerPossessionType(env);
   Movement::registerMovementType(env);
+  Abilities::registerAbilitiesType(env);
 
   // Register functions that 'turn on' systems in the world
   CameraSystem::registerCameraSystemFunctions(env, world);
   PhysicsSystem::registerPhysicsSystemFunctions(env, world);
   ControlSystem::registerControlSystemFunctions(env, world);
   SpriteSystem::registerSpriteSystem(env, world);
+  SpellSystem::registerSpellSystem(env, world);
 }
 
 ///////////////////////

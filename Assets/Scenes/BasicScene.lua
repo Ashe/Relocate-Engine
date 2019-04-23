@@ -12,6 +12,7 @@ local function onBegin()
   World.useControlSystem()
   World.useCameraSystem()
   World.useSpriteSystem()
+  World.useSpellSystem()
 
   -- Get window size
   size = Game.displaySize
@@ -48,6 +49,9 @@ local function onBegin()
   sprite:setSprite("MageTexture")
   sprite:addAnimation("idle", "GenericIdle")
   sprite:addAnimation("walk", "GenericWalk")
+  local abilities = player:assignAbilities()
+  abilities:addAbility(0, "LaunchBox")
+  abilities:addAbility(1, "Levitate")
   local playerTrans = player:assignTransform()
   playerTrans.position = Vector2f.new(size.x * 0.5, size.y * 0.5)
   local playerBody = player:assignRigidBody()
@@ -63,15 +67,6 @@ local function onBegin()
   playerBody:makeGroundSensor()
 end
 
--- Every scene tick
-local function onUpdate(dt)
-
-  -- Hold the current box
-  leftSpell:passiveCast(dt)
-  rightSpell:passiveCast(dt)
-
-end
-
 -- On Window events
 local function onWindowEvent(ev)
 
@@ -85,30 +80,6 @@ local function onWindowEvent(ev)
     -- Open console on F2
     elseif ev.key.code == Key_F2 then
       Game:openDevConsole()
-    end
-
-  -- Mouse pressed
-  elseif ev.type == EventType_MouseButtonPressed then
-
-    -- Spawn box on left click
-    if ev.mouseButton.button == MouseButton_Left then
-      leftSpell:castMajor()
-
-    -- Drag the last box on right click
-    elseif ev.mouseButton.button == MouseButton_Right then
-      rightSpell:castMajor()
-    end
-
-  -- Mouse release
-  elseif ev.type == EventType_MouseButtonReleased then
-
-    -- On left release, 'fire' the object
-    if ev.mouseButton.button == MouseButton_Left then
-      leftSpell:releaseMajor()
-
-    -- On right release, delete the joint
-    elseif ev.mouseButton.button == MouseButton_Right then
-      rightSpell:releaseMajor()
     end
   end
 end

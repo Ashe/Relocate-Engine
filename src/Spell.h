@@ -16,39 +16,31 @@ class Spell {
 
       // Register the spell type
       Game::lua.new_usertype<Spell>("Spell",
-        sol::constructors<Spell(const std::string&)>(),
+        sol::constructors<Spell()>(),
         // Casting functions
-        "castMajor", &Spell::castMajor,
-        "castMinor", &Spell::castMinor,
-        "releaseMajor", &Spell::releaseMajor,
-        "releaseMinor", &Spell::releaseMinor,
-        "passiveCast", &Spell::passiveCast,
+        "cast", &Spell::cast,
+        "release", &Spell::release,
+        "passive", &Spell::passive,
         // Variables
         "name", &Spell::name_,
-        "onCastMajor", &Spell::onCastMajor_,
-        "onCastMinor", &Spell::onCastMinor_,
-        "onReleaseMajor", &Spell::onReleaseMajor_,
-        "onReleaseMinor", &Spell::onReleaseMinor_,
-        "onPassiveCast", &Spell::onPassiveCast_
+        "onCast", &Spell::onCast_,
+        "onRelease", &Spell::onRelease_,
+        "onPassive", &Spell::onPassive_
       );
     }
 
     // Constructors 
-    Spell(const std::string& name)
-    : name_(name) {}
+    Spell()
+    : name_("unnamed_spell") {}
 
     // Major component
-    void castMajor() { cast(onCastMajor_); }
-    void releaseMajor() {cast(onReleaseMajor_); }
-
-    // Minor component
-    void castMinor() { cast(onCastMinor_); }
-    void releaseMinor() { cast(onReleaseMinor_); }
+    void cast() { safeCast(onCast_); }
+    void release() { safeCast(onRelease_); }
 
     // Casts every frame
-    void passiveCast(const sf::Time& dt) { 
-      if (onPassiveCast_.valid()) {
-        auto attempt = onPassiveCast_(this, dt);
+    void passive(const sf::Time& dt) { 
+      if (onPassive_.valid()) {
+        auto attempt = onPassive_(this, dt);
         if (!attempt.valid()) {
           sol::error err = attempt;
           Console::log("[Error] in Spell '%s':\n> %s", 
@@ -60,7 +52,7 @@ class Spell {
   private:
 
     // Cast a spell comopnent
-    void cast(sol::protected_function& spell) {
+    void safeCast(sol::protected_function& spell) {
 
       // If the script is valid, try to run it
       if (spell.valid()) {
@@ -74,14 +66,12 @@ class Spell {
     }
 
     // Name of the spell
-    const std::string name_;
+    std::string name_;
 
     // Main spell cast and release functions
-    sol::protected_function onPassiveCast_;
-    sol::protected_function onCastMajor_;
-    sol::protected_function onCastMinor_;
-    sol::protected_function onReleaseMajor_;
-    sol::protected_function onReleaseMinor_;
+    sol::protected_function onCast_;
+    sol::protected_function onPassive_;
+    sol::protected_function onRelease_;
 
 };
 

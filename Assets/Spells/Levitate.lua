@@ -42,8 +42,10 @@ local function endLevitation(self)
 end
 
 -- Make and return spell
-local spell = Spell.new("Levitate")
-spell.onCastMajor = beginLevitation
-spell.onPassiveCast = updateDestination
-spell.onReleaseMajor = endLevitation
-return Resource_SPELL, spell.name, spell
+local name = "Levitate"
+local spell = Spell.new()
+spell.name = name
+spell.onCast= beginLevitation
+spell.onPassive= updateDestination
+spell.onRelease= endLevitation
+return Resource_SPELL, name, spell

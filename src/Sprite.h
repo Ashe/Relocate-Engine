@@ -8,6 +8,7 @@
 
 #include "Game.h"
 #include "Scripting.h"
+
 #include "ResourceManager.h"
 #include "Texture.h"
 #include "Animation.h"

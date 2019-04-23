@@ -33,9 +33,7 @@ end
 
 -- Spawn a box on spell cast
 local function createBox(self)
-  if boxToThrow == nil then
-    boxToThrow = spawnBox(Game.mousePosition.x, Game.mousePosition.y, boxSize)
-  end
+  boxToThrow = spawnBox(Game.mousePosition.x, Game.mousePosition.y, boxSize)
 end
 
 -- Hold it in place
@@ -56,8 +54,10 @@ local function launchBox(self)
 end
 
 -- Make and return the spell
-local spell = Spell.new("LaunchBox")
-spell.onCastMajor = createBox
-spell.onPassiveCast = holdBox
-spell.onReleaseMajor = launchBox
-return Resource_SPELL, spell.name, spell
+local name = "LaunchBox"
+local spell = Spell.new()
+spell.name = name
+spell.onCast= createBox
+spell.onPassive= holdBox
+spell.onRelease= launchBox
+return Resource_SPELL, name, spell

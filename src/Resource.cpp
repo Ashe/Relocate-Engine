@@ -6,9 +6,11 @@
 // Avoid cyclic dependancies
 #include "Game.h"
 #include "Scripting.h"
+
 #include "Scene.h"
 #include "Texture.h"
 #include "Animation.h"
+#include "Spell.h"
 
 // Get resource type from descriptor
 Resource::Resource(const std::string& fp)
@@ -61,6 +63,8 @@ Resource::get() {
       resource_ = new Texture(data.as<Texture>()); break;
     case Type::ANIMATION:
       resource_ = new Animation(data.as<Animation>()); break;
+    case Type::SPELL:
+      resource_ = new Spell(data.as<Spell>()); break;
     default:
       break;
   }
@@ -100,6 +104,8 @@ Resource::deleteResource() {
       delete static_cast<Texture*>(resource_); break;
     case Type::ANIMATION:
       delete static_cast<Animation*>(resource_); break;
+    case Type::SPELL:
+      delete static_cast<Spell*>(resource_); break;
     default:
       break;
   }
