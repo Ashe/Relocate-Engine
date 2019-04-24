@@ -59,8 +59,10 @@ class CombatSystem : public ECS::EntitySystem {
 
               // If we want to delete the animation after death we need a callback
               if (c->stats.deleteAfterDeathAnimation) {
-                std::function<void()> death = [world, e, sprite]() { sprite->resetCallback(); world->destroy(e); };
-                sprite->playAnimationWithCallback("death", death);
+                sprite->playAnimation("death");
+                if (sprite->hasFinishedAnimation()) {
+                  world->destroy(e);
+                }
               }
               else {
                 sprite->playAnimation("death");

@@ -106,6 +106,9 @@ class Sprite : Component, public sf::Drawable, public sf::Transformable {
     // Set whether the current animation should loop
     void setLooped(bool looped);
 
+    // Get whether we have finished the animation
+    bool hasFinishedAnimation() const { return currentFrame_ >= (animation_ ? animation_->getSize() - 1 : 0); }
+
     // Get the current colour
     sf::Color getColour() const;
 
