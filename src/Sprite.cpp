@@ -17,6 +17,7 @@ Sprite::Sprite(ECS::Entity* e, float frameInterval, bool paused, bool looped)
   , isPaused_(paused)
   , isLooped_(looped) 
   , colour_(sf::Color::White) 
+  , spriteSheetAnchor_(sf::Vector2i(0, 0))
   , size_(1.f, 1.f)
   , scale_(1.f, 1.f)
   , origin_(0.5f, 0.5f) {
@@ -212,8 +213,8 @@ Sprite::getLocalBounds() const {
   float x = 0.f, y = 0.f;
   if (animation_ != nullptr) {
     const sf::IntRect frame = animation_->getFrame(currentFrame_);
-    x = frame.left;
-    y = frame.top;
+    x = spriteSheetAnchor_.x + frame.left;
+    y = spriteSheetAnchor_.y + frame.top;
   }
 
   // Otherwise, use the size of the sprite

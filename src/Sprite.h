@@ -39,6 +39,7 @@ class Sprite : Component, public Renderable, public sf::Transformable {
           &Sprite::getFrameTime,
           &Sprite::setFrameTime),
         "setSprite", &Sprite::setSpriteFromResources,
+        "spritesheetAnchor", &Sprite::spriteSheetAnchor_,
         "updateSprite", &Sprite::updateSprite,
         "addAnimation", &Sprite::addAnimationFromResources,
         "loop", sol::property(
@@ -168,6 +169,9 @@ class Sprite : Component, public Renderable, public sf::Transformable {
 
     // Colour of the sprite
     sf::Color colour_;
+
+    // Where the animation should be taken from on the sprite sheet
+    sf::Vector2i spriteSheetAnchor_;
 
     // Get the size this object should be
     sf::Vector2f size_;

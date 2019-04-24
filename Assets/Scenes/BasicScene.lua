@@ -35,7 +35,10 @@ local function onBegin()
 
   -- Spawn the player
   print("Spawning player")
-  player = spawnCharacter(Vector2f.new(size.x * 0.5, size.y * 0.5), "MageTexture", 100)
+  local pos = Vector2f.new(size.x * 0.5, size.y * 0.5)
+  player = spawnCharacter(pos, "MageTexture", 100)
+  local size = player:getSprite().size
+  player:getSprite().spritesheetAnchor = Vector2i.new(0, size.y * 5)
   local possession = player:assignPossession()
   local camera = player:assignCamera()
   local stats = player:getStats()
@@ -48,7 +51,10 @@ local function onBegin()
 
   -- Spawn some plebs
   for i = 0, 10 do
-    spawnCharacter(Vector2f.new(-2000 + (400 * i), size.y * 0.9), "OrcTexture", 50)
+    local char = spawnCharacter(Vector2f.new(-2000 + (400 * i), Game.displaySize.y * 0.2), "OrcTexture", 50)
+    local size = char:getSprite().size
+    local rand = randomInt(0, 1)
+    char:getSprite().spritesheetAnchor = Vector2i.new(0, size.y * rand * 5)
   end
 end
 

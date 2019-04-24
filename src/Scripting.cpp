@@ -50,6 +50,8 @@ Script::startLua() {
   Console::log("Initialising Lua..");
   Game::lua.open_libraries(sol::lib::base);
 
+  // COMMON FUNCTIONS
+  Game::lua.set("randomInt", &Funcs::randomInt);
   // SFML FUNCTIONS
   // Events
   Funcs::registerEvents();
@@ -166,6 +168,11 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
 void Script::Funcs::emptyFunction() {}
 void Script::Funcs::emptyUpdateFunction(const sf::Time& dt) {}
 void Script::Funcs::emptyWindowEventFunction(const sf::Event& ev) {}
+
+int Script::Funcs::randomInt(int from, int to) {
+  if (to <= from) { return from; }
+  return from + std::rand() % (to - from + 1);
+}
 
 ////////////////////
 // SFML FUNCTIONS //

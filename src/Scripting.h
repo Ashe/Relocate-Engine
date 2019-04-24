@@ -4,6 +4,7 @@
 #ifndef SCRIPTING_H
 #define SCRIPTING_H
 
+#include <random>
 #include <algorithm>
 #include <string>
 
@@ -30,6 +31,8 @@ namespace Script {
     void emptyFunction();
     void emptyUpdateFunction(const sf::Time& dt);
     void emptyWindowEventFunction(const sf::Event& ev);
+
+    int randomInt(int from, int to);
 
     ////////////////////
     // SFML FUNCTIONS //

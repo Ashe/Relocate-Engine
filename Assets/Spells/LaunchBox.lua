@@ -4,6 +4,7 @@
 -- Variables for this spell
 local spawnPos = nil
 local boxToThrow = nil
+forceBoxSize = nil
 boxSize = 1
 
 -- Helper function for spawning the box
@@ -33,7 +34,13 @@ end
 
 -- Spawn a box on spell cast
 local function createBox()
-  boxToThrow = spawnBox(Game.mousePosition.x, Game.mousePosition.y, boxSize)
+  local size = boxSize
+  if forceBoxSize ~= nil and forceBoxSize > 0 then 
+    size = forceBoxSize
+  end
+  boxToThrow = spawnBox(Game.mousePosition.x, Game.mousePosition.y, size)
+  boxSize = boxSize + 0.5
+  if boxSize > 3 then boxSize = 1 end
 end
 
 -- Hold it in place
