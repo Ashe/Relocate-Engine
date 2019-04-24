@@ -9,7 +9,7 @@ std::map<sf::Mouse::Button, ControlSystem::Status> ControlSystem::mouseclicks_;
 
 // Register Control System in the world
 void
-ControlSystem::registerControlSystemFunctions(sol::environment& env, ECS::World* world) {
+ControlSystem::registerControlSystem(sol::environment& env, ECS::World* world) {
 
   // Create and install control system
   env.set_function("useControlSystem", [&env, world]() { 

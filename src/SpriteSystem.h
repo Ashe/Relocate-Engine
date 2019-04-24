@@ -19,7 +19,7 @@ class SpriteSystem : public ECS::EntitySystem {
     // Register this system in the world
     static void registerSpriteSystem(sol::environment& env, ECS::World* world) {
 
-      // Create and install camera system
+      // Create and install sprite system
       env.set_function("useSpriteSystem", [&env, world]() { 
 
         // Debug message
@@ -31,7 +31,7 @@ class SpriteSystem : public ECS::EntitySystem {
       });
     }
 
-    // Manipulate the window's view every frame
+    // Manipulate the sprite's transform every frame
     virtual void update(ECS::World* world, const sf::Time& dt) override {
 
       // Get every entity with a sprite and transform

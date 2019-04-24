@@ -9,10 +9,14 @@
 
 // Stats for combat
 struct CombatStats {
-  unsigned maxHealth = 1;
+  int maxHealth = 1;
+  bool deleteImmediatelyOnDeath = false;
+  bool deleteAfterDeathAnimation = true;
 
   void showDebugInformation() {
     ImGui::Text("Max health: %u", maxHealth);
+    ImGui::Text("Delete immediately on death: %s", deleteImmediatelyOnDeath ? "true" : "false" );
+    ImGui::Text("Delete after death animation: %s", deleteAfterDeathAnimation ? "true" : "false" );
   }
 };
 
@@ -29,7 +33,9 @@ class Combat : Component {
       // Create the stats usertype
       env.new_usertype<CombatStats>("CombatStats",
         sol::constructors<CombatStats()>(),
-        "maxHealth", &CombatStats::maxHealth
+        "maxHealth", &CombatStats::maxHealth,
+        "deleteImmediately", &CombatStats::deleteImmediatelyOnDeath,
+        "deleteAfterAnimation", &CombatStats::deleteAfterDeathAnimation
       );
 
       // Create the Combat usertype
@@ -43,30 +49,30 @@ class Combat : Component {
 
     // Constructor
     Combat(ECS::Entity* e)
-      : Component(e) {
+      : Component(e) 
+      , currentHealth_(1) {
     }
 
     // Combat stats
     CombatStats stats;
 
     // Get current health
-    unsigned getCurrentHealth() const {
+    int getCurrentHealth() const {
       return currentHealth_;
     }
 
     // Go back to full health
-    unsigned resetHealthToFull() {
+    int resetHealthToFull() {
       currentHealth_ = stats.maxHealth;
       return currentHealth_;
     }
 
     // Deal damage via fall damage or collision boxes
-    unsigned dealImpactDamage(double impact) {
+    int dealImpactDamage(double impact) {
       impact -= 10.f;
       if (impact > 0.f) {
-        const unsigned damage = ceil(impact);
+        const int damage = ceil(impact);
         currentHealth_ -= damage;
-        Console::log("Ouch! You took %f (%u) damage!", impact, damage);
       }
       return currentHealth_;
     }
@@ -84,7 +90,7 @@ class Combat : Component {
   private:
 
     // Current health
-    unsigned currentHealth_;
+    int currentHealth_;
 
 };
 

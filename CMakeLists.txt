@@ -7,7 +7,7 @@ message("Processing CMakeLists.txt")
 # Program variables
 set (Build_VERSION_MAJOR 0)
 set (Build_VERSION_MINOR 0)
-set (Build_VERSION_TWEAK 68)
+set (Build_VERSION_TWEAK 69)
 
 # Configure a header file to pass some of the CMake settings
 # to the source code
@@ -103,6 +103,7 @@ target_sources(${EXECUTABLE_NAME} PRIVATE
   src/ControlSystem.cpp
   src/StatSystem.h
   src/StatSystem.cpp
+  src/CombatSystem.h
   src/SpellSystem.h
 
   # Development

@@ -26,7 +26,7 @@ class PhysicsSystem
     friend class PhysicsDebugDraw;
 
     // Register a Physics System in this world
-    static void registerPhysicsSystemFunctions(sol::environment& env, ECS::World* world);
+    static void registerPhysicsSystem(sol::environment& env, ECS::World* world);
 
     // Conversion functions
     static sf::Vector2f convertToSF(const b2Vec2& vec);

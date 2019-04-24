@@ -10,7 +10,7 @@ bool PhysicsSystem::showRigidBodies_ = true;
 
 // Register a physics system in this world
 void
-PhysicsSystem::registerPhysicsSystemFunctions(sol::environment& env, ECS::World* world) {
+PhysicsSystem::registerPhysicsSystem(sol::environment& env, ECS::World* world) {
 
   // Create and install physics system
   env.set_function("usePhysicsSystem", [&env, world]() { 

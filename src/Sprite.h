@@ -25,6 +25,7 @@ class Sprite : Component, public sf::Drawable, public sf::Transformable {
 
       // Add extra sprite functionality
       env.new_usertype<Sprite>("Sprite",
+        "lock", &Sprite::lockAnimation,
         "flipX", &Sprite::flipX,
         "flipY", &Sprite::flipY,
         "size", &Sprite::size_,
@@ -54,6 +55,9 @@ class Sprite : Component, public sf::Drawable, public sf::Transformable {
     // Constructor
     Sprite(ECS::Entity* e, float interval = 0.1f, bool paused = false, bool looped = true);
 
+    // Don't change animation while this is true
+    bool lockAnimation;
+
     // Whether we should flip the sprite horizontally
     bool flipX;
 
@@ -69,7 +73,7 @@ class Sprite : Component, public sf::Drawable, public sf::Transformable {
     // Get the animation that is currently playing
     const Animation* getAnimation() const;
 
-    // Set this sprite to play an animation
+    // Set this sprite to play an animation, also reset callback
     void setAnimation(const Animation* animation);
 
     // Get delay between frames
@@ -85,7 +89,10 @@ class Sprite : Component, public sf::Drawable, public sf::Transformable {
     void play();
 
     // Play the given animation
-    void playAnimation(const std::string& name);
+    bool playAnimation(const std::string& name, bool restart = false);
+
+    // Play an animation with a callback
+    bool playAnimationWithCallback(const std::string& name, std::function<void()> callback);
 
     // Pause the current animation
     void pause();
@@ -117,6 +124,9 @@ class Sprite : Component, public sf::Drawable, public sf::Transformable {
     // Update animation
     void updateAnimation(const sf::Time& dt);
 
+    // Reset the callback
+    void resetCallback() { callback_ = std::function<void()>(); }
+
     // Get the width and height of texture
     sf::Vector2f getTextureSize() const;
 
@@ -133,6 +143,9 @@ class Sprite : Component, public sf::Drawable, public sf::Transformable {
 
     // The animation to play
     const Animation* animation_;
+
+    // Callback for when an animation finishes
+    std::function<void()> callback_;
 
     // Delay between each frame (CANNOT BE ZERO)
     sf::Time frameTime_;

@@ -5,7 +5,7 @@
 
 // Register Control System in the world
 void
-CameraSystem::registerCameraSystemFunctions(sol::environment& env, ECS::World* world) {
+CameraSystem::registerCameraSystem(sol::environment& env, ECS::World* world) {
 
   // Create and install camera system
   env.set_function("useCameraSystem", [&env, world]() { 

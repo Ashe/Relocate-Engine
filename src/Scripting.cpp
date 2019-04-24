@@ -26,6 +26,7 @@
 #include "ControlSystem.h"
 #include "SpriteSystem.h"
 #include "StatSystem.h"
+#include "CombatSystem.h"
 #include "SpellSystem.h"
 
 ////////////
@@ -148,11 +149,12 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
   Combat::registerCombatType(env);
 
   // Register functions that 'turn on' systems in the world
-  CameraSystem::registerCameraSystemFunctions(env, world);
-  PhysicsSystem::registerPhysicsSystemFunctions(env, world);
-  ControlSystem::registerControlSystemFunctions(env, world);
+  CameraSystem::registerCameraSystem(env, world);
+  PhysicsSystem::registerPhysicsSystem(env, world);
+  ControlSystem::registerControlSystem(env, world);
   SpriteSystem::registerSpriteSystem(env, world);
   StatSystem::registerStatSystem(env, world);
+  CombatSystem::registerCombatSystem(env, world);
   SpellSystem::registerSpellSystem(env, world);
 }
 

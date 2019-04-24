@@ -13,6 +13,7 @@ local function onBegin()
   World.useCameraSystem()
   World.useSpriteSystem()
   World.useStatSystem()
+  World.useCombatSystem()
   World.useSpellSystem()
 
   -- Get window size
@@ -47,13 +48,15 @@ local function onBegin()
   movement.flightSpeed = 100
   local combat = stats.combat
   combat.maxHealth = 100
+  combat.deleteAfterAnimation = false
   local sprite = player:assignSprite()
   sprite.size = Vector2f.new(32, 32)
   sprite.scale = Vector2f.new(4.2, 4.2)
   sprite:setSprite("MageTexture")
   sprite:addAnimation("idle", "GenericIdle")
   sprite:addAnimation("walk", "GenericWalk")
-  sprite:playAnimation("idle")
+  sprite:addAnimation("death", "GenericDeath")
+  sprite:playAnimation("idle", true)
   local abilities = player:assignAbilities()
   abilities:addAbility(0, "LaunchBox")
   abilities:addAbility(1, "Levitate")

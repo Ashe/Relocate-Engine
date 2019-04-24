@@ -6,6 +6,7 @@
 // Constructor
 Sprite::Sprite(ECS::Entity* e, float frameInterval, bool paused, bool looped)
   : Component(e)
+  , lockAnimation(false)
   , flipX(false)
   , flipY(false)
   , texture_(nullptr)
@@ -82,9 +83,11 @@ Sprite::getAnimation() const {
   return animation_;
 }
 
-// Set this sprite to play an animation
+// Set this sprite to play an animation, also reset callback
 void 
 Sprite::setAnimation(const Animation* animation) {
+  if (lockAnimation) { return; }
+  resetCallback();
   animation_ = animation;
   currentFrame_ = 0;
   updateSprite();
@@ -115,16 +118,47 @@ Sprite::play() {
 }
 
 // Play the given animation
-void 
-Sprite::playAnimation(const std::string& name) {
+bool 
+Sprite::playAnimation(const std::string& name, bool restart) {
+  bool success = false;
   auto it = animationMap_.find(name);
   if (it != animationMap_.end()) {
     const Animation* animation = it->second;
-    if (animation != nullptr && animation_ != animation) {
+    if (animation != nullptr) {
+      if (animation != animation_ || isLooped_) { 
+        play(); 
+        if (restart) { 
+          currentFrame_ = 0; 
+        }
+      }
       setAnimation(animation);
+      success = true;
     }
   }
-  play();
+
+  // Return whether the animation was found
+  return success;
+}
+
+// Play an animation with a callback
+bool 
+Sprite::playAnimationWithCallback(const std::string& name, std::function<void()> callback) {
+
+  // Attempt to play given animation
+  bool success = playAnimation(name);
+
+  // Set callback if we succeeded
+  if (success) { 
+    callback_ = callback;
+  }
+
+  // Otherwise, do the callback immediately
+  else if (callback) {
+    callback();
+  }
+
+  // Return whether successful
+  return success;
 }
 
 // Pause the current animation
@@ -242,10 +276,13 @@ Sprite::updateAnimation(const sf::Time& dt) {
       ++currentFrame_;
     }
     else {
-      currentFrame_ = 0;
-      if (!isLooped_) {
-        isPaused_ = true;
-      }
+
+      // Call the callback
+      if (callback_) { callback_(); }
+
+      // Loop back round or freeze
+      if (isLooped_) { currentFrame_ = 0; }
+      else { isPaused_ = true; }
     }
 
     // Update the sprite with the new frame

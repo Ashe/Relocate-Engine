@@ -30,16 +30,16 @@ StatSystem::update(ECS::World* world, const sf::Time& dt) {
     const Stats& stats = s.get();
 
     // Write movement stats
-    bool has = e->has<Movement>();
-    if (!has) { e->assign<Movement>(e); }
+    bool missing = !e->has<Movement>();
+    if (missing) { e->assign<Movement>(e); }
     auto movement = e->get<Movement>();
-    writeMovementStats(stats, movement.get(), has);
+    writeMovementStats(stats, movement.get(), missing);
 
     // Write combat stats
-    has = e->has<Combat>();
-    if (!has) { e->assign<Combat>(e); }
+    missing = !e->has<Combat>();
+    if (missing) { e->assign<Combat>(e); }
     auto combat = e->get<Combat>();
-    writeCombatStats(stats, combat.get(), has);
+    writeCombatStats(stats, combat.get(), missing);
 
   });
 }

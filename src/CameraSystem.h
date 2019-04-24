@@ -17,7 +17,7 @@ class CameraSystem : public ECS::EntitySystem {
   public:
 
     // Register Camera System in the world
-    static void registerCameraSystemFunctions(sol::environment& env, ECS::World* world);
+    static void registerCameraSystem(sol::environment& env, ECS::World* world);
 
     // Manipulate the window's view every frame
     virtual void update(ECS::World* world, const sf::Time& dt) override;

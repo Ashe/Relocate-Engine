@@ -20,7 +20,7 @@ class ControlSystem : public ECS::EntitySystem {
   public:
 
     // Register Control System in the world
-    static void registerControlSystemFunctions(sol::environment& env, ECS::World* world);
+    static void registerControlSystem(sol::environment& env, ECS::World* world);
 
     // Handle input and store meaningful actions
     static void handleInput(const sf::Event& ev);
