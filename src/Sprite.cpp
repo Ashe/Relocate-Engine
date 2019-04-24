@@ -125,13 +125,15 @@ Sprite::playAnimation(const std::string& name, bool restart) {
   if (it != animationMap_.end()) {
     const Animation* animation = it->second;
     if (animation != nullptr) {
-      if (animation != animation_ || isLooped_) { 
-        play(); 
-        if (restart) { 
-          currentFrame_ = 0; 
+      if (animation != animation_) {
+        if (isLooped_) { 
+          play(); 
+          if (restart) { 
+            currentFrame_ = 0; 
+          }
         }
+        setAnimation(animation);
       }
-      setAnimation(animation);
       success = true;
     }
   }
@@ -281,7 +283,9 @@ Sprite::updateAnimation(const sf::Time& dt) {
       if (callback_) { callback_(); }
 
       // Loop back round or freeze
-      if (isLooped_) { currentFrame_ = 0; }
+      if (isLooped_) { 
+        currentFrame_ = 0; 
+      }
       else { isPaused_ = true; }
     }
 
@@ -329,9 +333,17 @@ Sprite::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 void 
 Sprite::showDebugInformation() {
   ImGui::NextColumn();
-  const auto& size = getTextureSize();
-  ImGui::Text("Sprite size: %f, %f", size.x, size.y);
+  ImGui::Text("Sprite size: %f, %f", size_.x, size_.y);
+  ImGui::Text("Sprite scale: %f, %f", scale_.x, scale_.y);
+  ImGui::Text("Sprite origin: %f, %f", origin_.x, origin_.y);
   colourPicker();
+  ImGui::NewLine();
+  ImGui::Text("Depth: %d", depth);
+  ImGui::Text("Is playing: %s", !isPaused_ ? "true" : "false");
+  ImGui::Text("Is looping: %s", isLooped_ ? "true" : "false");
+  ImGui::Text("Frame: %d", currentFrame_);
+  ImGui::Text("Frame interval: %f", frameTime_);
+  ImGui::Text("Is locked: %s", lockAnimation ? "true" : "false");
   ImGui::PushItemWidth(-1);
   ImGui::PopItemWidth();
   ImGui::NextColumn();

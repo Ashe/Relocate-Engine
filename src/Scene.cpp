@@ -137,11 +137,17 @@ Scene::update(const sf::Time& dt) {
 void
 Scene::render(sf::RenderWindow& window) {
 
-  // Get every entity with a sprite
-  world_->each<Sprite>( [&](ECS::Entity* e, ECS::ComponentHandle<Sprite> s) {
-    const Sprite& sprite = s.get();
-    window.draw(sprite);
+  // Get every entity with a sprite and add to draw queue
+  world_->each<Sprite>([&](ECS::Entity* e, ECS::ComponentHandle<Sprite> s) {
+    drawList_.push(static_cast<const Renderable*>(&s.get()));
   });
+
+  // Render everything in the queue, smallest first
+  while (!drawList_.empty()) {
+    const Renderable* const obj = drawList_.top();
+    if (obj != nullptr) { window.draw(*obj); }
+    drawList_.pop();
+  }
 
   // Do any debug-only rendering
   if (Game::getDebugMode()) {

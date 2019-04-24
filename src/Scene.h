@@ -5,8 +5,8 @@
 #define GAMESCREEN_H
 
 #include <string>
-#include <iostream>
 #include <memory>
+#include <queue>
 
 #include "Game.h"
 #include "Scripting.h"
@@ -62,6 +62,9 @@ class Scene {
     sol::protected_function onUpdate_;
     sol::protected_function onWindowEvent_;
     sol::protected_function onQuit_;
+
+    // The queue to render
+    std::priority_queue<const Renderable*, std::vector<const Renderable*>, cmpRenderable> drawList_;
 };
 
 #endif
