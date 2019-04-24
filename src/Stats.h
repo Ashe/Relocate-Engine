@@ -8,6 +8,7 @@
 #include "Scripting.h"
 
 #include "Movement.h"
+#include "Combat.h"
 
 // Base stats
 class Stats : Component {
@@ -21,7 +22,8 @@ class Stats : Component {
 
       // Create the Stats usertype
       env.new_usertype<Stats>("Stats",
-        "movement", &Stats::moveStats
+        "movement", &Stats::moveStats,
+        "combat", &Stats::combatStats
       );
     }
 
@@ -31,12 +33,14 @@ class Stats : Component {
       , moveStats(MovementStats()) {
     }
 
-    // Movement variables
+    // Stat modules
     MovementStats moveStats;
+    CombatStats combatStats;
 
     // Shows the debug information to ImGui
     void showDebugInformation() {
       ImGui::NextColumn();
+      combatStats.showDebugInformation();
       moveStats.showDebugInformation();
       ImGui::PushItemWidth(-1);
       ImGui::PopItemWidth();

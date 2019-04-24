@@ -13,6 +13,7 @@
 #include "Stats.h"
 #include "Movement.h"
 #include "Abilities.h"
+#include "Combat.h"
 
 // Register scene functionality to Lua
 void
@@ -303,6 +304,15 @@ Scene::addDebugInfoToDefault() {
           ImGui::PushID(7);
           if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Abilities")) {
             a->showDebugInformation();
+            ImGui::TreePop();
+          }
+          ImGui::PopID();
+        }
+        auto cb = e->get<Combat>();
+        if (a.isValid()) {
+          ImGui::PushID(8);
+          if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Combat")) {
+            cb->showDebugInformation();
             ImGui::TreePop();
           }
           ImGui::PopID();

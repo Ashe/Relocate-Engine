@@ -45,6 +45,8 @@ local function onBegin()
   movement.canJump = true
   movement.canFly = false
   movement.flightSpeed = 100
+  local combat = stats.combat
+  combat.maxHealth = 100
   local sprite = player:assignSprite()
   sprite.size = Vector2f.new(32, 32)
   sprite.scale = Vector2f.new(4.2, 4.2)

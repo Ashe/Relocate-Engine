@@ -9,6 +9,7 @@
 
 #include "Stats.h"
 #include "Movement.h"
+#include "Combat.h"
 
 // Get / Assign components and write stats
 class StatSystem : public ECS::EntitySystem {
@@ -21,7 +22,10 @@ class StatSystem : public ECS::EntitySystem {
     virtual void update(ECS::World* world, const sf::Time& dt) override;
 
     // Write stats to the movement component such as move speed
-    void writeMovementStats(const ECS::ComponentHandle<Stats>& s, ECS::ComponentHandle<Movement>& m);
+    void writeMovementStats(const Stats& s, Movement& m, bool first);
+
+    // Write stats to the combat component such as max health
+    void writeCombatStats(const Stats& s, Combat& c, bool first);
 
 };
 

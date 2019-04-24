@@ -19,6 +19,7 @@
 #include "Stats.h"
 #include "Movement.h"
 #include "Abilities.h"
+#include "Combat.h"
 
 #include "CameraSystem.h"
 #include "PhysicsSystem.h"
@@ -144,6 +145,7 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
   Stats::registerStatsType(env);
   Movement::registerMovementType(env);
   Abilities::registerAbilitiesType(env);
+  Combat::registerCombatType(env);
 
   // Register functions that 'turn on' systems in the world
   CameraSystem::registerCameraSystemFunctions(env, world);
