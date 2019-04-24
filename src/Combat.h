@@ -34,8 +34,10 @@ class Combat : Component {
 
       // Create the Combat usertype
       env.new_usertype<Combat>("Combat",
-        "currentHealth", &Combat::currentHealth,
-        "stats", &Combat::stats
+        "stats", &Combat::stats,
+        "currentHealth", sol::property(&Combat::getCurrentHealth),
+        "resetHealth", &Combat::resetHealthToFull,
+        "dealImpactDamage", &Combat::dealImpactDamage
       );
     }
 
@@ -47,18 +49,43 @@ class Combat : Component {
     // Combat stats
     CombatStats stats;
 
-    // Current health
-    unsigned currentHealth;
+    // Get current health
+    unsigned getCurrentHealth() const {
+      return currentHealth_;
+    }
+
+    // Go back to full health
+    unsigned resetHealthToFull() {
+      currentHealth_ = stats.maxHealth;
+      return currentHealth_;
+    }
+
+    // Deal damage via fall damage or collision boxes
+    unsigned dealImpactDamage(double impact) {
+      impact -= 10.f;
+      if (impact > 0.f) {
+        const unsigned damage = ceil(impact);
+        currentHealth_ -= damage;
+        Console::log("Ouch! You took %f (%u) damage!", impact, damage);
+      }
+      return currentHealth_;
+    }
 
     // Shows the debug information to ImGui
     void showDebugInformation() {
       ImGui::NextColumn();
-      ImGui::Text("Current health: %u", currentHealth);
+      ImGui::Text("Current health: %u", currentHealth_);
       stats.showDebugInformation();
       ImGui::PushItemWidth(-1);
       ImGui::PopItemWidth();
       ImGui::NextColumn();
     }
+
+  private:
+
+    // Current health
+    unsigned currentHealth_;
+
 };
 
 

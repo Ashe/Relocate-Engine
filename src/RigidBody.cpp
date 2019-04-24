@@ -5,6 +5,7 @@
 
 // Avoid cyclic dependancies
 #include "PhysicsSystem.h"
+#include "Combat.h"
 
 // Define statics
 b2World* RigidBody::worldToSpawnIn_ = nullptr;
@@ -332,20 +333,28 @@ RigidBody::applyImpulseVec(const sf::Vector2f& impulse, const sf::Vector2f& loca
 
 // When contact starts
 void
-RigidBody::startContact(const FixtureType& type) {
+RigidBody::startContact(const FixtureType& type, RigidBody* other, double impact) {
 
   // Check type of fixture that was triggered 
   if (type == FixtureType::GroundSensor) {
     ++underfootContacts_;
+    return;
+  }
+
+  // If entity has a combat component, deal impact damage
+  if (owner_->has<Combat>()) {
+    auto cb = owner_->get<Combat>();
+    cb->dealImpactDamage(impact);
   }
 }
 // When contact ends
 void
-RigidBody::endContact(const FixtureType& type) {
+RigidBody::endContact(const FixtureType& type, RigidBody* other) {
 
   // Check type of fixture that was triggered 
   if (type == FixtureType::GroundSensor) {
     --underfootContacts_;
+    return;
   }
 }
 

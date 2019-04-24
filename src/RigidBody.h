@@ -83,8 +83,8 @@ class RigidBody : Component{
     void applyImpulseVec(const sf::Vector2f& impulse, const sf::Vector2f& location);
 
     // On collide 
-    void startContact(const FixtureType& type);
-    void endContact(const FixtureType& type);
+    void startContact(const FixtureType& type, RigidBody* other, double impact);
+    void endContact(const FixtureType& type, RigidBody* other);
 
     // We have static operators so this operator must be defined
     void operator= (const RigidBody& other) { 

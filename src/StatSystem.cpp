@@ -63,5 +63,5 @@ StatSystem::writeCombatStats(const Stats& s, Combat& c, bool first) {
   c.stats = s.combatStats;
 
   // If the component is just being created, set the current health to max health
-  if (first) { c.currentHealth = s.combatStats.maxHealth; }
+  if (first) { c.resetHealthToFull(); }
 }

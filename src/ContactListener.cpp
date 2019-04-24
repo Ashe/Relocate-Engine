@@ -8,20 +8,39 @@
 void 
 ContactListener::BeginContact(b2Contact* contact) {
 
-  // Check A for fixtures and bodies
-  void* bodyUserData = contact->GetFixtureA()->GetBody()->GetUserData();
-  if (bodyUserData) {
-    void* fixtureUserData = contact->GetFixtureA()->GetUserData();
-    FixtureType fixtureType = static_cast<FixtureType>((long)fixtureUserData);
-    static_cast<RigidBody*>(bodyUserData)->startContact(fixtureType);
+  // Get bodies
+  b2Body* const bodyA = contact->GetFixtureA()->GetBody();
+  b2Body* const bodyB = contact->GetFixtureB()->GetBody();
+
+  // Get fixtures
+  FixtureType fixtureAType = static_cast<FixtureType>((long)contact->GetFixtureA()->GetUserData());
+  FixtureType fixtureBType = static_cast<FixtureType>((long)contact->GetFixtureB()->GetUserData());
+
+  // Get the velocity of the collision
+  double impact = 0.0;
+  if (fixtureAType != FixtureType::GroundSensor && fixtureBType != GroundSensor) {
+
+    // Get the world manifold
+    b2WorldManifold worldManifold;
+    contact->GetWorldManifold( &worldManifold );
+
+    // Calculate impact force
+    const b2Vec2 vel1 = bodyA->GetLinearVelocityFromWorldPoint( worldManifold.points[0] );
+    const b2Vec2 vel2 = bodyB->GetLinearVelocityFromWorldPoint( worldManifold.points[0] );
+    impact = abs((vel1 - vel2).Length());
   }
 
-  // Check B for fixtures and bodies
-  bodyUserData = contact->GetFixtureB()->GetBody()->GetUserData();
-  if (bodyUserData) {
+  // Check A for fixtures and bodies if it has userdata to pass to
+  if (bodyA->GetUserData() != nullptr) {
+    RigidBody* other = static_cast<RigidBody*>(bodyB->GetUserData());
+    static_cast<RigidBody*>(bodyA->GetUserData())->startContact(fixtureAType, other, impact);
+  }
+
+  // Check B for fixtures and bodies if it has userdata to pass to
+  if (bodyB->GetUserData() != nullptr) {
     void* fixtureUserData = contact->GetFixtureB()->GetUserData();
-    FixtureType fixtureType = static_cast<FixtureType>((long)fixtureUserData);
-    static_cast<RigidBody*>(bodyUserData)->startContact(fixtureType);
+    RigidBody* other = static_cast<RigidBody*>(bodyA->GetUserData());
+    static_cast<RigidBody*>(bodyB->GetUserData())->startContact(fixtureBType, other, impact);
   }
 }
 
@@ -29,19 +48,23 @@ ContactListener::BeginContact(b2Contact* contact) {
 void 
 ContactListener::EndContact(b2Contact* contact) {
 
-  // Check A for fixtures and bodies
-  void* bodyUserData = contact->GetFixtureA()->GetBody()->GetUserData();
-  if (bodyUserData) {
-    void* fixtureUserData = contact->GetFixtureA()->GetUserData();
-    FixtureType fixtureType = static_cast<FixtureType>((long)fixtureUserData);
-    static_cast<RigidBody*>(bodyUserData)->endContact(fixtureType);
+  // Get bodies
+  b2Body* const bodyA = contact->GetFixtureA()->GetBody();
+  b2Body* const bodyB = contact->GetFixtureB()->GetBody();
+
+  // Get fixtures
+  FixtureType fixtureAType = static_cast<FixtureType>((long)contact->GetFixtureA()->GetUserData());
+  FixtureType fixtureBType = static_cast<FixtureType>((long)contact->GetFixtureB()->GetUserData());
+
+  // Check A for fixtures and bodies if it has userdata to pass to
+  if (bodyA->GetUserData() != nullptr) {
+    RigidBody* other = static_cast<RigidBody*>(bodyB->GetUserData());
+    static_cast<RigidBody*>(bodyA->GetUserData())->endContact(fixtureAType, other);
   }
 
-  // Check B for fixtures and bodies
-  bodyUserData = contact->GetFixtureB()->GetBody()->GetUserData();
-  if (bodyUserData) {
-    void* fixtureUserData = contact->GetFixtureB()->GetUserData();
-    FixtureType fixtureType = static_cast<FixtureType>((long)fixtureUserData);
-    static_cast<RigidBody*>(bodyUserData)->endContact(fixtureType);
+  // Check B for fixtures and bodies if it has userdata to pass to
+  if (bodyB->GetUserData() != nullptr) {
+    RigidBody* other = static_cast<RigidBody*>(bodyA->GetUserData());
+    static_cast<RigidBody*>(bodyB->GetUserData())->endContact(fixtureBType, other);
   }
 }
