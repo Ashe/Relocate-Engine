@@ -17,6 +17,7 @@
 #include "UIWidget.h"
 #include "RigidBody.h"
 #include "Possession.h"
+#include "Expire.h"
 #include "Stats.h"
 #include "Movement.h"
 #include "Abilities.h"
@@ -26,6 +27,7 @@
 #include "PhysicsSystem.h"
 #include "ControlSystem.h"
 #include "SpriteSystem.h"
+#include "ExpirySystem.h"
 #include "StatSystem.h"
 #include "CombatSystem.h"
 #include "SpellSystem.h"
@@ -147,6 +149,7 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
   UIWidget::registerUIWidgetType(env);
   RigidBody::registerNonDependantTypes(env);
   Possession::registerPossessionType(env);
+  Expire::registerExpireType(env);
   Stats::registerStatsType(env);
   Movement::registerMovementType(env);
   Abilities::registerAbilitiesType(env);
@@ -157,6 +160,7 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
   PhysicsSystem::registerPhysicsSystem(env, world);
   ControlSystem::registerControlSystem(env, world);
   SpriteSystem::registerSpriteSystem(env, world);
+  ExpirySystem::registerExpirySystem(env, world);
   StatSystem::registerStatSystem(env, world);
   CombatSystem::registerCombatSystem(env, world);
   SpellSystem::registerSpellSystem(env, world);

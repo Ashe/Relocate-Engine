@@ -20,6 +20,7 @@ function spawnCharacter(pos, texture, hp)
   movement.flightSpeed = 100
   local combat = stats.combat
   combat.maxHealth = hp
+  combat.deathDelay = 1
   local sprite = char:assignSprite()
   sprite.size = Vector2f.new(32, 32)
   sprite.scale = Vector2f.new(4.2, 4.2)

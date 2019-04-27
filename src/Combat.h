@@ -10,13 +10,15 @@
 // Stats for combat
 struct CombatStats {
   int maxHealth = 1;
-  bool deleteImmediatelyOnDeath = false;
-  bool deleteAfterDeathAnimation = true;
+  float deathDelay = 0.f;
+  bool deleteOnDeath = true;
+  bool deleteAfterAnimation = true;
 
   void showDebugInformation() {
     ImGui::Text("Max health: %u", maxHealth);
-    ImGui::Text("Delete immediately on death: %s", deleteImmediatelyOnDeath ? "true" : "false" );
-    ImGui::Text("Delete after death animation: %s", deleteAfterDeathAnimation ? "true" : "false" );
+    ImGui::Text("Delete on death: %s", deleteOnDeath ? "true" : "false" );
+    ImGui::Text("Delete after death animation: %s", deleteAfterAnimation ? "true" : "false" );
+    ImGui::Text("Death delay: %f", deathDelay);
   }
 };
 
@@ -34,8 +36,9 @@ class Combat : Component {
       env.new_usertype<CombatStats>("CombatStats",
         sol::constructors<CombatStats()>(),
         "maxHealth", &CombatStats::maxHealth,
-        "deleteImmediately", &CombatStats::deleteImmediatelyOnDeath,
-        "deleteAfterAnimation", &CombatStats::deleteAfterDeathAnimation
+        "deathDelay", &CombatStats::deathDelay,
+        "deleteOnDeath", &CombatStats::deleteOnDeath,
+        "deleteAfterAnimation", &CombatStats::deleteAfterAnimation
       );
 
       // Create the Combat usertype

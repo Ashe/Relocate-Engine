@@ -10,6 +10,7 @@
 #include "Combat.h"
 #include "Possession.h"
 #include "Sprite.h"
+#include "Expire.h"
 
 // Monitor health's of entities
 class CombatSystem : public ECS::EntitySystem {
@@ -39,39 +40,36 @@ class CombatSystem : public ECS::EntitySystem {
         // If the entity has died
         if (c->getCurrentHealth() <= 0) {
 
-          // Delete immediately if desired
-          if (c->stats.deleteImmediatelyOnDeath) {
-            world->destroy(e);
+          // Play death animation if possible
+          if (e->has<Sprite>()) {
+
+            // Get the sprite and play a death animation
+            auto sprite = e->get<Sprite>();
+            sprite->playAnimation("death");
+
+            // If desired, kill the entity after the animation
+            if (c->stats.deleteOnDeath &&
+              c->stats.deleteAfterAnimation &&
+              sprite->hasFinishedAnimation()) {
+
+                Expire::expireEntity(e, c->stats.deathDelay);
+            }
+
+            // Lock the animation to this death animation
+            sprite->lockAnimation = true;
+            sprite->setLooped(false);
           }
-          else {
 
-            // The entity isn't deleted instantaneously, so remove control of it
-            if (e->has<Possession>()) {
-              e->remove<Possession>();
-              Console::log("[Note] Possessed entity has died.");
-            }
+          // If it has no sprite, delete now even if it 
+          // requested to wait for the animation
+          else if (c->stats.deleteOnDeath) {
+            Expire::expireEntity(e, c->stats.deathDelay);
+          }
 
-            // If the sprite has a sprite to animate a death
-            if (e->has<Sprite>()) {
-
-              // Get the sprite and play a death animation
-              auto sprite = e->get<Sprite>();
-
-              // If we want to delete the animation after death we need a callback
-              if (c->stats.deleteAfterDeathAnimation) {
-                sprite->playAnimation("death");
-                if (sprite->hasFinishedAnimation()) {
-                  world->destroy(e);
-                }
-              }
-              else {
-                sprite->playAnimation("death");
-              }
-
-              // Lock the animation to this death animation
-              sprite->lockAnimation = true;
-              sprite->setLooped(false);
-            }
+          // Remove control of dead entities
+          if (e->has<Possession>()) {
+            e->remove<Possession>();
+            Console::log("[Note] Possessed entity has died.");
           }
         }
       });

@@ -11,6 +11,7 @@
 #include "RigidBody.h"
 #include "Possession.h"
 #include "Camera.h"
+#include "Expire.h"
 #include "Stats.h"
 #include "Movement.h"
 #include "Abilities.h"
@@ -329,6 +330,15 @@ Scene::addDebugInfoToDefault() {
           ImGui::PushID(9);
           if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Combat")) {
             cb->showDebugInformation();
+            ImGui::TreePop();
+          }
+          ImGui::PopID();
+        }
+        auto exp = e->get<Expire>();
+        if (a.isValid()) {
+          ImGui::PushID(99);
+          if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Expire")) {
+            exp->showDebugInformation();
             ImGui::TreePop();
           }
           ImGui::PopID();
