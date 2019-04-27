@@ -37,8 +37,20 @@ class SpriteSystem : public ECS::EntitySystem {
       // Get every entity with a sprite and transform
       world->each<Sprite, Transform>( 
         [&](ECS::Entity* e, ECS::ComponentHandle<Sprite> s, ECS::ComponentHandle<Transform> t) {
+
+          // If the sprite is part of the UI, the transform acts as an offset
+          sf::Vector2f offset = sf::Vector2f();
+          if (e->has<UIWidget>()) {
+            const sf::Vector2f anchor = e->get<UIWidget>()->anchor;
+            const sf::Vector2f center = Game::view.getCenter();
+            const sf::Vector2f size = Game::view.getSize();
+            offset.x = center.x + (anchor.x * size.x * 0.5f);
+            offset.y = center.y + (anchor.y * size.y * 0.5f);
+          }
+
+          // Finally, move the sprite
           Sprite& sprite = s.get();
-          sprite.setPosition(t->position);
+          sprite.setPosition(t->position + offset);
           sprite.setRotation(t->rotation);
           sprite.updateAnimation(dt);
       });

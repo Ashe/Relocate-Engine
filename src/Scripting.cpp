@@ -14,6 +14,7 @@
 #include "Transform.h"
 #include "Camera.h"
 #include "Sprite.h"
+#include "UIWidget.h"
 #include "RigidBody.h"
 #include "Possession.h"
 #include "Stats.h"
@@ -143,6 +144,7 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
   Transform::registerTransformType(env);
   Camera::registerCameraType(env);
   Sprite::registerSpriteType(env);
+  UIWidget::registerUIWidgetType(env);
   RigidBody::registerNonDependantTypes(env);
   Possession::registerPossessionType(env);
   Stats::registerStatsType(env);

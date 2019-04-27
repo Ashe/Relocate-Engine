@@ -7,6 +7,7 @@
 #include "ControlSystem.h"
 #include "Transform.h"
 #include "Sprite.h"
+#include "UIWidget.h"
 #include "RigidBody.h"
 #include "Possession.h"
 #include "Camera.h"
@@ -260,9 +261,18 @@ Scene::addDebugInfoToDefault() {
           }
           ImGui::PopID();
         }
+        auto w = e->get<UIWidget>();
+        if (w.isValid()) {
+          ImGui::PushID(2);
+          if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None , "UIWidget")) {
+            w->showDebugInformation();
+            ImGui::TreePop();
+          }
+          ImGui::PopID();
+        }
         auto r = e->get<RigidBody>();
         if (r.isValid()) {
-          ImGui::PushID(2);
+          ImGui::PushID(3);
           if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "RigidBody")) {
             r->showDebugInformation();
             ImGui::TreePop();
@@ -271,7 +281,7 @@ Scene::addDebugInfoToDefault() {
         }
         auto c = e->get<Camera>();
         if (c.isValid()) {
-          ImGui::PushID(3);
+          ImGui::PushID(4);
           if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Camera")) {
             c->showDebugInformation();
             ImGui::TreePop();
@@ -280,7 +290,7 @@ Scene::addDebugInfoToDefault() {
         }
         auto p = e->get<Possession>();
         if (p.isValid()) {
-          ImGui::PushID(4);
+          ImGui::PushID(5);
           if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Possession")) {
             p->showDebugInformation();
             ImGui::TreePop();
@@ -289,7 +299,7 @@ Scene::addDebugInfoToDefault() {
         }
         auto stats = e->get<Stats>();
         if (p.isValid()) {
-          ImGui::PushID(5);
+          ImGui::PushID(6);
           if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Stats")) {
             stats->showDebugInformation();
             ImGui::TreePop();
@@ -298,7 +308,7 @@ Scene::addDebugInfoToDefault() {
         }
         auto m = e->get<Movement>();
         if (m.isValid()) {
-          ImGui::PushID(6);
+          ImGui::PushID(7);
           if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Movement")) {
             m->showDebugInformation();
             ImGui::TreePop();
@@ -307,7 +317,7 @@ Scene::addDebugInfoToDefault() {
         }
         auto a = e->get<Abilities>();
         if (a.isValid()) {
-          ImGui::PushID(7);
+          ImGui::PushID(8);
           if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Abilities")) {
             a->showDebugInformation();
             ImGui::TreePop();
@@ -316,7 +326,7 @@ Scene::addDebugInfoToDefault() {
         }
         auto cb = e->get<Combat>();
         if (a.isValid()) {
-          ImGui::PushID(8);
+          ImGui::PushID(9);
           if (ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_None, "Combat")) {
             cb->showDebugInformation();
             ImGui::TreePop();
