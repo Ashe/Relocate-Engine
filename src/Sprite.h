@@ -193,9 +193,6 @@ class Sprite : Component, public Renderable, public sf::Transformable {
     
     // Make local coords (such as scaled origin coords) relative to the world
     sf::Vector2f scaleToWorld(const sf::Vector2f& c) const;
-
-    // ImGui colour picker widget
-    void colourPicker();
 };
 
 #endif

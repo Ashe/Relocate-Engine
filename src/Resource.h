@@ -15,6 +15,7 @@ class Resource {
       UNKNOWN,
       SCENE,
       TEXTURE,
+      FONT,
       ANIMATION,
       SPELL
     };

@@ -9,6 +9,7 @@
 
 #include "Scene.h"
 #include "Texture.h"
+#include "Font.h"
 #include "Animation.h"
 #include "Spell.h"
 
@@ -61,6 +62,8 @@ Resource::get() {
       resource_ = new Scene(data.as<Scene>()); break;
     case Type::TEXTURE:
       resource_ = new Texture(data.as<Texture>()); break;
+    case Type::FONT:
+      resource_ = new Font(data.as<Font>()); break;
     case Type::ANIMATION:
       resource_ = new Animation(data.as<Animation>()); break;
     case Type::SPELL:
@@ -102,6 +105,8 @@ Resource::deleteResource() {
       delete static_cast<Scene*>(resource_); break;
     case Type::TEXTURE:
       delete static_cast<Texture*>(resource_); break;
+    case Type::FONT:
+      delete static_cast<Font*>(resource_); break;
     case Type::ANIMATION:
       delete static_cast<Animation*>(resource_); break;
     case Type::SPELL:

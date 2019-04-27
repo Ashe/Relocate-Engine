@@ -7,6 +7,7 @@
 #include "Game.h"
 #include "Scene.h"
 #include "Texture.h"
+#include "Font.h"
 #include "Animation.h"
 
 #include "Spell.h"
@@ -14,6 +15,7 @@
 #include "Transform.h"
 #include "Camera.h"
 #include "Sprite.h"
+#include "Text.h"
 #include "UIWidget.h"
 #include "RigidBody.h"
 #include "Possession.h"
@@ -26,7 +28,7 @@
 #include "CameraSystem.h"
 #include "PhysicsSystem.h"
 #include "ControlSystem.h"
-#include "SpriteSystem.h"
+#include "RenderSystem.h"
 #include "ExpirySystem.h"
 #include "StatSystem.h"
 #include "CombatSystem.h"
@@ -124,6 +126,7 @@ Script::startLua() {
   // CORE
   ResourceManager::registerResourceTypes();
   Texture::registerTextureType();
+  Font::registerFontType();
   Animation::registerAnimationType();
   Scene::registerSceneType();
 
@@ -146,6 +149,7 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
   Transform::registerTransformType(env);
   Camera::registerCameraType(env);
   Sprite::registerSpriteType(env);
+  Text::registerTextType(env);
   UIWidget::registerUIWidgetType(env);
   RigidBody::registerNonDependantTypes(env);
   Possession::registerPossessionType(env);
@@ -159,7 +163,7 @@ Script::registerSceneFunctions(sol::environment& env, ECS::World* world) {
   CameraSystem::registerCameraSystem(env, world);
   PhysicsSystem::registerPhysicsSystem(env, world);
   ControlSystem::registerControlSystem(env, world);
-  SpriteSystem::registerSpriteSystem(env, world);
+  RenderSystem::registerRenderSystem(env, world);
   ExpirySystem::registerExpirySystem(env, world);
   StatSystem::registerStatSystem(env, world);
   CombatSystem::registerCombatSystem(env, world);

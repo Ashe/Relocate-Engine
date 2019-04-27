@@ -17,6 +17,7 @@ ResourceManager::registerResourceTypes() {
   Game::lua.set("Resource_UNKNOWN", Resource::Type::UNKNOWN);
   Game::lua.set("Resource_SCENE", Resource::Type::SCENE);
   Game::lua.set("Resource_TEXTURE", Resource::Type::TEXTURE);
+  Game::lua.set("Resource_FONT", Resource::Type::FONT);
   Game::lua.set("Resource_ANIMATION", Resource::Type::ANIMATION);
   Game::lua.set("Resource_SPELL", Resource::Type::SPELL);
 }

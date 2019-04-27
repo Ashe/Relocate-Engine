@@ -11,7 +11,7 @@ local function onBegin()
   World.usePhysicsSystem()
   World.useControlSystem()
   World.useCameraSystem()
-  World.useSpriteSystem()
+  World.useRenderSystem()
   World.useExpirySystem()
   World.useStatSystem()
   World.useCombatSystem()
@@ -52,7 +52,7 @@ local function onBegin()
 
   -- Make healthbar
   print("Creating healthbar..")
-  local bar = World.createEntity()
+  local bar = World:createEntity()
   local trans = bar:assignTransform()
   trans.position = Vector2f.new(50, 50)
   local ui = bar:assignUIWidget()
@@ -63,12 +63,23 @@ local function onBegin()
   healthbarSprite.size = Vector2f.new(1000, 4) healthbarSprite.scale = Vector2f.new(1, 5)
 
   -- Spawn some plebs
+  print("Spawning plebs..")
   for i = 0, 10 do
     local char = spawnCharacter(Vector2f.new(-2000 + (400 * i), Game.displaySize.y * 0.2), "OrcTexture", 50)
     local size = char:getSprite().size
     local rand = randomInt(0, 1)
     char:getSprite().spritesheetAnchor = Vector2i.new(0, size.y * rand * 5)
   end
+
+  -- Spawn text
+  print("Rendering in-game text..")
+  World.setDefaultFont("EBGaramondFont")
+  local textEntity = World:createEntity()
+  local text = textEntity:assignText()
+  local trans = textEntity:assignTransform()
+  trans.position = pos
+  text.text = "Testing"
+  text:setRelativeOrigin(0.5, 0.5)
 end
 
 -- On Update
