@@ -63,6 +63,9 @@ class Game {
     // @NOTE: Call from wherever game is started
     static void shutdown();
 
+    // Get the scene's ECS world
+    static ECS::World* getWorld();
+
     // Get the up to date mouse position
     static sf::Vector2f getMousePosition();
 

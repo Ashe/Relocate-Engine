@@ -38,6 +38,9 @@ class Scene {
     void hideScene();
     void quit();
 
+    // Get this scene's world
+    ECS::World* getWorld();
+
     // Add a menu entry to the debug menu
     void addDebugMenuEntries();
 

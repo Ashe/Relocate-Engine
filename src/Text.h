@@ -47,6 +47,7 @@ class Text : Component, public sf::Text {
           &sf::Text::getOrigin,
           [](Text& self, const sf::Vector2f& origin) { self.setOrigin(origin); }),
         "setRelativeOrigin", &Text::setRelativeOrigin,
+        "centerText", &Text::centerText,
         "setFont", &Text::setFontFromResources
       );
 
@@ -73,6 +74,11 @@ class Text : Component, public sf::Text {
     void setRelativeOrigin(float x, float y) {
       const sf::FloatRect size = getLocalBounds();
       setOrigin(x * size.width, y * size.height);
+    }
+
+    // Easily center the text
+    void centerText() { 
+      setRelativeOrigin(0.5f, 0.5f); 
     }
 
     // Shows the debug information to ImGui

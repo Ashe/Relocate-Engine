@@ -78,7 +78,7 @@ local function onBegin()
   local text = textEntity:assignText()
   local trans = textEntity:assignTransform()
   trans.position = pos
-  text.text = "Testing"
+  text.text = "The quick brown fox jumps over the lazy dog"
   text:setRelativeOrigin(0.5, 0.5)
 end
 

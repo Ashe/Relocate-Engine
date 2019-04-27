@@ -7,6 +7,11 @@
 #include "Game.h"
 #include "Scripting.h"
 
+// Used in damage numbers
+#include "Transform.h"
+#include "Expire.h"
+#include "Text.h"
+
 // Stats for combat
 struct CombatStats {
   int maxHealth = 1;
@@ -74,9 +79,28 @@ class Combat : Component {
     int dealImpactDamage(double impact) {
       impact -= 10.f;
       if (impact > 0.f) {
+
+        // Perform calculations
         const int damage = ceil(impact);
         currentHealth_ -= damage;
+
+        // Create damage number
+        if (owner_->has<Transform>()) {
+          auto* world = Game::getWorld();
+          if (world != nullptr) {
+            auto trans = owner_->get<Transform>();
+            auto* e = world->create();
+            auto text = e->assign<Text>(e);
+            text->setString(std::to_string(damage));
+            text->setFillColor(sf::Color::Red);
+            text->setOutlineColor(sf::Color::White);
+            text->centerText();
+            e->assign<Transform>(e, trans->position);
+            e->assign<Expire>(e, 1.5f);
+          }
+        }
       }
+
       return currentHealth_;
     }
 

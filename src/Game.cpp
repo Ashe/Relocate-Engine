@@ -422,6 +422,19 @@ Game::shutdown() {
   Console::shutdown();
 }
 
+// Get the scene's ECS World
+ECS::World*
+Game::getWorld() {
+
+  // Attempt to grab the scene's world
+  if (currentScene_ != nullptr) {
+    return currentScene_->getWorld();
+  }
+
+  // Otherwise return nullptr
+  return nullptr;
+}
+
 // Change to the new screen
 void 
 Game::switchScene(Scene* scene) {

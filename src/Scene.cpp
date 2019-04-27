@@ -200,6 +200,12 @@ Scene::quit() {
   }
 }
 
+// Get this scene's world
+ECS::World*
+Scene::getWorld() {
+  return world_;
+}
+
 /////////////////////
 // DEBUG FUNCTIONS //
 /////////////////////
