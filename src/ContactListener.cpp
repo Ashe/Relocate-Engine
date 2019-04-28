@@ -18,15 +18,28 @@ ContactListener::BeginContact(b2Contact* contact) {
 
   // Get the velocity of the collision
   double impact = 0.0;
+  float mult = 0.f;
   if (fixtureAType != FixtureType::GroundSensor && fixtureBType != GroundSensor) {
 
     // Get the world manifold
     b2WorldManifold worldManifold;
     contact->GetWorldManifold( &worldManifold );
 
-    // Calculate impact force
-    const b2Vec2 vel1 = bodyA->GetLinearVelocityFromWorldPoint( worldManifold.points[0] );
-    const b2Vec2 vel2 = bodyB->GetLinearVelocityFromWorldPoint( worldManifold.points[0] );
+    // Get masses for bodies
+    const float massA = bodyA->GetMass();
+    const float massB = bodyB->GetMass();
+
+    // Calculate momentum for body A
+    b2Vec2 vel1 = bodyA->GetLinearVelocityFromWorldPoint( worldManifold.points[0] );
+    vel1.x *= massA;
+    vel1.y *= massA;
+
+    // Calculate momentum for body B
+    b2Vec2 vel2 = bodyB->GetLinearVelocityFromWorldPoint( worldManifold.points[0] );
+    vel2.x *= massB;
+    vel2.y *= massB;
+
+    // Calculate the mass based on the differences in momentum
     impact = abs((vel1 - vel2).Length());
   }
 
@@ -38,7 +51,6 @@ ContactListener::BeginContact(b2Contact* contact) {
 
   // Check B for fixtures and bodies if it has userdata to pass to
   if (bodyB->GetUserData() != nullptr) {
-    void* fixtureUserData = contact->GetFixtureB()->GetUserData();
     RigidBody* other = static_cast<RigidBody*>(bodyA->GetUserData());
     static_cast<RigidBody*>(bodyB->GetUserData())->startContact(fixtureBType, other, impact);
   }

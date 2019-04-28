@@ -14,7 +14,7 @@
 #include "Animation.h"
 
 // Component used to render an entity
-class Sprite : Component, public Renderable, public sf::Transformable {
+class Sprite : Component, public sf::Drawable, public sf::Transformable {
   public:
 
     // Make this component scriptable
@@ -25,7 +25,6 @@ class Sprite : Component, public Renderable, public sf::Transformable {
 
       // Add extra sprite functionality
       env.new_usertype<Sprite>("Sprite",
-        "depth", &Renderable::depth,
         "lock", &Sprite::lockAnimation,
         "flipX", &Sprite::flipX,
         "flipY", &Sprite::flipY,

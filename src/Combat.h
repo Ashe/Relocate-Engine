@@ -77,7 +77,7 @@ class Combat : Component {
 
     // Deal damage via fall damage or collision boxes
     int dealImpactDamage(double impact) {
-      impact -= 10.f;
+      impact -= 15.f;
       if (impact > 0.f) {
 
         // Perform calculations
@@ -90,8 +90,7 @@ class Combat : Component {
           if (world != nullptr) {
             auto trans = owner_->get<Transform>();
             auto* e = world->create();
-            auto text = e->assign<Text>(e);
-            text->setString(std::to_string(damage));
+            auto text = e->assign<Text>(e, std::to_string(damage));
             text->setFillColor(sf::Color::Red);
             text->setOutlineColor(sf::Color::White);
             text->centerText();

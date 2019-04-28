@@ -140,24 +140,25 @@ Scene::update(const sf::Time& dt) {
 void
 Scene::render(sf::RenderWindow& window) {
 
+  // Ensure the drawList_ is cleared
+  drawList_.clear();
+
   // Get every entity with a sprite and add to draw queue
-  world_->each<Sprite>([&](ECS::Entity* e, ECS::ComponentHandle<Sprite> s) {
-    drawList_.push(static_cast<const Renderable*>(&s.get()));
+  world_->each<Sprite>([&](ECS::Entity* e, ECS::ComponentHandle<Sprite> c) {
+    drawList_.insert(std::make_pair(0, static_cast<const sf::Drawable*>(&c.get())));
+  });
+
+  // Add text to draw queue
+  world_->each<Text>([&](ECS::Entity* e, ECS::ComponentHandle<Text> c) {
+    drawList_.insert(std::make_pair(0, static_cast<const sf::Drawable*>(&c.get())));
   });
 
   // Render everything in the queue, smallest first
-  while (!drawList_.empty()) {
-    const Renderable* const obj = drawList_.top();
+  for (auto it = drawList_.begin(); it != drawList_.end(); ++it) {
+    const sf::Drawable* const obj = it->second;
     if (obj != nullptr) { window.draw(*obj); }
-    drawList_.pop();
   }
-
-  // Draw text
-  // @TODO: Streamline rendering process
-  world_->each<Text>([&](ECS::Entity* e, ECS::ComponentHandle<Text> t) {
-    window.draw(t.get());
-  });
-
+  
   // Do any debug-only rendering
   if (Game::getDebugMode()) {
     world_->emit<DebugRenderPhysicsEvent>({window});

@@ -61,9 +61,10 @@ class Text : Component, public sf::Text {
     }
 
     // Constructor
-    Text(ECS::Entity* e)
+    Text(ECS::Entity* e, const std::string& text = "", const std::string& font = "")
       : Component(e) {
-      setFontFromResources(defaultFontName_);
+      setString(text);
+      setFontFromResources(font != "" ? font : defaultFontName_);
       setRelativeOrigin(0.5f, 0.5f);
     }
 

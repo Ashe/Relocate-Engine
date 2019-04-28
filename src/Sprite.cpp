@@ -341,7 +341,6 @@ Sprite::showDebugInformation() {
   auto originalColour = getColour();
   auto col = showColourPicker(originalColour); 
   ImGui::NewLine();
-  ImGui::Text("Depth: %d", depth);
   ImGui::Text("Is playing: %s", !isPaused_ ? "true" : "false");
   ImGui::Text("Is looping: %s", isLooped_ ? "true" : "false");
   ImGui::Text("Frame: %d", currentFrame_);

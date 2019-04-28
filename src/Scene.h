@@ -6,7 +6,7 @@
 
 #include <string>
 #include <memory>
-#include <queue>
+#include <map>
 
 #include "Game.h"
 #include "Scripting.h"
@@ -66,8 +66,8 @@ class Scene {
     sol::protected_function onWindowEvent_;
     sol::protected_function onQuit_;
 
-    // The queue to render
-    std::priority_queue<const Renderable*, std::vector<const Renderable*>, cmpRenderable> drawList_;
+    // Ordered collection of things to render
+    std::multimap<int, const sf::Drawable*> drawList_;
 };
 
 #endif

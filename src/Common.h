@@ -22,18 +22,6 @@ class Component {
     ECS::Entity* const owner_;
 };
 
-// Base class for all drawable objects
-struct Renderable : public sf::Drawable {
-  int depth = 0;
-};
-
-// Compare Renderable functor
-struct cmpRenderable {
-  bool operator()(const Renderable* left, const Renderable* right) const {
-    return left->depth > right->depth;
-  }
-};
-
 // ImGui colour picker widget
 inline sf::Color 
 showColourPicker(sf::Color colour, const std::string& popupName = "picker") {
